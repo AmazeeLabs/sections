@@ -1,0 +1,12 @@
+editor:
+  version: VERSION
+  css:
+    theme:
+      assets/sections.css: {}
+  js:
+    assets/bundle.js: { preprocess: false }
+    assets/sections.js: { preprocess: false }
+  dependencies:
+  - core/jquery
+  - core/jquery.once
+  - core/drupal

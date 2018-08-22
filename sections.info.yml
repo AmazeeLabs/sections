@@ -1,0 +1,5 @@
+name: Sections
+type: module
+description: 'Editing redefined.'
+package: Content
+core: 8.x

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>CKEditor 5 – sections editor build – development sample</title>
+	<style>
+    /*
+     * Basic test page setup
+     */
+		body {
+      padding: 1em;
+		}
+
+		*, *:before, *:after {
+			box-sizing: border-box;
+		}
+
+		.split-pane {
+			display: flex;
+			justify-content: stretch;
+		}
+
+    #editor, #preview, .pane {
+			width: 100%;
+		}
+
+		.pane {
+			border: 1px dashed gray;
+			padding: 0.5em;
+      margin: 0.5em;
+		}
+
+		img {
+			display: block;
+			width: 100%;
+		}
+
+		/*
+     * Stage item
+     */
+		.stage {
+			position: relative;
+		}
+
+		.stage h2 {
+			padding: 0.2em 0.5em;
+      position: absolute;
+			top: 1em;
+			left: 1em;
+      display: inline-block;
+			background: rgba(255, 255, 255, 0.7);
+		}
+
+		/*
+     * Carousel item
+     */
+		.carousel__items {
+      display: flex;
+			justify-content: space-between;
+		}
+
+		.carousel__item {
+      margin: 0 0.5em;
+		}
+
+	</style>
+</head>
+<body>
+
+<h1>CKEditor 5 – sections editor build – development sample</h1>
+
+<div class="split-pane">
+  <div class="pane">
+    <h2>Editor</h2>
+		<div id="editor">
+			<section class="text">
+				<h2>Enter a headline ...</h2>
+				<p>Enter some text ...</p>
+			</section>
+		</div>
+	</div>
+
+	<div class="pane">
+		<h2>Preview</h2>
+		<div id="preview"></div>
+	</div>
+</div>
+
+<script src="../build/ckeditor.js"></script>
+<script>
+	BalloonEditor.create( document.querySelector( '#editor' ) , {
+    defaultSection: 'stage',
+    templates: {
+
+      text: `
+        <section class="text">
+          <h2 ck-editable-type="text">Enter a headline ...</h2>
+          <p ck-editable-type="text">Enter some text ...</p>
+        </section>
+      `,
+
+      hero: `
+        <section class="stage">
+        	<img src="https://picsum.photos/800/300"/>
+          <h2 ck-editable-type="text">Enter a headline ...</h2>
+        </section>
+      `,
+
+      gallery: `
+        <section class="carousel">
+          <h2 ck-editable-type="text">Enter a headline ...</h2>
+          <section class="carousel__items">
+            <div class="carousel__item">
+              <img src="https://picsum.photos/200/150"/>
+              <h3 ck-editable-type="text">Title ...</h3>
+              <p ck-editable-type="text">Description ...</p>
+            </div>
+            <div class="carousel__item">
+              <img src="https://picsum.photos/200/150"/>
+              <h3 ck-editable-type="text">Title ...</h3>
+              <p ck-editable-type="text">Description ...</p>
+            </div>
+            <div class="carousel__item">
+              <img src="https://picsum.photos/200/150"/>
+              <h3 ck-editable-type="text">Title ...</h3>
+              <p ck-editable-type="text">Description ...</p>
+            </div>
+          </section>
+        </section>
+      `,
+
+    },
+    sections: {
+      text: {
+        label: 'Text',
+      },
+      hero: {
+        label: 'Hero',
+      },
+      gallery: {
+        label: 'Gallery',
+      },
+    },
+	})
+  .then( editor => {
+    window.editor = editor;
+    editor.model.document.on('change', () => {
+      document.getElementById('preview').innerHTML = editor.getData();
+    });
+  } )
+  .catch( err => {
+    console.error( err.stack );
+  } );
+</script>
+
+</body>
+</html>
