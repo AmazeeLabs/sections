@@ -2,12 +2,13 @@
 
   Drupal.behaviors.sections = {
     attach: function (context, settings) {
-      $('input.sections-editor', context).each(function (index, item) {
+      $('textarea.sections-editor', context).each(function (index, item) {
         // TODO: Find out why jquery.once doesn't work here.
         if ($(this).hasClass('sections-initiated')) {
           return;
         }
         $(this).addClass('sections-initiated');
+        $(this).hide();
 
         var input = this;
         var editor = document.createElement('div');
