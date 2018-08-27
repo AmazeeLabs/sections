@@ -21,7 +21,7 @@ module.exports = {
 
 	output: {
 		// The name under which the editor will be exported.
-		library: 'BalloonEditor',
+		library: 'SectionsEditor',
 
 		path: path.resolve( __dirname, 'build' ),
 		filename: 'ckeditor.js',

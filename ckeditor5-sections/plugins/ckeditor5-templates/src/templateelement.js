@@ -97,7 +97,7 @@ export default class TemplateElement {
    */
   get schema() {
     return Object.assign({
-      allowAttributes: Array.from(this.node.attributes).map(attr => attr.value),
+      allowAttributes: Array.from(this.node.attributes).map(attr => attr.name),
     }, this.parent ? { allowIn: this.parent.name } : {});
   }
 
@@ -126,7 +126,10 @@ export default class TemplateElement {
         return null;
       },
       model: (viewElement, modelWriter) => {
-        return modelWriter.createElement(this.name);
+        const attributes = Array.from(viewElement.getAttributeKeys())
+            .map(key => ({[key]: viewElement.getAttribute(key)}))
+            .reduce((acc, val) => Object.assign(acc, val), {});
+        return modelWriter.createElement(this.name, attributes);
       }
     });
   }

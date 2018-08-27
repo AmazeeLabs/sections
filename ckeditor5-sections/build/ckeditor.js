@@ -8,9 +8,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define([], factory);
 	else if(typeof exports === 'object')
-		exports["BalloonEditor"] = factory();
+		exports["SectionsEditor"] = factory();
 	else
-		root["BalloonEditor"] = factory();
+		root["SectionsEditor"] = factory();
 })(window, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -70460,10 +70460,10 @@ if(false) {}
 /*!*********************************************!*\
   !*** ./node_modules/ckeditor5/package.json ***!
   \*********************************************/
-/*! exports provided: _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _shasum, _spec, _where, author, bugs, bundleDependencies, deprecated, description, engines, homepage, keywords, license, name, repository, version, default */
+/*! exports provided: name, version, description, keywords, engines, author, license, homepage, bugs, repository, default */
 /***/ (function(module) {
 
-module.exports = {"_from":"ckeditor5@^11.0.1","_id":"ckeditor5@11.0.1","_inBundle":false,"_integrity":"sha512-vm8Uak+ecC6YI/b8d87EYufMsDZFsVZTPNzd3eIyWN+hZWx5AP/vHlMZ4iNbyrUvDW04eanBoew8YaO9TFg3GA==","_location":"/ckeditor5","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"ckeditor5@^11.0.1","name":"ckeditor5","escapedName":"ckeditor5","rawSpec":"^11.0.1","saveSpec":null,"fetchSpec":"^11.0.1"},"_requiredBy":["/@ckeditor/ckeditor5-utils"],"_resolved":"https://registry.npmjs.org/ckeditor5/-/ckeditor5-11.0.1.tgz","_shasum":"877d4a61d579cd1b6464cb9353787301576012d8","_spec":"ckeditor5@^11.0.1","_where":"/Users/philippmelab/sections/ckeditor5-sections/node_modules/@ckeditor/ckeditor5-utils","author":{"name":"CKSource","url":"http://cksource.com/"},"bugs":{"url":"https://github.com/ckeditor/ckeditor5/issues"},"bundleDependencies":false,"deprecated":false,"description":"A set of ready-to-use rich text editors created with a powerful framework. Made with real-time collaborative editing in mind.","engines":{"node":">=6.9.0","npm":">=3.0.0"},"homepage":"http://ckeditor.com","keywords":["ckeditor","ckeditor5","ckeditor 5","wysiwyg","rich text","editor","html","contentEditable","editing","operational transformation","ot","collaboration","collaborative","real-time","framework"],"license":"GPL-2.0-or-later","name":"ckeditor5","repository":{"type":"git","url":"git+https://github.com/ckeditor/ckeditor5.git"},"version":"11.0.1"};
+module.exports = {"name":"ckeditor5","version":"11.0.1","description":"A set of ready-to-use rich text editors created with a powerful framework. Made with real-time collaborative editing in mind.","keywords":["ckeditor","ckeditor5","ckeditor 5","wysiwyg","rich text","editor","html","contentEditable","editing","operational transformation","ot","collaboration","collaborative","real-time","framework"],"engines":{"node":">=6.9.0","npm":">=3.0.0"},"author":"CKSource (http://cksource.com/)","license":"GPL-2.0-or-later","homepage":"http://ckeditor.com","bugs":"https://github.com/ckeditor/ckeditor5/issues","repository":{"type":"git","url":"https://github.com/ckeditor/ckeditor5.git"}};
 
 /***/ }),
 
@@ -71963,9 +71963,7 @@ class TextElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["default
   get childCheck() {
     return (def) => {
       // Only allow plain text elements as children.
-      if (def.name !== '$text') {
-        return false;
-      }
+      return def.name === '$text';
     };
   }
 
@@ -72100,7 +72098,7 @@ class TemplateElement {
    */
   get schema() {
     return Object.assign({
-      allowAttributes: Array.from(this.node.attributes).map(attr => attr.value),
+      allowAttributes: Array.from(this.node.attributes).map(attr => attr.name),
     }, this.parent ? { allowIn: this.parent.name } : {});
   }
 
@@ -72129,7 +72127,10 @@ class TemplateElement {
         return null;
       },
       model: (viewElement, modelWriter) => {
-        return modelWriter.createElement(this.name);
+        const attributes = Array.from(viewElement.getAttributeKeys())
+            .map(key => ({[key]: viewElement.getAttribute(key)}))
+            .reduce((acc, val) => Object.assign(acc, val), {});
+        return modelWriter.createElement(this.name, attributes);
       }
     });
   }
@@ -72326,8 +72327,8 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
     });
 
     this.editor.model.schema.addChildCheck((context, def) => {
-      if (context.endsWith(element.name) && !element.childCheck(def)) {
-        return false;
+      if (context.endsWith(element.name)) {
+        return element.childCheck(def);
       }
     });
 
@@ -72348,7 +72349,7 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return BalloonEditor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SectionsEditor; });
 /* harmony import */ var _ckeditor_ckeditor5_editor_balloon_src_ballooneditor__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @ckeditor/ckeditor5-editor-balloon/src/ballooneditor */ "./node_modules/@ckeditor/ckeditor5-editor-balloon/src/ballooneditor.js");
 /* harmony import */ var _ckeditor_ckeditor5_autoformat_src_autoformat__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ckeditor/ckeditor5-autoformat/src/autoformat */ "./node_modules/@ckeditor/ckeditor5-autoformat/src/autoformat.js");
 /* harmony import */ var _ckeditor_ckeditor5_paragraph_src_paragraph__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @ckeditor/ckeditor5-paragraph/src/paragraph */ "./node_modules/@ckeditor/ckeditor5-paragraph/src/paragraph.js");
@@ -72372,13 +72373,13 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-class BalloonEditor extends _ckeditor_ckeditor5_editor_balloon_src_ballooneditor__WEBPACK_IMPORTED_MODULE_0__["default"] {}
+class SectionsEditor extends _ckeditor_ckeditor5_editor_balloon_src_ballooneditor__WEBPACK_IMPORTED_MODULE_0__["default"] {}
 
 // Plugins to include in the build.
-BalloonEditor.builtinPlugins = [ _ckeditor_ckeditor5_essentials_src_essentials__WEBPACK_IMPORTED_MODULE_3__["default"], _plugins_ckeditor5_templates_src_templates__WEBPACK_IMPORTED_MODULE_4__["default"], /*Paragraph, Autoformat,*/ _plugins_ckeditor5_section_src_section__WEBPACK_IMPORTED_MODULE_6__["default"]];
+SectionsEditor.builtinPlugins = [ _ckeditor_ckeditor5_essentials_src_essentials__WEBPACK_IMPORTED_MODULE_3__["default"], _plugins_ckeditor5_templates_src_templates__WEBPACK_IMPORTED_MODULE_4__["default"], /*Paragraph, Autoformat,*/ _plugins_ckeditor5_section_src_section__WEBPACK_IMPORTED_MODULE_6__["default"]];
 
 // Editor configuration.
-BalloonEditor.defaultConfig = {
+SectionsEditor.defaultConfig = {
   templateElements: [_plugins_ckeditor5_templates_src_elements_textelement__WEBPACK_IMPORTED_MODULE_7__["default"], _plugins_ckeditor5_templates_src_templateelement__WEBPACK_IMPORTED_MODULE_5__["default"]],
   blockToolbar: [],
 	toolbar: {items: []},

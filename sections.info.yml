@@ -3,3 +3,6 @@ type: module
 description: 'Editing redefined.'
 package: Content
 core: 8.x
+
+dependencies:
+- diff

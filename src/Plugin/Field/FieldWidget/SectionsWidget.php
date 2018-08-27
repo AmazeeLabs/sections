@@ -31,7 +31,7 @@ class SectionsWidget extends StringTextareaWidget {
     $main_widget['#attached']['library'][] = 'sections/editor';
     $main_widget['format'] = [
       '#type' => 'value',
-      '#value' => 'daimler_html',
+      '#value' => 'full_html',
     ];
 
 //    $hidden_id = Html::getUniqueId('edit-' . $this->fieldDefinition->getName() . '-entity-selector');

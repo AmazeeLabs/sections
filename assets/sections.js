@@ -3,55 +3,41 @@
   Drupal.behaviors.sections = {
     attach: function (context, settings) {
       $('input.sections-editor', context).each(function (index, item) {
+        // TODO: Find out why jquery.once doesn't work here.
         if ($(this).hasClass('sections-initiated')) {
           return;
         }
-        var currentCallback = null;
         $(this).addClass('sections-initiated');
-        Sections.initSectionEditor(item, {
-          entitySelector: (callback, max) => {
 
-            var $widget = $(this).parents('form').find('.field--name-field-embedded-images');
-            var $selector = $widget.find('[name="field_embedded_images[target_id]"]');
-            var $button = $widget.find('.button');
-            $selector.bind('entity_browser_value_updated', function () {
-              $selector.unbind('entity_browser_value_updated');
-              var id = $(this).val().split(':')[1];
-              var poll = window.setInterval(function () {
-                var $remove = $widget.find('input[value="Remove"]');
-                if ($remove.length) {
-                  $remove.trigger('mousedown');
-                  window.clearInterval(poll);
-                }
-              }, 100);
-              window.setTimeout(function () {
-              }, 3000);
-              $.get({
-                dataType: 'json',
-                url: '/graphql',
-                data: {
-                  query: 'query($id:String!){mediaById(id:$id){uuid}}',
-                  variables: {id: id},
-                }
-              }).done(function (result) {
-                callback([result.data.mediaById.uuid]);
-              });
-            });
-            $button.click();
+        var input = this;
+        var editor = document.createElement('div');
+        $(editor).insertAfter(this);
+        editor.innerHTML = $(this).val();
+
+        SectionsEditor.create( editor , {
+          defaultSection: 'hero',
+          templates: {
+            text: '<section class="text"> <h2 ck-editable-type="text">Enter a headline ...</h2><p ck-editable-type="text">Enter some text ...</p></section>',
+            hero: '<section class="stage"><img src="https://picsum.photos/800/300"/><h2 ck-editable-type="text">Enter a headline ...</h2></section>',
           },
-          graphqlResolver: (query, variables, callback) => {
-            $.get({
-              dataType: 'json',
-              url: '/graphql',
-              data: {
-                query: query,
-                variables: variables
-              }
-            }).done(function (result) {
-              callback(result.data);
-            });
-          }
+          sections: {
+            text: {
+              label: 'Text',
+            },
+            hero: {
+              label: 'Hero',
+            },
+          },
+        })
+        .then( editor => {
+          editor.model.document.on('change', () => {
+            $(input).val(editor.getData());
+          });
+        })
+        .catch( err => {
+          console.error( err.stack );
         });
+
       });
     }
   };

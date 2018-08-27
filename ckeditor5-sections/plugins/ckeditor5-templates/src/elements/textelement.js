@@ -33,9 +33,7 @@ export default class TextElement extends TemplateElement {
   get childCheck() {
     return (def) => {
       // Only allow plain text elements as children.
-      if (def.name !== '$text') {
-        return false;
-      }
+      return def.name === '$text';
     };
   }
 

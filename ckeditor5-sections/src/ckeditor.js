@@ -13,13 +13,13 @@ import TemplateElement from "../plugins/ckeditor5-templates/src/templateelement"
 import Section from "../plugins/ckeditor5-section/src/section";
 import TextElement from "../plugins/ckeditor5-templates/src/elements/textelement";
 
-export default class BalloonEditor extends BalloonEditorBase {}
+export default class SectionsEditor extends BalloonEditorBase {}
 
 // Plugins to include in the build.
-BalloonEditor.builtinPlugins = [ Essentials, Templates, /*Paragraph, Autoformat,*/ Section];
+SectionsEditor.builtinPlugins = [ Essentials, Templates, /*Paragraph, Autoformat,*/ Section];
 
 // Editor configuration.
-BalloonEditor.defaultConfig = {
+SectionsEditor.defaultConfig = {
   templateElements: [TextElement, TemplateElement],
   blockToolbar: [],
 	toolbar: {items: []},

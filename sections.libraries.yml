@@ -4,7 +4,7 @@ editor:
     theme:
       assets/sections.css: {}
   js:
-    assets/bundle.js: { preprocess: false }
+    ckeditor5-sections/build/ckeditor.js: { preprocess: false }
     assets/sections.js: { preprocess: false }
   dependencies:
   - core/jquery

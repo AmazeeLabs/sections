@@ -97,8 +97,8 @@ export default class Templates extends Plugin {
     });
 
     this.editor.model.schema.addChildCheck((context, def) => {
-      if (context.endsWith(element.name) && !element.childCheck(def)) {
-        return false;
+      if (context.endsWith(element.name)) {
+        return element.childCheck(def);
       }
     });
 

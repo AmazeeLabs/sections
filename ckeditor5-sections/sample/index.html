@@ -73,9 +73,13 @@
   <div class="pane">
     <h2>Editor</h2>
 		<div id="editor">
+			<section class="stage">
+				<img src="https://picsum.photos/800/300"/>
+				<h2>Mimimi</h2>
+			</section>
 			<section class="text">
-				<h2>Enter a headline ...</h2>
-				<p>Enter some text ...</p>
+				<h2>Test</h2>
+				<p>Test</p>
 			</section>
 		</div>
 	</div>
@@ -88,8 +92,8 @@
 
 <script src="../build/ckeditor.js"></script>
 <script>
-	BalloonEditor.create( document.querySelector( '#editor' ) , {
-    defaultSection: 'stage',
+	SectionsEditor.create( document.querySelector( '#editor' ) , {
+    defaultSection: 'hero',
     templates: {
 
       text: `
