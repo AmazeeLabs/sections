@@ -12,7 +12,7 @@ class SectionsServiceProvider extends ServiceProviderBase {
    */
   public function alter(ContainerBuilder $container) {
     if ($container->hasDefinition('diff.html_diff')) {
-      $definition = $container->getDefinition();
+      $definition = $container->getDefinition('diff.html_diff');
       if (!empty($definition)) {
         $definition->setClass('Drupal\sections\SectionsHtmlDiff');
       }
