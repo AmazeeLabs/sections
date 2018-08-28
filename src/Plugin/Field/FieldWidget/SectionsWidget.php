@@ -30,9 +30,8 @@ class SectionsWidget extends StringTextareaWidget {
     $main_widget['#attached']['library'][] = 'sections/editor';
     $main_widget['format'] = [
       '#type' => 'value',
-      '#value' => 'full_html',
+      '#value' => 'sections',
     ];
-
     return $main_widget;
   }
 

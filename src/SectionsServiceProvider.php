@@ -11,9 +11,11 @@ class SectionsServiceProvider extends ServiceProviderBase {
    * {@inheritdoc}
    */
   public function alter(ContainerBuilder $container) {
-    $definition = $container->getDefinition('diff.html_diff');
-    if (!empty($definition)) {
-      $definition->setClass('Drupal\sections\SectionsHtmlDiff');
+    if ($container->hasDefinition('diff.html_diff')) {
+      $definition = $container->getDefinition();
+      if (!empty($definition)) {
+        $definition->setClass('Drupal\sections\SectionsHtmlDiff');
+      }
     }
   }
 }
