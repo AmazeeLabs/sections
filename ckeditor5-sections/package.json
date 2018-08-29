@@ -69,6 +69,7 @@
     "@ckeditor/ckeditor5-engine": "latest",
     "@ckeditor/ckeditor5-widget": "latest",
     "npm": "^6.4.0",
-    "@ckeditor/ckeditor5-core": "latest"
+    "@ckeditor/ckeditor5-core": "latest",
+    "@ckeditor/ckeditor5-ui": "latest"
   }
 }

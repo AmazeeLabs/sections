@@ -12,6 +12,7 @@ import Templates from "../plugins/ckeditor5-templates/src/templates";
 import TemplateElement from "../plugins/ckeditor5-templates/src/templateelement";
 import Section from "../plugins/ckeditor5-section/src/section";
 import TextElement from "../plugins/ckeditor5-templates/src/elements/textelement";
+import EntityElement from "../plugins/ckeditor5-templates/src/elements/entityelement";
 
 export default class SectionsEditor extends BalloonEditorBase {}
 
@@ -20,7 +21,7 @@ SectionsEditor.builtinPlugins = [ Essentials, Templates, /*Paragraph, Autoformat
 
 // Editor configuration.
 SectionsEditor.defaultConfig = {
-  templateElements: [TextElement, TemplateElement],
+  templateElements: [EntityElement, TextElement, TemplateElement],
   blockToolbar: [],
 	toolbar: {items: []},
 	// This value must be kept in sync with the language defined in webpack.config.js.

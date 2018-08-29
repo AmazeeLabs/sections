@@ -8,5 +8,7 @@ editor:
     assets/sections.js: { preprocess: false }
   dependencies:
   - core/jquery
+  - core/drupal.ajax
+  - core/drupal.dialog
   - core/jquery.once
   - core/drupal

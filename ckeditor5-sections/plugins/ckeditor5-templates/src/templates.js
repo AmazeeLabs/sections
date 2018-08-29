@@ -5,6 +5,10 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import TemplateElement from './templateelement';
+import EntitySelectCommand from "./commands/entityselectcommand";
+
+import "../theme/css/entity.css";
+import AttributeOperation from "@ckeditor/ckeditor5-engine/src/model/operation/attributeoperation";
 
 /**
  * @extends module:core/plugin~Plugin
@@ -18,6 +22,8 @@ export default class Templates extends Plugin {
     super(editor);
     editor.config.define('templates', []);
     editor.config.define('templateElements', []);
+    editor.config.define('entitySelector', () => '');
+    editor.config.define('entityRenderer', () => '');
   }
 
   /**
@@ -44,6 +50,28 @@ export default class Templates extends Plugin {
       const template = (new DOMParser()).parseFromString(templates[name], 'text/xml').documentElement;
       template.setAttribute('ck-name', name);
       this._registerElement(template);
+    });
+
+
+    this.editor.commands.add('entitySelect', new EntitySelectCommand(this.editor));
+
+    const entityRenderer = this.editor.config.get('entityRenderer');
+
+    this.editor.model.document.on('change:data', (evt, batch) => {
+      for (const op of batch.getOperations()) {
+        if (op instanceof AttributeOperation && op.key === 'data-entity-id' && op.newValue !== op.oldValue) {
+          const element = op.range.start.nodeAfter;
+          this.editor.model.change(writer => {
+            writer.setAttribute('ck-entity-loading', true, element);
+            entityRenderer(element.getAttribute('data-entity-type'), op.newValue, element.getAttribute('data-entity-id'), content => {
+              this.editor.model.change(writer => {
+                writer.setAttribute('ck-entity-false', true, element);
+                writer.setAttribute('ck-entity-rendered', content, element);
+              });
+            });
+          });
+        }
+      }
     });
 
   }
@@ -83,10 +111,22 @@ export default class Templates extends Plugin {
 
     element.setChildren(children);
 
-    this.editor.model.schema.register(element.name, element.schema);
+    const attributes = Array.from(new Set(Array.from(template.attributes)
+        .map(attr => attr.name)
+        .concat(Object.keys(element.defaultAttributes))));
+
+    this.editor.model.schema.register(element.name, Object.assign({
+      allowAttributes: attributes,
+    }, element.schema));
     this.editor.conversion.for('upcast').add(element.upcast);
     this.editor.conversion.for('dataDowncast').add(element.dataDowncast);
     this.editor.conversion.for('editingDowncast').add(element.editingDowncast);
+
+    for (const attr of attributes) {
+      if (attr !== 'class' && attr.substr(0, 3) !== 'ck-') {
+        this.editor.conversion.for('downcast').add(modelToViewAttributeConverter(attr, element.name))
+      }
+    }
 
     this.editor.model.document.registerPostFixer((writer) => {
       for (const entry of this.editor.model.document.differ.getChanges()) {
@@ -105,4 +145,25 @@ export default class Templates extends Plugin {
     return element;
   }
 
+}
+
+export function modelToViewAttributeConverter( attributeKey, element ) {
+  return dispatcher => {
+    dispatcher.on( `attribute:${ attributeKey }:${ element }`, converter );
+  };
+
+  function converter( evt, data, conversionApi ) {
+    if ( !conversionApi.consumable.consume( data.item, evt.name )) {
+      return;
+    }
+
+    const viewWriter = conversionApi.writer;
+    const entity = conversionApi.mapper.toViewElement( data.item );
+
+    if ( data.attributeNewValue !== null ) {
+      viewWriter.setAttribute( data.attributeKey, data.attributeNewValue, entity );
+    } else {
+      viewWriter.removeAttribute( data.attributeKey, entity );
+    }
+  }
 }

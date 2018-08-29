@@ -1,0 +1,12 @@
+sections.media.preview:
+  path: '/sections/media-preview/{media}/{display}'
+  defaults:
+    _controller: '\Drupal\sections\Controller\MediaPreviewController::preview'
+  options:
+    parameters:
+      media:
+        type: entity:media
+      display:
+        type: string
+  requirements:
+    _entity_access: 'media.view'

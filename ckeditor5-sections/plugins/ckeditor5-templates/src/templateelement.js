@@ -96,9 +96,16 @@ export default class TemplateElement {
    * @returns {*}
    */
   get schema() {
-    return Object.assign({
-      allowAttributes: Array.from(this.node.attributes).map(attr => attr.name),
-    }, this.parent ? { allowIn: this.parent.name } : {});
+    return {};
+  }
+
+  /**
+   * Attributes that are allowed by default, without being added to the template.
+   *
+   * @returns *
+   */
+  get defaultAttributes() {
+    return {};
   }
 
   /**
@@ -126,9 +133,9 @@ export default class TemplateElement {
         return null;
       },
       model: (viewElement, modelWriter) => {
-        const attributes = Array.from(viewElement.getAttributeKeys())
+        const attributes = Object.assign(this.defaultAttributes, Array.from(viewElement.getAttributeKeys())
             .map(key => ({[key]: viewElement.getAttribute(key)}))
-            .reduce((acc, val) => Object.assign(acc, val), {});
+            .reduce((acc, val) => Object.assign(acc, val), {}));
         return modelWriter.createElement(this.name, attributes);
       }
     });
@@ -204,7 +211,8 @@ export default class TemplateElement {
 
   getModelAttributes(modelElement) {
     return Array.from(modelElement.getAttributeKeys())
-      .filter(attr => attr.substr(0, 3) !== 'ck-')
+      .concat(Object.keys(this.defaultAttributes))
+      .filter(attr => attr.substr(0, 3) !== 'ck-' && modelElement.getAttribute(attr))
       .map(attr => ({[attr]: modelElement.getAttribute(attr)}))
       .reduce((acc, val) => Object.assign(acc, val), {});
   }

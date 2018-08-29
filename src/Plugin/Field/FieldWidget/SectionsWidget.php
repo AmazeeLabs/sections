@@ -25,14 +25,34 @@ class SectionsWidget extends StringTextareaWidget {
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $main_widget = parent::formElement($items, $delta, $element, $form, $form_state);
+
     $element = &$main_widget['value'];
     $element['#attributes']['class'][] = 'sections-editor';
+
     $main_widget['#attached']['library'][] = 'sections/editor';
+    $main_widget['#attached']['drupalSettings']['sections'] = $this->collectSections();
     $main_widget['format'] = [
       '#type' => 'value',
       '#value' => 'sections',
     ];
+
     return $main_widget;
+  }
+
+  protected function collectSections() {
+    /** @var \Drupal\Core\Theme\ThemeManagerInterface $themeManager */
+    $themeManager = \Drupal::service('theme.manager');
+    $path = $themeManager->getActiveTheme()->getPath();
+    $files = file_scan_directory($path . '/sections', '/*.html/');
+    if (!$files) {
+      return [
+        'dummy' => '<section><h2>No sections defined.</h2><p>Please add some sections to your active theme.</p></section>'
+      ];
+    }
+
+    foreach ($files as $file) {
+
+    }
   }
 
 }
