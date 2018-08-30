@@ -30,7 +30,10 @@ class SectionsWidget extends StringTextareaWidget {
     $element['#attributes']['class'][] = 'sections-editor';
 
     $main_widget['#attached']['library'][] = 'sections/editor';
-    $main_widget['#attached']['drupalSettings']['sections'] = $this->collectSections();
+    $sections = $this->collectSections();
+    $sectionKeys = array_keys($sections);
+    $main_widget['#attached']['drupalSettings']['sections'] = $sections;
+    $main_widget['#attached']['drupalSettings']['defaultSection'] = reset($sectionKeys);
     $main_widget['format'] = [
       '#type' => 'value',
       '#value' => 'sections',
@@ -43,16 +46,19 @@ class SectionsWidget extends StringTextareaWidget {
     /** @var \Drupal\Core\Theme\ThemeManagerInterface $themeManager */
     $themeManager = \Drupal::service('theme.manager');
     $path = $themeManager->getActiveTheme()->getPath();
-    $files = file_scan_directory($path . '/sections', '/*.html/');
+    $files = file_scan_directory($path . '/sections', '/.*\.html/');
+
     if (!$files) {
       return [
         'dummy' => '<section><h2>No sections defined.</h2><p>Please add some sections to your active theme.</p></section>'
       ];
     }
 
-    foreach ($files as $file) {
-
+    $sections = [];
+    foreach ($files as $name => $info) {
+      $sections[$info->name] = file_get_contents($name);
     }
+    return $sections;
   }
 
 }

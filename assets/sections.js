@@ -34,19 +34,12 @@
         });
 
         SectionsEditor.create( editor , {
-          defaultSection: 'hero',
-          templates: {
-            text: '<section class="text"><h2 ck-editable-type="text">Enter a headline ...</h2><p ck-editable-type="text">Enter some text ...</p></section>',
-            hero: '<section class="stage"><div ck-editable-type="entity" data-entity-type="media" data-display="default"></div><h2 ck-editable-type="text">Enter a headline ...</h2></section>',
-          },
-          sections: {
-            text: {
-              label: 'Text',
-            },
-            hero: {
-              label: 'Hero',
-            },
-          },
+          defaultSection: drupalSettings.defaultSection,
+          templates: drupalSettings.sections,
+          sections: Object.keys(drupalSettings.sections)
+              .map(function (key) { return {[key]: { label: key}}})
+              .reduce(function (acc, val) { return Object.assign(acc, val)}, {}),
+
           entitySelector: function (type, add, callback) {
             ///admin/content/media-widget
             //   ?media_library_widget_id=field_media-
