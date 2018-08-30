@@ -74,10 +74,14 @@
   <div class="pane">
     <h2>Editor</h2>
 		<div id="editor">
-			<section class="hero">
+			<figure class="text-media">
 				<div data-entity-type="media" data-entity-id="123"></div>
-				<h2>This is a test. Blablablub.</h2>
-			</section>
+				<figcaption>
+					<h2>Headline</h2>
+					<p>Body text</p>
+          <a href="http://www.google.at">Google</a>
+				</figcaption>
+			</figure>
 		</div>
 	</div>
 
@@ -90,7 +94,7 @@
 <script src="../build/ckeditor.js"></script>
 <script>
 	SectionsEditor.create( document.querySelector( '#editor' ) , {
-    defaultSection: 'hero',
+    defaultSection: 'textMedia',
     templates: {
 
       hero: `
@@ -99,6 +103,16 @@
           <h2 ck-editable-type="text">Enter a headline ...</h2>
         </section>
       `,
+			textMedia: `
+        <figure class="text-media">
+        	<div ck-editable-type="entity" data-entity-type="media" ck-entity-display="hero"/>
+        	<figcaption>
+            <h2 ck-editable-type="text">Enter a headline ...</h2>
+            <p ck-editable-type="text">Enter some text ...</p>
+            <a href="#" ck-editable-type="text">Call to action!</a>
+          </figcaption>
+        </figure>
+			`,
 
       text: `
         <section class="text">
@@ -134,6 +148,9 @@
     sections: {
       text: {
         label: 'Text',
+      },
+      textMedia: {
+        label: 'Text Media',
       },
       hero: {
         label: 'Hero',
