@@ -1,5 +1,5 @@
 sections.media.preview:
-  path: '/sections/media-preview/{media}/{display}'
+  path: '/sections/media-preview/{uuid}/{display}'
   defaults:
     _controller: '\Drupal\sections\Controller\MediaPreviewController::preview'
   options:
@@ -9,4 +9,5 @@ sections.media.preview:
       display:
         type: string
   requirements:
-    _entity_access: 'media.view'
+    # TODO: proper access handling
+    _permission: 'access content'
