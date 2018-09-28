@@ -297,7 +297,6 @@ export default class SectionToolbar extends Plugin {
    * @private
    */
   _hideToolbar() {
-    return;
     if ( !this._isVisible ) {
       return;
     }
