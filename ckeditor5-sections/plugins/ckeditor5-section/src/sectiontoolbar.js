@@ -80,6 +80,7 @@ export default class SectionToolbar extends Plugin {
       const view = new ButtonView(locale);
       view.set({
         label: "Remove section",
+        class: 'section-remove',
         tooltip: true,
         icon: iconRemove,
       });
@@ -93,6 +94,7 @@ export default class SectionToolbar extends Plugin {
       const view = new ButtonView(locale);
       view.set({
         label: "Move section up",
+        class: 'section-up',
         tooltip: true,
         icon: iconUp,
       });
@@ -106,6 +108,7 @@ export default class SectionToolbar extends Plugin {
       const view = new ButtonView(locale);
       view.set({
         label: "Move section down",
+        class: 'section-down',
         tooltip: true,
         icon: iconDown,
       });
@@ -294,6 +297,7 @@ export default class SectionToolbar extends Plugin {
    * @private
    */
   _hideToolbar() {
+    return;
     if ( !this._isVisible ) {
       return;
     }

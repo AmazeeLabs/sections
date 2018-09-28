@@ -73,12 +73,7 @@
 <div class="split-pane">
   <div class="pane">
     <h2>Editor</h2>
-		<div id="editor">
-			<section class="hero">
-				<div data-entity-type="media" data-entity-id="123"></div>
-				<h2>This is a test. Blablablub.</h2>
-			</section>
-		</div>
+		<div id="editor"></div>
 	</div>
 
 	<div class="pane">
@@ -90,7 +85,7 @@
 <script src="../build/ckeditor.js"></script>
 <script>
 	SectionsEditor.create( document.querySelector( '#editor' ) , {
-    defaultSection: 'hero',
+    defaultSection: 'text',
     templates: {
 
       hero: `

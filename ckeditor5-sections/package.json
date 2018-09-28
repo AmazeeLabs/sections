@@ -66,10 +66,11 @@
     "preversion": "npm run build; if [ -n \"$(git status src/ckeditor.js build/ --porcelain)\" ]; then git add -u src/ckeditor.js build/ && git commit -m 'Internal: Build.'; fi"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-core": "latest",
     "@ckeditor/ckeditor5-engine": "latest",
+    "@ckeditor/ckeditor5-ui": "latest",
     "@ckeditor/ckeditor5-widget": "latest",
     "npm": "^6.4.0",
-    "@ckeditor/ckeditor5-core": "latest",
-    "@ckeditor/ckeditor5-ui": "latest"
+    "testcafe": "^0.22.0"
   }
 }

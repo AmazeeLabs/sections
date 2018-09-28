@@ -35,10 +35,12 @@
 
         SectionsEditor.create( editor , {
           defaultSection: drupalSettings.defaultSection,
-          templates: drupalSettings.sections,
-          sections: Object.keys(drupalSettings.sections)
-              .map(function (key) { return {[key]: { label: key}}})
-              .reduce(function (acc, val) { return Object.assign(acc, val)}, {}),
+
+          templates: Object.keys(drupalSettings.sections)
+            .map(function (key) { return {[key]: drupalSettings.sections[key].template }})
+            .reduce(function (acc, val) { return Object.assign(acc, val)}, {}),
+
+          sections: drupalSettings.sections,
 
           entitySelector: function (type, add, callback) {
             ///admin/content/media-widget
