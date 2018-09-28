@@ -261,7 +261,7 @@ export default class SectionToolbar extends Plugin {
       this._hideToolbar();
     }
     else {
-      const section = getSelectedSection( editor.editing.view.document.selection )
+      const section = getSelectedSection( editor.editing.view.document.selection );
       if ( section ) {
         this._showToolbar(section);
       } else {

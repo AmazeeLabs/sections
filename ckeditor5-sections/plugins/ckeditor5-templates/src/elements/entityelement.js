@@ -24,13 +24,17 @@ class EntityView extends View {
     const bind = this.bindTemplate;
 
     const searchButton = new ButtonView();
+    searchButton.set('class', 'media-select');
     searchButton.set({icon: SearchIcon});
     searchButton.on('execute', () => editor.execute('entitySelect', {
       model: modelElement,
       add: false,
     }));
 
-    const uploadButton = new ButtonView();
+    const uploadButton = new ButtonView({
+      class: 'media-add',
+    });
+    uploadButton.set('class', 'media-add');
     uploadButton.set({icon: UploadIcon});
     uploadButton.on('execute', () => editor.execute('entitySelect', {
       model: modelElement,
