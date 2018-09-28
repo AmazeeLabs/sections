@@ -36,7 +36,7 @@ test('Add and remove another text section.', async t => {
   await t.expect(Selector('#editor section.text').count).eql(2);
 
   await t.click((Selector('#editor section.text')).nth(1));
-  await t.click(Selector('button.section-remove').withText('Remove section'));
+  await t.click(Selector('button.section-remove'));
 
   await t.expect(Selector('#editor section.text').count).eql(1);
 });
