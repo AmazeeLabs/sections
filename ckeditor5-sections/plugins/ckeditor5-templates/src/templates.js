@@ -5,9 +5,9 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import TemplateElement from './templateelement';
-import EntitySelectCommand from "./commands/entityselectcommand";
+import MediaSelectCommand from "./commands/mediaselectcommand";
 
-import "../theme/css/entity.css";
+import "../theme/css/media.css";
 import AttributeOperation from "@ckeditor/ckeditor5-engine/src/model/operation/attributeoperation";
 
 /**
@@ -52,28 +52,7 @@ export default class Templates extends Plugin {
       this._registerElement(template);
     });
 
-
-    this.editor.commands.add('entitySelect', new EntitySelectCommand(this.editor));
-
-    const entityRenderer = this.editor.config.get('entityRenderer');
-
-    this.editor.model.document.on('change:data', (evt, batch) => {
-      for (const op of batch.getOperations()) {
-        if (op instanceof AttributeOperation && op.key === 'data-entity-id' && op.newValue !== op.oldValue) {
-          const element = op.range.start.nodeAfter;
-          this.editor.model.change(writer => {
-            writer.setAttribute('ck-entity-loading', true, element);
-            entityRenderer(element.getAttribute('data-entity-type'), op.newValue, element.getAttribute('data-entity-id'), content => {
-              this.editor.model.change(writer => {
-                writer.setAttribute('ck-entity-false', true, element);
-                writer.setAttribute('ck-entity-rendered', content, element);
-              });
-            });
-          });
-        }
-      }
-    });
-
+    this.editor.commands.add('mediaSelect', new MediaSelectCommand(this.editor));
   }
 
   /**

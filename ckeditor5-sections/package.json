@@ -41,6 +41,7 @@
     "@ckeditor/ckeditor5-paragraph": "^10.0.2",
     "@ckeditor/ckeditor5-theme-lark": "^11.0.0",
     "@ckeditor/ckeditor5-upload": "^10.0.2",
+    "cypress-cucumber-preprocessor": "^1.5.1",
     "postcss-loader": "^2.1.5",
     "raw-loader": "^0.5.1",
     "style-loader": "^0.21.0",
@@ -70,7 +71,7 @@
     "@ckeditor/ckeditor5-engine": "latest",
     "@ckeditor/ckeditor5-ui": "latest",
     "@ckeditor/ckeditor5-widget": "latest",
-    "npm": "^6.4.0",
-    "testcafe": "^0.22.0"
+    "cypress": "^3.1.0",
+    "npm": "^6.4.0"
   }
 }

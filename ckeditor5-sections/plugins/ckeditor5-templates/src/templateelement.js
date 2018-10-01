@@ -133,9 +133,16 @@ export default class TemplateElement {
         return null;
       },
       model: (viewElement, modelWriter) => {
-        const attributes = Object.assign(this.defaultAttributes, Array.from(viewElement.getAttributeKeys())
-            .map(key => ({[key]: viewElement.getAttribute(key)}))
-            .reduce((acc, val) => Object.assign(acc, val), {}));
+        const attributes = Object.assign(
+            // By default set all attributes defined in the template.
+            Array.from(this.node.attributes)
+                .map(attr => ({[attr.name]: attr.value}))
+                .reduce((acc, val) => Object.assign(acc, val), {}),
+            // Override with actual values.
+            Array.from(viewElement.getAttributeKeys())
+              .map(key => ({[key]: viewElement.getAttribute(key)}))
+              .reduce((acc, val) => Object.assign(acc, val), {})
+        );
         return modelWriter.createElement(this.name, attributes);
       }
     });

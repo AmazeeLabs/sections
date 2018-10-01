@@ -35,35 +35,6 @@
 			width: 100%;
 		}
 
-		/*
-     * Stage item
-     */
-		.hero {
-			position: relative;
-		}
-
-		.hero h2 {
-			padding: 0.2em 0.5em;
-      position: absolute;
-			top: 1em;
-			left: 1em;
-      display: inline-block;
-			background: rgba(255, 255, 255, 0.7);
-		}
-
-		/*
-     * Carousel item
-     */
-		.carousel__items {
-      display: flex;
-			justify-content: space-evenly;
-		}
-
-		.carousel__item {
-			width: 100%;
-      margin: 0 0.5em;
-		}
-
 	</style>
 </head>
 <body>
@@ -87,18 +58,16 @@
 	SectionsEditor.create( document.querySelector( '#editor' ) , {
     defaultSection: 'text',
     templates: {
-
-      hero: `
-        <section class="hero">
-        	<div ck-editable-type="entity" data-entity-type="media" ck-entity-display="hero"/>
-          <h2 ck-editable-type="text">Enter a headline ...</h2>
-        </section>
-      `,
-
       text: `
         <section class="text">
           <h2 ck-editable-type="text">Enter a headline ...</h2>
           <p ck-editable-type="text">Enter some text ...</p>
+        </section>
+      `,
+
+      image: `
+        <section class="image">
+        	<div ck-editable-type="media" data-media-type="image" data-media-display="hero"/>
         </section>
       `,
 
@@ -107,20 +76,29 @@
       text: {
         label: 'Text',
       },
-      hero: {
-        label: 'Hero',
-      },
-      gallery: {
-        label: 'Gallery',
+      image: {
+        label: 'Image',
       },
     },
-		entitySelector: function (type, add, callback) {
+		mediaSelector: function (type, operation, callback) {
+      if (type !== 'image') {
+        throw "Unknown media type " + type;
+			}
+      if (!(operation === 'add' || operation === 'select')) {
+        throw "Unknown media operation " + operation;
+      }
       callback('123');
 		},
-		entityRenderer: function (type, uuid, display, callback) {
+		mediaRenderer: function (uuid, display, callback) {
+      if (uuid !== '123') {
+        throw "Unknown media uuid " + uuid;
+      }
+      if (display !== 'hero') {
+        throw "Unknown media display " + display;
+      }
       window.setTimeout(function () {
         callback('<img src="https://picsum.photos/800/400"/>');
-			}, 2000);
+			}, 1000);
 		}
 	})
   .then( editor => {
@@ -128,10 +106,10 @@
     editor.model.document.on('change', () => {
       document.getElementById('preview').innerHTML = editor.getData();
     });
-  } )
+  })
   .catch( err => {
     console.error( err.stack );
-  } );
+  });
 </script>
 
 </body>

@@ -68,6 +68,7 @@ export default class SectionToolbar extends Plugin {
           label: "Insert " + label,
           icon: icon,
           tooltip: true,
+          class: 'section-insert',
         });
         view.bind('isEnabled').to(command, 'isEnabled');
         this.listenTo( view, 'execute', () => editor.execute('sectionInsert', {type: name}));

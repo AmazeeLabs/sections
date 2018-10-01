@@ -14,50 +14,54 @@ import {upcastElementToElement} from "@ckeditor/ckeditor5-engine/src/conversion/
 /**
  * Entity view element.
  */
-class EntityView extends View {
+class MediaView extends View {
   constructor(modelElement, editor) {
     super();
 
     this.set('loading', false);
     this.set('rendered', false);
 
-    const bind = this.bindTemplate;
-
     const searchButton = new ButtonView();
     searchButton.set('class', 'media-select');
-    searchButton.set({icon: SearchIcon});
-    searchButton.on('execute', () => editor.execute('entitySelect', {
+    searchButton.set({
+      label: 'Select media',
+      icon: SearchIcon,
+    });
+    searchButton.on('execute', () => editor.execute('mediaSelect', {
       model: modelElement,
-      add: false,
+      operation: 'select',
     }));
 
     const uploadButton = new ButtonView({
       class: 'media-add',
     });
     uploadButton.set('class', 'media-add');
-    uploadButton.set({icon: UploadIcon});
-    uploadButton.on('execute', () => editor.execute('entitySelect', {
+    uploadButton.set({
+      label: 'Add media',
+      icon: UploadIcon,
+    });
+    uploadButton.on('execute', () => editor.execute('mediaSelect', {
       model: modelElement,
-      add: true,
+      operation: 'add',
     }));
 
     const template = {
       tag: 'div',
       attributes: {
-        class: ['ck-entity-widget'],
+        class: ['ck-media-widget'],
       },
       children: [
         {
           tag: 'div',
           attributes: {
-            class: ['ck-entity-buttons'],
+            class: ['ck-media-buttons'],
           },
           children: [searchButton, uploadButton],
         },
         {
           tag: 'div',
           attributes: {
-            class: 'ck-entity-content',
+            class: 'ck-media-content',
           },
         }
       ]
@@ -70,18 +74,18 @@ class EntityView extends View {
 /**
  * Element class for text input elements.
  */
-export default class EntityElement extends TemplateElement {
+export default class MediaElement extends TemplateElement {
 
   constructor(editor, node, parent = parent, index = 0) {
     super(editor, node, parent, index);
-    this._entityRenderer = editor.config.get('entityRenderer');
+    this._mediaRenderer = editor.config.get('mediaRenderer');
   }
 
   /**
    * @inheritDoc
    */
   static applies(node) {
-    return node.getAttribute('ck-editable-type') === 'entity';
+    return node.getAttribute('ck-editable-type') === 'media';
   }
 
   /**
@@ -95,8 +99,8 @@ export default class EntityElement extends TemplateElement {
 
   get defaultAttributes() {
     return {
-      'ck-entity-rendered': '',
-      'data-entity-id': '',
+      'ck-media-rendered': '',
+      'data-media-uuid': '',
     };
   }
 
@@ -124,20 +128,26 @@ export default class EntityElement extends TemplateElement {
         return null;
       },
       model: (viewElement, modelWriter) => {
-        const attributes = Object.assign(this.defaultAttributes, Array.from(viewElement.getAttributeKeys())
+        const attributes = Object.assign(
+            // By default set all attributes defined in the template.
+            Array.from(this.node.attributes)
+                .map(attr => ({[attr.name]: attr.value}))
+                .reduce((acc, val) => Object.assign(acc, val), {}),
+            Array.from(viewElement.getAttributeKeys())
             .map(key => ({[key]: viewElement.getAttribute(key)}))
-            .reduce((acc, val) => Object.assign(acc, val), {}));
+            .reduce((acc, val) => Object.assign(acc, val), {})
+        );
         const model = modelWriter.createElement(this.name, attributes);
 
-        if (attributes['data-entity-id']) {
+        if (attributes['data-media-uuid']) {
           window.setTimeout(() => {
             this.editor.model.change(writer => {
-              writer.setAttribute('ck-entity-loading', true, model);
+              writer.setAttribute('ck-media-loading', true, model);
             });
-            this._entityRenderer(model.getAttribute('data-entity-type'), model.getAttribute('data-entity-id'), model.getAttribute('data-entity-id'), content => {
+            this._mediaRenderer(model.getAttribute('data-media-uuid'), model.getAttribute('data-media-display'), content => {
               this.editor.model.change(writer => {
-                writer.setAttribute('ck-entity-loading', false, model);
-                writer.setAttribute('ck-entity-rendered', content, model);
+                writer.setAttribute('ck-media-loading', false, model);
+                writer.setAttribute('ck-media-rendered', content, model);
               });
             });
           }, 500);
@@ -160,34 +170,35 @@ export default class EntityElement extends TemplateElement {
         // Create an editable textfield of the given type and attach the content as placeholder.
         return writer.createUIElement(this.node.tagName, this.getModelAttributes(modelElement), function (domDocument) {
           const domElement = this.toDomElement(domDocument);
-          const view = new EntityView(modelElement, editor);
+          const view = new MediaView(modelElement, editor);
           view.render();
           domElement.appendChild(view.element);
 
-          const preview = domElement.querySelector('.ck-entity-content');
+          const preview = domElement.querySelector('.ck-media-content');
+
           editor.model.document.on('change:data', (evt, batch) => {
             for (const op of batch.getOperations()) {
-              if (op instanceof AttributeOperation && op.key === 'ck-entity-rendered') {
+              if (op instanceof AttributeOperation && op.key === 'ck-media-rendered') {
                 if (modelElement === op.range.start.nodeAfter) {
                   preview.innerHTML = op.newValue;
                 }
               }
-              if (op instanceof AttributeOperation && op.key === 'ck-entity-loading' && op.newValue) {
+              if (op instanceof AttributeOperation && op.key === 'ck-media-loading' && op.newValue) {
                 if (modelElement === op.range.start.nodeAfter) {
-                  preview.innerHTML = '<div class="ck-entity-placeholder"><div class="ck-entity-loader"/></div>';
+                  preview.innerHTML = '<div class="ck-media-placeholder"><div class="ck-media-loader"/></div>';
                 }
               }
             }
           });
 
-          if (modelElement.getAttribute('ck-entity-rendered')) {
-            preview.innerHTML = modelElement.getAttribute('ck-entity-rendered');
+          if (modelElement.getAttribute('ck-media-rendered')) {
+            preview.innerHTML = modelElement.getAttribute('ck-media-rendered');
           }
-          else if (modelElement.getAttribute('ck-entity-loading')) {
-            preview.innerHTML = '<div class="ck-entity-placeholder"><div class="ck-entity-loader"/></div>';
+          else if (modelElement.getAttribute('ck-media-loading')) {
+            preview.innerHTML = '<div class="ck-media-placeholder"><div class="ck-media-loader"/></div>';
           }
           else {
-            preview.innerHTML = '<div class="ck-entity-placeholder"/>';
+            preview.innerHTML = '<div class="ck-media-placeholder"/>';
           }
           return domElement;
         });

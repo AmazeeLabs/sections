@@ -70621,14 +70621,14 @@ module.exports = ".ck .ck-widget.ck-widget_selectable{position:relative}.ck .ck-
 
 /***/ }),
 
-/***/ "./node_modules/postcss-loader/lib/index.js?!./plugins/ckeditor5-templates/theme/css/entity.css":
-/*!******************************************************************************************************!*\
-  !*** ./node_modules/postcss-loader/lib??ref--5-1!./plugins/ckeditor5-templates/theme/css/entity.css ***!
-  \******************************************************************************************************/
+/***/ "./node_modules/postcss-loader/lib/index.js?!./plugins/ckeditor5-templates/theme/css/media.css":
+/*!*****************************************************************************************************!*\
+  !*** ./node_modules/postcss-loader/lib??ref--5-1!./plugins/ckeditor5-templates/theme/css/media.css ***!
+  \*****************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ":root{--ck-entity-stripe-a:#e0e0e0;--ck-entity-stripe-b:#fff;--ck-entity-loader-color:#4a4a4a}.ck-entity-widget{position:relative}.ck-entity-buttons{border-radius:var(--ck-border-radius);background:hsla(0,0%,100%,.7);padding:.2em;position:absolute;bottom:1em;right:1em}.ck-entity-buttons>:not(:last-child){margin-right:.2em}.ck-entity-placeholder{padding-bottom:50%;border:2px solid var(--ck-entity-stripe-a);background-image:linear-gradient(135deg,var(--ck-entity-stripe-a) 25%,var(--ck-entity-stripe-b) 0,var(--ck-entity-stripe-b) 50%,var(--ck-entity-stripe-a) 0,var(--ck-entity-stripe-a) 75%,var(--ck-entity-stripe-b) 0,var(--ck-entity-stripe-b));background-size:50px 50px}.ck-entity-loader{opacity:.6;position:absolute;top:50%;left:50%;margin-top:-2em;margin-left:-.5em}.ck-entity-loader,.ck-entity-loader:after,.ck-entity-loader:before{background:var(--ck-entity-loader-color);-webkit-animation:load1 1s infinite ease-in-out;animation:load1 1s infinite ease-in-out;width:1em;height:4em}.ck-entity-loader{color:var(--ck-entity-loader-color);text-indent:-9999em;font-size:11px;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation-delay:-.16s;animation-delay:-.16s}.ck-entity-loader:after,.ck-entity-loader:before{position:absolute;top:0;content:\"\"}.ck-entity-loader:before{left:-1.5em;-webkit-animation-delay:-.32s;animation-delay:-.32s}.ck-entity-loader:after{left:1.5em}@-webkit-keyframes load1{0%,80%,to{box-shadow:0 0;height:4em}40%{box-shadow:0 -2em;height:5em}}@keyframes load1{0%,80%,to{box-shadow:0 0;height:4em}40%{box-shadow:0 -2em;height:5em}}"
+module.exports = ":root{--ck-media-stripe-a:#e0e0e0;--ck-media-stripe-b:#fff;--ck-media-loader-color:#4a4a4a}.ck-media-widget{position:relative}.ck-media-buttons{border-radius:var(--ck-border-radius);background:hsla(0,0%,100%,.7);padding:.2em;position:absolute;bottom:1em;right:1em}.ck-media-buttons>:not(:last-child){margin-right:.2em}.ck-media-placeholder{padding-bottom:50%;border:2px solid var(--ck-media-stripe-a);background-image:linear-gradient(135deg,var(--ck-media-stripe-a) 25%,var(--ck-media-stripe-b) 0,var(--ck-media-stripe-b) 50%,var(--ck-media-stripe-a) 0,var(--ck-media-stripe-a) 75%,var(--ck-media-stripe-b) 0,var(--ck-media-stripe-b));background-size:50px 50px}.ck-media-loader{opacity:.6;position:absolute;top:50%;left:50%;margin-top:-2em;margin-left:-.5em}.ck-media-loader,.ck-media-loader:after,.ck-media-loader:before{background:var(--ck-media-loader-color);-webkit-animation:load1 1s infinite ease-in-out;animation:load1 1s infinite ease-in-out;width:1em;height:4em}.ck-media-loader{color:var(--ck-media-loader-color);text-indent:-9999em;font-size:11px;-webkit-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0);-webkit-animation-delay:-.16s;animation-delay:-.16s}.ck-media-loader:after,.ck-media-loader:before{position:absolute;top:0;content:\"\"}.ck-media-loader:before{left:-1.5em;-webkit-animation-delay:-.32s;animation-delay:-.32s}.ck-media-loader:after{left:1.5em}@-webkit-keyframes load1{0%,80%,to{box-shadow:0 0;height:4em}40%{box-shadow:0 -2em;height:5em}}@keyframes load1{0%,80%,to{box-shadow:0 0;height:4em}40%{box-shadow:0 -2em;height:5em}}"
 
 /***/ }),
 
@@ -71589,6 +71589,7 @@ class SectionToolbar extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORT
           label: "Insert " + label,
           icon: icon,
           tooltip: true,
+          class: 'section-insert',
         });
         view.bind('isEnabled').to(command, 'isEnabled');
         this.listenTo( view, 'execute', () => editor.execute('sectionInsert', {type: name}));
@@ -71928,20 +71929,20 @@ module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"78\" height=
 
 /***/ }),
 
-/***/ "./plugins/ckeditor5-templates/src/commands/entityselectcommand.js":
-/*!*************************************************************************!*\
-  !*** ./plugins/ckeditor5-templates/src/commands/entityselectcommand.js ***!
-  \*************************************************************************/
+/***/ "./plugins/ckeditor5-templates/src/commands/mediaselectcommand.js":
+/*!************************************************************************!*\
+  !*** ./plugins/ckeditor5-templates/src/commands/mediaselectcommand.js ***!
+  \************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return EntitySelectCommand; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return MediaSelectCommand; });
 /* harmony import */ var _ckeditor_ckeditor5_core_src_command__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @ckeditor/ckeditor5-core/src/command */ "./node_modules/@ckeditor/ckeditor5-core/src/command.js");
 
 
-class EntitySelectCommand extends _ckeditor_ckeditor5_core_src_command__WEBPACK_IMPORTED_MODULE_0__["default"] {
+class MediaSelectCommand extends _ckeditor_ckeditor5_core_src_command__WEBPACK_IMPORTED_MODULE_0__["default"] {
 
   refresh() {
     this.isEnabled = true;
@@ -71952,24 +71953,25 @@ class EntitySelectCommand extends _ckeditor_ckeditor5_core_src_command__WEBPACK_
    */
   constructor( editor ) {
     super( editor );
-    this._entitySelector = editor.config.get('entitySelector');
-    this._entityRenderer = editor.config.get('entityRenderer');
+    this._mediaSelector = editor.config.get('mediaSelector');
+    this._mediaRenderer = editor.config.get('mediaRenderer');
   }
 
   execute(values) {
     const model = this.editor.model;
-    this._entitySelector(values.type, values.add, (id) => {
-      if (id === values.model.getAttribute('data-entity-id')) {
+    this._mediaSelector(values.model.getAttribute('data-media-type'), values.operation, (uuid) => {
+      if (uuid === values.model.getAttribute('data-media-uuid')) {
         return;
       }
-      model.change(writer => {
-        writer.setAttribute('data-entity-id', id, values.model);
-        writer.setAttribute('ck-entity-loading', true, values.model);
 
-        this._entityRenderer(values.model.getAttribute('data-entity-type'), id, values.model.getAttribute('data-entity-id'), content => {
+      model.change(writer => {
+        writer.setAttribute('data-media-uuid', uuid, values.model);
+        writer.setAttribute('ck-media-loading', true, values.model);
+
+        this._mediaRenderer(uuid, values.model.getAttribute('data-media-display'), content => {
           model.change(writer => {
-            writer.setAttribute('ck-entity-loading', false, values.model);
-            writer.setAttribute('ck-entity-rendered', content, values.model);
+            writer.setAttribute('ck-media-loading', false, values.model);
+            writer.setAttribute('ck-media-rendered', content, values.model);
           });
         });
       });
@@ -71980,16 +71982,16 @@ class EntitySelectCommand extends _ckeditor_ckeditor5_core_src_command__WEBPACK_
 
 /***/ }),
 
-/***/ "./plugins/ckeditor5-templates/src/elements/entityelement.js":
-/*!*******************************************************************!*\
-  !*** ./plugins/ckeditor5-templates/src/elements/entityelement.js ***!
-  \*******************************************************************/
+/***/ "./plugins/ckeditor5-templates/src/elements/mediaelement.js":
+/*!******************************************************************!*\
+  !*** ./plugins/ckeditor5-templates/src/elements/mediaelement.js ***!
+  \******************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return EntityElement; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return MediaElement; });
 /* harmony import */ var _templateelement__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../templateelement */ "./plugins/ckeditor5-templates/src/templateelement.js");
 /* harmony import */ var _ckeditor_ckeditor5_engine_src_conversion_downcast_converters__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ckeditor/ckeditor5-engine/src/conversion/downcast-converters */ "./node_modules/@ckeditor/ckeditor5-engine/src/conversion/downcast-converters.js");
 /* harmony import */ var _ckeditor_ckeditor5_ui_src_view__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/view */ "./node_modules/@ckeditor/ckeditor5-ui/src/view.js");
@@ -72016,50 +72018,54 @@ __webpack_require__.r(__webpack_exports__);
 /**
  * Entity view element.
  */
-class EntityView extends _ckeditor_ckeditor5_ui_src_view__WEBPACK_IMPORTED_MODULE_2__["default"] {
+class MediaView extends _ckeditor_ckeditor5_ui_src_view__WEBPACK_IMPORTED_MODULE_2__["default"] {
   constructor(modelElement, editor) {
     super();
 
     this.set('loading', false);
     this.set('rendered', false);
 
-    const bind = this.bindTemplate;
-
     const searchButton = new _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_5__["default"]();
     searchButton.set('class', 'media-select');
-    searchButton.set({icon: _theme_icons_search_svg__WEBPACK_IMPORTED_MODULE_3___default.a});
-    searchButton.on('execute', () => editor.execute('entitySelect', {
+    searchButton.set({
+      label: 'Select media',
+      icon: _theme_icons_search_svg__WEBPACK_IMPORTED_MODULE_3___default.a,
+    });
+    searchButton.on('execute', () => editor.execute('mediaSelect', {
       model: modelElement,
-      add: false,
+      operation: 'select',
     }));
 
     const uploadButton = new _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_5__["default"]({
       class: 'media-add',
     });
     uploadButton.set('class', 'media-add');
-    uploadButton.set({icon: _theme_icons_upload_svg__WEBPACK_IMPORTED_MODULE_4___default.a});
-    uploadButton.on('execute', () => editor.execute('entitySelect', {
+    uploadButton.set({
+      label: 'Add media',
+      icon: _theme_icons_upload_svg__WEBPACK_IMPORTED_MODULE_4___default.a,
+    });
+    uploadButton.on('execute', () => editor.execute('mediaSelect', {
       model: modelElement,
-      add: true,
+      operation: 'add',
     }));
 
     const template = {
       tag: 'div',
       attributes: {
-        class: ['ck-entity-widget'],
+        class: ['ck-media-widget'],
       },
       children: [
         {
           tag: 'div',
           attributes: {
-            class: ['ck-entity-buttons'],
+            class: ['ck-media-buttons'],
           },
           children: [searchButton, uploadButton],
         },
         {
           tag: 'div',
           attributes: {
-            class: 'ck-entity-content',
+            class: 'ck-media-content',
           },
         }
       ]
@@ -72072,18 +72078,18 @@ class EntityView extends _ckeditor_ckeditor5_ui_src_view__WEBPACK_IMPORTED_MODUL
 /**
  * Element class for text input elements.
  */
-class EntityElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["default"] {
+class MediaElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["default"] {
 
   constructor(editor, node, parent = parent, index = 0) {
     super(editor, node, parent, index);
-    this._entityRenderer = editor.config.get('entityRenderer');
+    this._mediaRenderer = editor.config.get('mediaRenderer');
   }
 
   /**
    * @inheritDoc
    */
   static applies(node) {
-    return node.getAttribute('ck-editable-type') === 'entity';
+    return node.getAttribute('ck-editable-type') === 'media';
   }
 
   /**
@@ -72097,8 +72103,8 @@ class EntityElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["defau
 
   get defaultAttributes() {
     return {
-      'ck-entity-rendered': '',
-      'data-entity-id': '',
+      'ck-media-rendered': '',
+      'data-media-uuid': '',
     };
   }
 
@@ -72126,20 +72132,26 @@ class EntityElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["defau
         return null;
       },
       model: (viewElement, modelWriter) => {
-        const attributes = Object.assign(this.defaultAttributes, Array.from(viewElement.getAttributeKeys())
+        const attributes = Object.assign(
+            // By default set all attributes defined in the template.
+            Array.from(this.node.attributes)
+                .map(attr => ({[attr.name]: attr.value}))
+                .reduce((acc, val) => Object.assign(acc, val), {}),
+            Array.from(viewElement.getAttributeKeys())
             .map(key => ({[key]: viewElement.getAttribute(key)}))
-            .reduce((acc, val) => Object.assign(acc, val), {}));
+            .reduce((acc, val) => Object.assign(acc, val), {})
+        );
         const model = modelWriter.createElement(this.name, attributes);
 
-        if (attributes['data-entity-id']) {
+        if (attributes['data-media-uuid']) {
           window.setTimeout(() => {
             this.editor.model.change(writer => {
-              writer.setAttribute('ck-entity-loading', true, model);
+              writer.setAttribute('ck-media-loading', true, model);
             });
-            this._entityRenderer(model.getAttribute('data-entity-type'), model.getAttribute('data-entity-id'), model.getAttribute('data-entity-id'), content => {
+            this._mediaRenderer(model.getAttribute('data-media-uuid'), model.getAttribute('data-media-display'), content => {
               this.editor.model.change(writer => {
-                writer.setAttribute('ck-entity-loading', false, model);
-                writer.setAttribute('ck-entity-rendered', content, model);
+                writer.setAttribute('ck-media-loading', false, model);
+                writer.setAttribute('ck-media-rendered', content, model);
               });
             });
           }, 500);
@@ -72162,34 +72174,35 @@ class EntityElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["defau
         // Create an editable textfield of the given type and attach the content as placeholder.
         return writer.createUIElement(this.node.tagName, this.getModelAttributes(modelElement), function (domDocument) {
           const domElement = this.toDomElement(domDocument);
-          const view = new EntityView(modelElement, editor);
+          const view = new MediaView(modelElement, editor);
           view.render();
           domElement.appendChild(view.element);
 
-          const preview = domElement.querySelector('.ck-entity-content');
+          const preview = domElement.querySelector('.ck-media-content');
+
           editor.model.document.on('change:data', (evt, batch) => {
             for (const op of batch.getOperations()) {
-              if (op instanceof _ckeditor_ckeditor5_engine_src_model_operation_attributeoperation__WEBPACK_IMPORTED_MODULE_6__["default"] && op.key === 'ck-entity-rendered') {
+              if (op instanceof _ckeditor_ckeditor5_engine_src_model_operation_attributeoperation__WEBPACK_IMPORTED_MODULE_6__["default"] && op.key === 'ck-media-rendered') {
                 if (modelElement === op.range.start.nodeAfter) {
                   preview.innerHTML = op.newValue;
                 }
               }
-              if (op instanceof _ckeditor_ckeditor5_engine_src_model_operation_attributeoperation__WEBPACK_IMPORTED_MODULE_6__["default"] && op.key === 'ck-entity-loading' && op.newValue) {
+              if (op instanceof _ckeditor_ckeditor5_engine_src_model_operation_attributeoperation__WEBPACK_IMPORTED_MODULE_6__["default"] && op.key === 'ck-media-loading' && op.newValue) {
                 if (modelElement === op.range.start.nodeAfter) {
-                  preview.innerHTML = '<div class="ck-entity-placeholder"><div class="ck-entity-loader"/></div>';
+                  preview.innerHTML = '<div class="ck-media-placeholder"><div class="ck-media-loader"/></div>';
                 }
               }
             }
           });
 
-          if (modelElement.getAttribute('ck-entity-rendered')) {
-            preview.innerHTML = modelElement.getAttribute('ck-entity-rendered');
+          if (modelElement.getAttribute('ck-media-rendered')) {
+            preview.innerHTML = modelElement.getAttribute('ck-media-rendered');
           }
-          else if (modelElement.getAttribute('ck-entity-loading')) {
-            preview.innerHTML = '<div class="ck-entity-placeholder"><div class="ck-entity-loader"/></div>';
+          else if (modelElement.getAttribute('ck-media-loading')) {
+            preview.innerHTML = '<div class="ck-media-placeholder"><div class="ck-media-loader"/></div>';
           }
           else {
-            preview.innerHTML = '<div class="ck-entity-placeholder"/>';
+            preview.innerHTML = '<div class="ck-media-placeholder"/>';
           }
           return domElement;
         });
@@ -72421,9 +72434,16 @@ class TemplateElement {
         return null;
       },
       model: (viewElement, modelWriter) => {
-        const attributes = Object.assign(this.defaultAttributes, Array.from(viewElement.getAttributeKeys())
-            .map(key => ({[key]: viewElement.getAttribute(key)}))
-            .reduce((acc, val) => Object.assign(acc, val), {}));
+        const attributes = Object.assign(
+            // By default set all attributes defined in the template.
+            Array.from(this.node.attributes)
+                .map(attr => ({[attr.name]: attr.value}))
+                .reduce((acc, val) => Object.assign(acc, val), {}),
+            // Override with actual values.
+            Array.from(viewElement.getAttributeKeys())
+              .map(key => ({[key]: viewElement.getAttribute(key)}))
+              .reduce((acc, val) => Object.assign(acc, val), {})
+        );
         return modelWriter.createElement(this.name, attributes);
       }
     });
@@ -72524,9 +72544,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @ckeditor/ckeditor5-core/src/plugin */ "./node_modules/@ckeditor/ckeditor5-core/src/plugin.js");
 /* harmony import */ var _ckeditor_ckeditor5_widget_src_widget__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ckeditor/ckeditor5-widget/src/widget */ "./node_modules/@ckeditor/ckeditor5-widget/src/widget.js");
 /* harmony import */ var _templateelement__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./templateelement */ "./plugins/ckeditor5-templates/src/templateelement.js");
-/* harmony import */ var _commands_entityselectcommand__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./commands/entityselectcommand */ "./plugins/ckeditor5-templates/src/commands/entityselectcommand.js");
-/* harmony import */ var _theme_css_entity_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../theme/css/entity.css */ "./plugins/ckeditor5-templates/theme/css/entity.css");
-/* harmony import */ var _theme_css_entity_css__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_theme_css_entity_css__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _commands_mediaselectcommand__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./commands/mediaselectcommand */ "./plugins/ckeditor5-templates/src/commands/mediaselectcommand.js");
+/* harmony import */ var _theme_css_media_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../theme/css/media.css */ "./plugins/ckeditor5-templates/theme/css/media.css");
+/* harmony import */ var _theme_css_media_css__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_theme_css_media_css__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _ckeditor_ckeditor5_engine_src_model_operation_attributeoperation__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @ckeditor/ckeditor5-engine/src/model/operation/attributeoperation */ "./node_modules/@ckeditor/ckeditor5-engine/src/model/operation/attributeoperation.js");
 /**
  * @module templates/templates
@@ -72582,28 +72602,7 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
       this._registerElement(template);
     });
 
-
-    this.editor.commands.add('entitySelect', new _commands_entityselectcommand__WEBPACK_IMPORTED_MODULE_3__["default"](this.editor));
-
-    const entityRenderer = this.editor.config.get('entityRenderer');
-
-    this.editor.model.document.on('change:data', (evt, batch) => {
-      for (const op of batch.getOperations()) {
-        if (op instanceof _ckeditor_ckeditor5_engine_src_model_operation_attributeoperation__WEBPACK_IMPORTED_MODULE_5__["default"] && op.key === 'data-entity-id' && op.newValue !== op.oldValue) {
-          const element = op.range.start.nodeAfter;
-          this.editor.model.change(writer => {
-            writer.setAttribute('ck-entity-loading', true, element);
-            entityRenderer(element.getAttribute('data-entity-type'), op.newValue, element.getAttribute('data-entity-id'), content => {
-              this.editor.model.change(writer => {
-                writer.setAttribute('ck-entity-false', true, element);
-                writer.setAttribute('ck-entity-rendered', content, element);
-              });
-            });
-          });
-        }
-      }
-    });
-
+    this.editor.commands.add('mediaSelect', new _commands_mediaselectcommand__WEBPACK_IMPORTED_MODULE_3__["default"](this.editor));
   }
 
   /**
@@ -72701,15 +72700,15 @@ function modelToViewAttributeConverter( attributeKey, element ) {
 
 /***/ }),
 
-/***/ "./plugins/ckeditor5-templates/theme/css/entity.css":
-/*!**********************************************************!*\
-  !*** ./plugins/ckeditor5-templates/theme/css/entity.css ***!
-  \**********************************************************/
+/***/ "./plugins/ckeditor5-templates/theme/css/media.css":
+/*!*********************************************************!*\
+  !*** ./plugins/ckeditor5-templates/theme/css/media.css ***!
+  \*********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var content = __webpack_require__(/*! !../../../../node_modules/postcss-loader/lib??ref--5-1!./entity.css */ "./node_modules/postcss-loader/lib/index.js?!./plugins/ckeditor5-templates/theme/css/entity.css");
+var content = __webpack_require__(/*! !../../../../node_modules/postcss-loader/lib??ref--5-1!./media.css */ "./node_modules/postcss-loader/lib/index.js?!./plugins/ckeditor5-templates/theme/css/media.css");
 
 if(typeof content === 'string') content = [[module.i, content, '']];
 
@@ -72771,7 +72770,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _plugins_ckeditor5_templates_src_templateelement__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../plugins/ckeditor5-templates/src/templateelement */ "./plugins/ckeditor5-templates/src/templateelement.js");
 /* harmony import */ var _plugins_ckeditor5_section_src_section__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../plugins/ckeditor5-section/src/section */ "./plugins/ckeditor5-section/src/section.js");
 /* harmony import */ var _plugins_ckeditor5_templates_src_elements_textelement__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../plugins/ckeditor5-templates/src/elements/textelement */ "./plugins/ckeditor5-templates/src/elements/textelement.js");
-/* harmony import */ var _plugins_ckeditor5_templates_src_elements_entityelement__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../plugins/ckeditor5-templates/src/elements/entityelement */ "./plugins/ckeditor5-templates/src/elements/entityelement.js");
+/* harmony import */ var _plugins_ckeditor5_templates_src_elements_mediaelement__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../plugins/ckeditor5-templates/src/elements/mediaelement */ "./plugins/ckeditor5-templates/src/elements/mediaelement.js");
 /**
  * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md.
@@ -72795,7 +72794,7 @@ SectionsEditor.builtinPlugins = [ _ckeditor_ckeditor5_essentials_src_essentials_
 
 // Editor configuration.
 SectionsEditor.defaultConfig = {
-  templateElements: [_plugins_ckeditor5_templates_src_elements_entityelement__WEBPACK_IMPORTED_MODULE_8__["default"], _plugins_ckeditor5_templates_src_elements_textelement__WEBPACK_IMPORTED_MODULE_7__["default"], _plugins_ckeditor5_templates_src_templateelement__WEBPACK_IMPORTED_MODULE_5__["default"]],
+  templateElements: [_plugins_ckeditor5_templates_src_elements_mediaelement__WEBPACK_IMPORTED_MODULE_8__["default"], _plugins_ckeditor5_templates_src_elements_textelement__WEBPACK_IMPORTED_MODULE_7__["default"], _plugins_ckeditor5_templates_src_templateelement__WEBPACK_IMPORTED_MODULE_5__["default"]],
   blockToolbar: [],
 	toolbar: {items: []},
 	// This value must be kept in sync with the language defined in webpack.config.js.

@@ -1,14 +1,14 @@
 :root {
-  --ck-entity-stripe-a: #e0e0e0;
-  --ck-entity-stripe-b: #FFF;
-  --ck-entity-loader-color: #4a4a4a;
+  --ck-media-stripe-a: #e0e0e0;
+  --ck-media-stripe-b: #FFF;
+  --ck-media-loader-color: #4a4a4a;
 }
 
-.ck-entity-widget {
+.ck-media-widget {
   position: relative;
 }
 
-.ck-entity-buttons {
+.ck-media-buttons {
   border-radius: var(--ck-border-radius);
   background: rgba(255, 255, 255, 0.7);
   padding: 0.2em;
@@ -17,26 +17,26 @@
   right: 1em;
 }
 
-.ck-entity-buttons > *:not(:last-child) {
+.ck-media-buttons > *:not(:last-child) {
   margin-right: 0.2em;
 }
 
-.ck-entity-placeholder {
+.ck-media-placeholder {
   padding-bottom: 50%;
-  border: 2px solid var(--ck-entity-stripe-a);
+  border: 2px solid var(--ck-media-stripe-a);
   background-image: linear-gradient(135deg,
-    var(--ck-entity-stripe-a) 25%,
-    var(--ck-entity-stripe-b) 25%,
-    var(--ck-entity-stripe-b) 50%,
-    var(--ck-entity-stripe-a) 50%,
-    var(--ck-entity-stripe-a) 75%,
-    var(--ck-entity-stripe-b) 75%,
-    var(--ck-entity-stripe-b) 100%
+    var(--ck-media-stripe-a) 25%,
+    var(--ck-media-stripe-b) 25%,
+    var(--ck-media-stripe-b) 50%,
+    var(--ck-media-stripe-a) 50%,
+    var(--ck-media-stripe-a) 75%,
+    var(--ck-media-stripe-b) 75%,
+    var(--ck-media-stripe-b) 100%
   );
   background-size: 50px 50px;
 }
 
-.ck-entity-loader {
+.ck-media-loader {
   opacity: 0.6;
   position: absolute;
   top: 50%;
@@ -45,18 +45,18 @@
   margin-left: -0.5em;
 }
 
-.ck-entity-loader,
-.ck-entity-loader:before,
-.ck-entity-loader:after {
-  background: var(--ck-entity-loader-color);
+.ck-media-loader,
+.ck-media-loader:before,
+.ck-media-loader:after {
+  background: var(--ck-media-loader-color);
   -webkit-animation: load1 1s infinite ease-in-out;
   animation: load1 1s infinite ease-in-out;
   width: 1em;
   height: 4em;
 }
 
-.ck-entity-loader {
-  color: var(--ck-entity-loader-color);
+.ck-media-loader {
+  color: var(--ck-media-loader-color);
   text-indent: -9999em;
   font-size: 11px;
   -webkit-transform: translateZ(0);
@@ -65,18 +65,18 @@
   -webkit-animation-delay: -0.16s;
   animation-delay: -0.16s;
 }
-.ck-entity-loader:before,
-.ck-entity-loader:after {
+.ck-media-loader:before,
+.ck-media-loader:after {
   position: absolute;
   top: 0;
   content: '';
 }
-.ck-entity-loader:before {
+.ck-media-loader:before {
   left: -1.5em;
   -webkit-animation-delay: -0.32s;
   animation-delay: -0.32s;
 }
-.ck-entity-loader:after {
+.ck-media-loader:after {
   left: 1.5em;
 }
 @-webkit-keyframes load1 {
