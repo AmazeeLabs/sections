@@ -149,7 +149,7 @@ export default class Templates extends Plugin {
     this.editor.conversion.for('editingDowncast').add(element.editingDowncast);
 
     for (const attr of attributes) {
-      if (attr !== 'class' && attr.substr(0, 3) !== 'ck-') {
+      if (attr.substr(0, 3) !== 'ck-') {
         this.editor.conversion.for('downcast').add(modelToViewAttributeConverter(attr, element.name))
       }
     }

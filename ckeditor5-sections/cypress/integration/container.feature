@@ -1,4 +1,4 @@
-Feature: Section handling
+Feature: Containers
 
   Containers allow to arrange add/remove and arrange sections.
 
@@ -15,13 +15,6 @@ Feature: Section handling
     Given there is 1 section
     And I click the first section
     Then the section toolbar appears
-
-  Scenario: Edit the text section
-    Given I opened an empty document
-    And I click the first section
-    And I click the textfield "Enter some text ..."
-    And I enter "Test"
-    Then the preview should show "Test"
 
   Scenario: Prevent removal of the last section
     Given there is 1 section

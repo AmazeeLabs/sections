@@ -196,10 +196,6 @@ export default class TemplateElement {
 
   postfix(writer, item) {
 
-    if (item.name === 'ck-templates__text') {
-      //debugger;
-    }
-
     // Template attributes that are not part of the model are copied into the model.
     for (let attr of this.node.attributes) {
       if (!Array.from(item.getAttributeKeys()).includes(attr.name)) {

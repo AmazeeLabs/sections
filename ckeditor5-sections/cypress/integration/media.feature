@@ -1,4 +1,6 @@
-Feature: Embedded media widgets
+Feature: Embedded media
+
+  Media objects can be embedded and display a preview.
 
   Scenario: Add an empty image section
     Given I click the first section
