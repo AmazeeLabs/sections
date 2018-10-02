@@ -71460,10 +71460,9 @@ class ContainerElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["de
 
   postfix(writer, item) {
     if (item.childCount === 0) {
-      // writer.appendElement(this.defaultElement, item);
-      const element = writer.createElement(this.defaultElement);
-      writer.insert(element, item, 'end');
-      this.getTemplateElement(this.defaultElement).postfix(writer, element);
+      writer.model.enqueueChange(writer.batch, writer => {
+         writer.appendElement(this.defaultElement, item);
+      });
     }
   }
 
@@ -72324,10 +72323,6 @@ class TemplateElement {
 
   postfix(writer, item) {
 
-    if (item.name === 'ck-templates__text') {
-      //debugger;
-    }
-
     // Template attributes that are not part of the model are copied into the model.
     for (let attr of this.node.attributes) {
       if (!Array.from(item.getAttributeKeys()).includes(attr.name)) {
@@ -72335,8 +72330,6 @@ class TemplateElement {
       }
     }
 
-    const childMap = this.children.map((child) => ({[child.name]: child}))
-        .reduce((acc, val) => Object.assign(acc, val), {});
     const childSeats = this.children.map((child) => ({[child.name]: true}))
         .reduce((acc, val) => Object.assign(acc, val), {});
 
@@ -72357,9 +72350,9 @@ class TemplateElement {
 
     for (let name in childSeats) {
       if (childSeats[name]) {
-        const element = writer.createElement(name);
-        writer.insert(element, item, 'end');
-        childMap[name].postfix(writer, element);
+        writer.model.enqueueChange(writer.batch, writer => {
+          writer.appendElement(name, item);
+        });
       }
     }
   }
@@ -72546,19 +72539,17 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
     this.editor.conversion.for('editingDowncast').add(element.editingDowncast);
 
     for (const attr of attributes) {
-      if (attr !== 'class' && attr.substr(0, 3) !== 'ck-') {
+      if (attr.substr(0, 3) !== 'ck-') {
         this.editor.conversion.for('downcast').add(modelToViewAttributeConverter(attr, element.name))
       }
     }
 
     this.editor.model.document.registerPostFixer((writer) => {
-      let changed = false;
       for (const entry of this.editor.model.document.differ.getChanges()) {
         if (entry.type === 'insert' && element.name === entry.name) {
-          changed = changed || element.postfix(writer, entry.position.nodeAfter);
+          element.postfix(writer, entry.position.nodeAfter);
         }
       }
-      return changed;
     });
 
     this.editor.model.schema.addChildCheck((context, def) => {

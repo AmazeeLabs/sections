@@ -203,8 +203,6 @@ export default class TemplateElement {
       }
     }
 
-    const childMap = this.children.map((child) => ({[child.name]: child}))
-        .reduce((acc, val) => Object.assign(acc, val), {});
     const childSeats = this.children.map((child) => ({[child.name]: true}))
         .reduce((acc, val) => Object.assign(acc, val), {});
 
@@ -225,9 +223,9 @@ export default class TemplateElement {
 
     for (let name in childSeats) {
       if (childSeats[name]) {
-        const element = writer.createElement(name);
-        writer.insert(element, item, 'end');
-        childMap[name].postfix(writer, element);
+        writer.model.enqueueChange(writer.batch, writer => {
+          writer.appendElement(name, item);
+        });
       }
     }
   }

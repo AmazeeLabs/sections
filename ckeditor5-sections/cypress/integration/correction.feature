@@ -6,9 +6,9 @@ Feature: Automatic document correction
     Given there is a text section with an unexpected h3 element
     Then the h3 element is removed
 
-#  Scenario: Missing element
-#    Given there is a text section missing the p element
-#    Then an empty p element is added
+  Scenario: Missing element
+    Given there is a text section missing the p element
+    Then an empty p element is added
 #
 #  Scenario: Wrong order
 #    Given there is a text section with elements p + h2

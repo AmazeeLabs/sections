@@ -45,10 +45,9 @@ export default class ContainerElement extends TemplateElement {
 
   postfix(writer, item) {
     if (item.childCount === 0) {
-      // writer.appendElement(this.defaultElement, item);
-      const element = writer.createElement(this.defaultElement);
-      writer.insert(element, item, 'end');
-      this.getTemplateElement(this.defaultElement).postfix(writer, element);
+      writer.model.enqueueChange(writer.batch, writer => {
+         writer.appendElement(this.defaultElement, item);
+      });
     }
   }
 

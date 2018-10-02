@@ -155,13 +155,11 @@ export default class Templates extends Plugin {
     }
 
     this.editor.model.document.registerPostFixer((writer) => {
-      let changed = false;
       for (const entry of this.editor.model.document.differ.getChanges()) {
         if (entry.type === 'insert' && element.name === entry.name) {
-          changed = changed || element.postfix(writer, entry.position.nodeAfter);
+          element.postfix(writer, entry.position.nodeAfter);
         }
       }
-      return changed;
     });
 
     this.editor.model.schema.addChildCheck((context, def) => {
