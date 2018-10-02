@@ -16,7 +16,6 @@ import SectionInsertCommand from './commands/sectioninsertcommand';
 import SectionRemoveCommand from './commands/sectionremovecommand';
 import SectionUpCommand from './commands/sectionupcommand';
 import SectionDownCommand from './commands/sectiondowncommand';
-import SectionPersonaCommand from './commands/sectionpersonacommand';
 
 import BalloonPanelView from '@ckeditor/ckeditor5-ui/src/panel/balloon/balloonpanelview';
 
@@ -56,17 +55,15 @@ export default class SectionToolbar extends Plugin {
     editor.commands.add('sectionRemove', new SectionRemoveCommand(editor));
     editor.commands.add('sectionUp', new SectionUpCommand(editor));
     editor.commands.add('sectionDown', new SectionDownCommand(editor));
-    editor.commands.add('sectionPersona', new SectionPersonaCommand(editor));
 
-    const sections = editor.config.get('sections');
+    const sections = editor.config.get('templates');
     Object.keys(sections).forEach((name) => {
-      let {label, icon} = sections[name];
+      let {label} = sections[name];
       editor.ui.componentFactory.add('sectionInsert:' + name, locale => {
         const command = editor.commands.get('sectionInsert');
         const view = new ButtonView(locale);
         view.set({
           label: "Insert " + label,
-          icon: icon,
           tooltip: true,
           class: 'section-insert',
         });
@@ -161,57 +158,6 @@ export default class SectionToolbar extends Plugin {
 
       return dropdownView;
     });
-
-    editor.ui.componentFactory.add('persona', locale => {
-      const titles = {};
-      const dropdownItems = new Collection();
-      const personaCommand = editor.commands.get('sectionPersona');
-      const personas = {
-        any: 'All personas',
-        anonymous: 'Anonymous',
-        personaA: 'Persona A',
-        personaB: 'Persona B',
-      };
-
-      for (const key of Object.keys(personas)) {
-        const label = personas[key];
-        const itemModel = new Model({
-          label: label,
-          persona: key,
-          withText: true
-        });
-
-        itemModel.bind('isActive').to(personaCommand, 'value', value => value === key);
-        itemModel.set({
-          commandName: 'sectionPersona',
-          commandValue: key,
-        });
-        dropdownItems.add({ type: 'button', model: itemModel });
-        titles[key] = label;
-      }
-
-      const dropdownView = createDropdown(locale);
-      addListToDropdown(dropdownView, dropdownItems);
-      dropdownView.buttonView.set({
-        isOn: false,
-        withText: true,
-        tooltip: 'Limit to persona',
-      });
-
-      dropdownView.bind( 'isEnabled' ).to( personaCommand, 'isEnabled');
-
-      dropdownView.buttonView.bind( 'label' ).to( personaCommand, 'value', ( value ) => {
-        return titles[ value ];
-      } );
-
-      // Execute command when an item from the dropdown is selected.
-      this.listenTo( dropdownView, 'execute', evt => {
-        editor.execute( 'sectionPersona', { value: evt.source.commandValue } );
-        editor.editing.view.focus();
-      } );
-
-      return dropdownView;
-    });
   }
 
   /**
@@ -219,8 +165,7 @@ export default class SectionToolbar extends Plugin {
    */
   afterInit() {
     const editor = this.editor;
-    const section = editor.config.get('sections');
-    const toolbarConfig = ['sections', '|', 'sectionRemove', 'sectionUp', 'sectionDown', '|', 'persona'];
+    const toolbarConfig = ['sections', '|', 'sectionRemove', 'sectionUp', 'sectionDown'];
 
     /**
      * A contextual balloon plugin instance.
@@ -329,7 +274,13 @@ export function getSelectedSection( selection ) {
     return selected;
   }
 
-  let element = selection.getFirstPosition().parent;
+  let position = selection.getFirstPosition();
+
+  if (!position) {
+    return false;
+  }
+
+  let element = position.parent;
   while (element) {
     if (element.name === 'section') {
       return element;

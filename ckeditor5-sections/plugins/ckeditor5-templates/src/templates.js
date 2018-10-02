@@ -6,14 +6,18 @@ import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import TemplateElement from './templateelement';
 import MediaSelectCommand from "./commands/mediaselectcommand";
+import SectionToolbar from "./sectiontoolbar";
 
 import "../theme/css/media.css";
-import AttributeOperation from "@ckeditor/ckeditor5-engine/src/model/operation/attributeoperation";
 
 /**
  * @extends module:core/plugin~Plugin
  */
 export default class Templates extends Plugin {
+
+  getTemplate(name) {
+    return this.templates[name];
+  }
 
   /**
    * @inheritDoc
@@ -21,16 +25,18 @@ export default class Templates extends Plugin {
   constructor(editor) {
     super(editor);
     editor.config.define('templates', []);
+    editor.config.define('rootTemplate', null);
     editor.config.define('templateElements', []);
     editor.config.define('entitySelector', () => '');
     editor.config.define('entityRenderer', () => '');
+    this.templates = {};
   }
 
   /**
    * @inheritDoc
    */
   static get requires() {
-    return [Widget];
+    return [Widget, SectionToolbar];
   }
 
   /**
@@ -47,12 +53,51 @@ export default class Templates extends Plugin {
 
     const templates = this.editor.config.get('templates');
     Object.keys(templates).forEach((name) => {
-      const template = (new DOMParser()).parseFromString(templates[name], 'text/xml').documentElement;
+      const template = (new DOMParser()).parseFromString(templates[name].template, 'text/xml').documentElement;
       template.setAttribute('ck-name', name);
       this._registerElement(template);
     });
 
+    const rootTemplate = this.editor.config.get('rootTemplate');
+    if (rootTemplate) {
+      const templateId = 'ck-templates__' + rootTemplate;
+      this.editor.model.schema.addChildCheck((context, def) => {
+        if (context.endsWith('$root') && def.name === templateId) {
+          return true;
+        }
+      });
+      this.editor.model.document.registerPostFixer( writer => this._cleanRoot( writer, templateId) );
+      this.editor.on( 'dataReady', () => {
+        this.editor.model.enqueueChange( 'transparent', writer => this._cleanRoot( writer, templateId) );
+      }, { priority: 'lowest' } );
+    }
+
     this.editor.commands.add('mediaSelect', new MediaSelectCommand(this.editor));
+  }
+
+  _cleanRoot(writer, rootTemplate) {
+
+    const model = this.editor.model;
+
+    for ( const rootName of model.document.getRootNames() ) {
+      const root = model.document.getRoot( rootName );
+
+      if (root.rootName === '$graveyard' ) {
+        continue
+      }
+
+      for (let child of root.getChildren()) {
+        if (child.name !== rootTemplate) {
+          writer.remove(child);
+          return true;
+        }
+      }
+
+      if (root.isEmpty) {
+        writer.appendElement(rootTemplate, root);
+        return true;
+      }
+    }
   }
 
   /**
@@ -82,6 +127,7 @@ export default class Templates extends Plugin {
 
     /** @type {TemplateElement} */
     const element = new ElementConstructor(this.editor, template, parent, index);
+    this.templates[element.name] = element;
 
     /** @type {TemplateElement[]} */
     const children = childNodes
@@ -89,6 +135,7 @@ export default class Templates extends Plugin {
         .filter( child => !!child);
 
     element.setChildren(children);
+    element.setTemplateManager(this);
 
     const attributes = Array.from(new Set(Array.from(template.attributes)
         .map(attr => attr.name)
@@ -108,11 +155,13 @@ export default class Templates extends Plugin {
     }
 
     this.editor.model.document.registerPostFixer((writer) => {
+      let changed = false;
       for (const entry of this.editor.model.document.differ.getChanges()) {
         if (entry.type === 'insert' && element.name === entry.name) {
-          return element.postfix(writer, entry.position.nodeAfter);
+          changed = changed || element.postfix(writer, entry.position.nodeAfter);
         }
       }
+      return changed;
     });
 
     this.editor.model.schema.addChildCheck((context, def) => {

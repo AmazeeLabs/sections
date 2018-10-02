@@ -71189,746 +71189,6 @@ module.exports = function(originalModule) {
 
 /***/ }),
 
-/***/ "./plugins/ckeditor5-section/src/commands/sectioncommand.js":
-/*!******************************************************************!*\
-  !*** ./plugins/ckeditor5-section/src/commands/sectioncommand.js ***!
-  \******************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SectionCommand; });
-/* harmony import */ var _ckeditor_ckeditor5_core_src_command__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @ckeditor/ckeditor5-core/src/command */ "./node_modules/@ckeditor/ckeditor5-core/src/command.js");
-
-
-class SectionCommand extends _ckeditor_ckeditor5_core_src_command__WEBPACK_IMPORTED_MODULE_0__["default"] {
-
-  getSelectedSection() {
-    let element = this.editor.model.document.selection.getSelectedElement();
-    if (element) {
-      return element;
-    }
-    element = this.editor.editing.mapper.toViewElement(this.editor.model.document.selection.anchor.parent);
-    while (element) {
-      if (element.name === 'section') {
-        return this.editor.editing.mapper.toModelElement(element);
-      }
-      element = element.parent;
-    }
-    return false;
-  }
-
-}
-
-
-/***/ }),
-
-/***/ "./plugins/ckeditor5-section/src/commands/sectiondowncommand.js":
-/*!**********************************************************************!*\
-  !*** ./plugins/ckeditor5-section/src/commands/sectiondowncommand.js ***!
-  \**********************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SectionDownCommand; });
-/* harmony import */ var _sectioncommand__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sectioncommand */ "./plugins/ckeditor5-section/src/commands/sectioncommand.js");
-
-
-class SectionDownCommand extends _sectioncommand__WEBPACK_IMPORTED_MODULE_0__["default"] {
-
-  refresh() {
-    const currentSection = this.getSelectedSection();
-    this.isEnabled = currentSection && currentSection.nextSibling;
-  }
-
-  execute() {
-    const model = this.editor.model;
-    const currentSection = this.getSelectedSection();
-    model.change(writer => {
-      writer.insert(currentSection, currentSection.nextSibling, 'after');
-    });
-  }
-}
-
-
-/***/ }),
-
-/***/ "./plugins/ckeditor5-section/src/commands/sectioninsertcommand.js":
-/*!************************************************************************!*\
-  !*** ./plugins/ckeditor5-section/src/commands/sectioninsertcommand.js ***!
-  \************************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SectionInsertCommand; });
-/* harmony import */ var _sectioncommand__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sectioncommand */ "./plugins/ckeditor5-section/src/commands/sectioncommand.js");
-
-
-class SectionInsertCommand extends _sectioncommand__WEBPACK_IMPORTED_MODULE_0__["default"] {
-
-  refresh() {
-    this.isEnabled = !!this.getSelectedSection();
-  }
-
-  execute(values) {
-    const currentSection = this.getSelectedSection();
-    this.editor.model.change(writer => {
-      const sectionElement = writer.createElement('ck-templates__' + values.type);
-      writer.insert(sectionElement, currentSection, 'after');
-    });
-  }
-}
-
-
-/***/ }),
-
-/***/ "./plugins/ckeditor5-section/src/commands/sectionpersonacommand.js":
-/*!*************************************************************************!*\
-  !*** ./plugins/ckeditor5-section/src/commands/sectionpersonacommand.js ***!
-  \*************************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SectionPersonaCommand; });
-/* harmony import */ var _sectioncommand__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sectioncommand */ "./plugins/ckeditor5-section/src/commands/sectioncommand.js");
-
-
-class SectionPersonaCommand extends _sectioncommand__WEBPACK_IMPORTED_MODULE_0__["default"] {
-
-  refresh() {
-    this.isEnabled = !!this.getSelectedSection();
-    this.value = this.isEnabled ? this.getSelectedSection().getAttribute('persona') || 'any' : 'any';
-  }
-
-  execute(values) {
-    const currentSection = this.getSelectedSection();
-    this.editor.model.change(writer => {
-      if (values.value === 'any') {
-        writer.removeAttribute('persona', currentSection);
-      }
-      else {
-        writer.setAttribute('persona', values.value, currentSection);
-      }
-    });
-  }
-}
-
-
-/***/ }),
-
-/***/ "./plugins/ckeditor5-section/src/commands/sectionremovecommand.js":
-/*!************************************************************************!*\
-  !*** ./plugins/ckeditor5-section/src/commands/sectionremovecommand.js ***!
-  \************************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SectionRemoveCommand; });
-/* harmony import */ var _sectioncommand__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sectioncommand */ "./plugins/ckeditor5-section/src/commands/sectioncommand.js");
-
-
-class SectionRemoveCommand extends _sectioncommand__WEBPACK_IMPORTED_MODULE_0__["default"] {
-
-  refresh() {
-    const currentSection = this.getSelectedSection();
-    this.isEnabled = currentSection && (currentSection.previousSibling || currentSection.nextSibling);
-  }
-
-  execute(values) {
-    const currentSection = this.getSelectedSection();
-    this.editor.model.change(writer => {
-      writer.remove(currentSection);
-    });
-  }
-}
-
-
-/***/ }),
-
-/***/ "./plugins/ckeditor5-section/src/commands/sectionupcommand.js":
-/*!********************************************************************!*\
-  !*** ./plugins/ckeditor5-section/src/commands/sectionupcommand.js ***!
-  \********************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SectionUpCommand; });
-/* harmony import */ var _sectioncommand__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sectioncommand */ "./plugins/ckeditor5-section/src/commands/sectioncommand.js");
-
-
-class SectionUpCommand extends _sectioncommand__WEBPACK_IMPORTED_MODULE_0__["default"] {
-
-  refresh() {
-    const currentSection = this.getSelectedSection();
-    this.isEnabled = currentSection && currentSection.previousSibling;
-  }
-
-  execute() {
-    const currentSection = this.getSelectedSection();
-    this.editor.model.change(writer => {
-      writer.insert(currentSection, currentSection.previousSibling, 'before');
-    });
-  }
-}
-
-
-/***/ }),
-
-/***/ "./plugins/ckeditor5-section/src/section.js":
-/*!**************************************************!*\
-  !*** ./plugins/ckeditor5-section/src/section.js ***!
-  \**************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Section; });
-/* harmony import */ var _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @ckeditor/ckeditor5-core/src/plugin */ "./node_modules/@ckeditor/ckeditor5-core/src/plugin.js");
-/* harmony import */ var _sectiontoolbar__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./sectiontoolbar */ "./plugins/ckeditor5-section/src/sectiontoolbar.js");
-/**
- * @module section/section
- */
-
-
-
-
-/**
- * The paragraph feature for the editor.
- * It introduces the `<section>` element in the model which renders as a
- * `<div class="section">` element in the DOM and data.
- */
-class Section extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MODULE_0__["default"] {
-
-  /**
-   * @inheritDoc
-   */
-  constructor( editor ) {
-    super( editor );
-    editor.config.define( 'defaultSection', 'simple_text');
-    editor.config.define( 'sections', []);
-  }
-
-  static get requires() {
-    return [ _sectiontoolbar__WEBPACK_IMPORTED_MODULE_1__["default"] ];
-  }
-
-  /**
-   * @inheritDoc
-   */
-  static get pluginName() {
-    return 'Section';
-  }
-
-  /**
-   * @inheritDoc
-   */
-  init() {
-    const editor = this.editor;
-    const model = editor.model;
-    this.sections = editor.config.get('sections');
-
-    const sectionKeys = Object.keys(this.sections).map(key => 'ck-templates__' + key);
-
-    this.editor.model.schema.addChildCheck((context, def) => {
-      if (context.endsWith('$root') && sectionKeys.includes(def.name)) {
-        return true;
-      }
-    });
-
-    model.document.registerPostFixer( writer => this._cleanRoot( writer ) );
-    editor.on( 'dataReady', () => {
-      model.enqueueChange( 'transparent', writer => this._cleanRoot( writer ) );
-    }, { priority: 'lowest' } );
-
-  }
-
-  _cleanRoot(writer) {
-
-    const model = this.editor.model;
-
-    for ( const rootName of model.document.getRootNames() ) {
-      const root = model.document.getRoot( rootName );
-      const sectionKeys = Object.keys(this.sections).map(key => 'ck-templates__' + key);
-
-      if (root.rootName === '$graveyard' ) {
-        continue
-      }
-
-      for (let child of root.getChildren()) {
-        if (!sectionKeys.includes(child.name)) {
-          writer.remove(child);
-          return true;
-        }
-      }
-
-      if (root.isEmpty) {
-        writer.appendElement('ck-templates__' + this.editor.config.get('defaultSection'), root );
-        return true;
-      }
-    }
-  }
-
-
-}
-
-
-/***/ }),
-
-/***/ "./plugins/ckeditor5-section/src/sectiontoolbar.js":
-/*!*********************************************************!*\
-  !*** ./plugins/ckeditor5-section/src/sectiontoolbar.js ***!
-  \*********************************************************/
-/*! exports provided: default, getSelectedSection, repositionContextualBalloon, getBalloonPositionData */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SectionToolbar; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getSelectedSection", function() { return getSelectedSection; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "repositionContextualBalloon", function() { return repositionContextualBalloon; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getBalloonPositionData", function() { return getBalloonPositionData; });
-/* harmony import */ var _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @ckeditor/ckeditor5-core/src/plugin */ "./node_modules/@ckeditor/ckeditor5-core/src/plugin.js");
-/* harmony import */ var _ckeditor_ckeditor5_ui_src_toolbar_toolbarview__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/toolbar/toolbarview */ "./node_modules/@ckeditor/ckeditor5-ui/src/toolbar/toolbarview.js");
-/* harmony import */ var _ckeditor_ckeditor5_widget_src_widget__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @ckeditor/ckeditor5-widget/src/widget */ "./node_modules/@ckeditor/ckeditor5-widget/src/widget.js");
-/* harmony import */ var _ckeditor_ckeditor5_ui_src_panel_balloon_contextualballoon__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon */ "./node_modules/@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon.js");
-/* harmony import */ var _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/button/buttonview */ "./node_modules/@ckeditor/ckeditor5-ui/src/button/buttonview.js");
-/* harmony import */ var _ckeditor_ckeditor5_utils_src_collection__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @ckeditor/ckeditor5-utils/src/collection */ "./node_modules/@ckeditor/ckeditor5-utils/src/collection.js");
-/* harmony import */ var _ckeditor_ckeditor5_ui_src_model__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/model */ "./node_modules/@ckeditor/ckeditor5-ui/src/model.js");
-/* harmony import */ var _ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/dropdown/utils */ "./node_modules/@ckeditor/ckeditor5-ui/src/dropdown/utils.js");
-/* harmony import */ var _commands_sectioninsertcommand__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./commands/sectioninsertcommand */ "./plugins/ckeditor5-section/src/commands/sectioninsertcommand.js");
-/* harmony import */ var _commands_sectionremovecommand__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./commands/sectionremovecommand */ "./plugins/ckeditor5-section/src/commands/sectionremovecommand.js");
-/* harmony import */ var _commands_sectionupcommand__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./commands/sectionupcommand */ "./plugins/ckeditor5-section/src/commands/sectionupcommand.js");
-/* harmony import */ var _commands_sectiondowncommand__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./commands/sectiondowncommand */ "./plugins/ckeditor5-section/src/commands/sectiondowncommand.js");
-/* harmony import */ var _commands_sectionpersonacommand__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./commands/sectionpersonacommand */ "./plugins/ckeditor5-section/src/commands/sectionpersonacommand.js");
-/* harmony import */ var _ckeditor_ckeditor5_ui_src_panel_balloon_balloonpanelview__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/panel/balloon/balloonpanelview */ "./node_modules/@ckeditor/ckeditor5-ui/src/panel/balloon/balloonpanelview.js");
-/* harmony import */ var _theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../theme/icons/arrow-up.svg */ "./plugins/ckeditor5-section/theme/icons/arrow-up.svg");
-/* harmony import */ var _theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_14__);
-/* harmony import */ var _theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../theme/icons/arrow-down.svg */ "./plugins/ckeditor5-section/theme/icons/arrow-down.svg");
-/* harmony import */ var _theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_15__);
-/* harmony import */ var _theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../theme/icons/trash.svg */ "./plugins/ckeditor5-section/theme/icons/trash.svg");
-/* harmony import */ var _theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_16__);
-/**
- * @module section/sectiontoolbar
- */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const balloonClassName = 'ck-toolbar-container-section';
-
-
-
-
-
-class SectionToolbar extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MODULE_0__["default"] {
-
-  static get requires() {
-    return [ _ckeditor_ckeditor5_widget_src_widget__WEBPACK_IMPORTED_MODULE_2__["default"], _ckeditor_ckeditor5_ui_src_panel_balloon_contextualballoon__WEBPACK_IMPORTED_MODULE_3__["default"] ];
-  }
-
-  static get pluginName() {
-    return 'SectionToolbar';
-  }
-
-  init() {
-    const editor = this.editor;
-
-    const balloonToolbar = editor.plugins.get( 'BalloonToolbar' );
-
-    // If the `BalloonToolbar` plugin is loaded, it should be disabled for images
-    // which have their own toolbar to avoid duplication.
-    // https://github.com/ckeditor/ckeditor5-image/issues/110
-    if ( balloonToolbar ) {
-      this.listenTo( balloonToolbar, 'show', evt => {
-        if ( getSelectedSection( editor.editing.view.document.selection ) ) {
-          evt.stop();
-        }
-      }, { priority: 'high' } );
-    }
-
-    editor.commands.add('sectionInsert', new _commands_sectioninsertcommand__WEBPACK_IMPORTED_MODULE_8__["default"](editor));
-    editor.commands.add('sectionRemove', new _commands_sectionremovecommand__WEBPACK_IMPORTED_MODULE_9__["default"](editor));
-    editor.commands.add('sectionUp', new _commands_sectionupcommand__WEBPACK_IMPORTED_MODULE_10__["default"](editor));
-    editor.commands.add('sectionDown', new _commands_sectiondowncommand__WEBPACK_IMPORTED_MODULE_11__["default"](editor));
-    editor.commands.add('sectionPersona', new _commands_sectionpersonacommand__WEBPACK_IMPORTED_MODULE_12__["default"](editor));
-
-    const sections = editor.config.get('sections');
-    Object.keys(sections).forEach((name) => {
-      let {label, icon} = sections[name];
-      editor.ui.componentFactory.add('sectionInsert:' + name, locale => {
-        const command = editor.commands.get('sectionInsert');
-        const view = new _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_4__["default"](locale);
-        view.set({
-          label: "Insert " + label,
-          icon: icon,
-          tooltip: true,
-          class: 'section-insert',
-        });
-        view.bind('isEnabled').to(command, 'isEnabled');
-        this.listenTo( view, 'execute', () => editor.execute('sectionInsert', {type: name}));
-        return view;
-      });
-    });
-
-    editor.ui.componentFactory.add('sectionRemove', locale => {
-      const command = editor.commands.get('sectionRemove');
-      const view = new _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_4__["default"](locale);
-      view.set({
-        label: "Remove section",
-        class: 'section-remove',
-        tooltip: true,
-        icon: _theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_16___default.a,
-      });
-      view.bind('isEnabled').to(command, 'isEnabled');
-      this.listenTo( view, 'execute', () => editor.execute('sectionRemove'));
-      return view;
-    });
-
-    editor.ui.componentFactory.add('sectionUp', locale => {
-      const command = editor.commands.get('sectionUp');
-      const view = new _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_4__["default"](locale);
-      view.set({
-        label: "Move section up",
-        class: 'section-up',
-        tooltip: true,
-        icon: _theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_14___default.a,
-      });
-      view.bind('isEnabled').to(command, 'isEnabled');
-      this.listenTo( view, 'execute', () => editor.execute('sectionUp'));
-      return view;
-    });
-
-    editor.ui.componentFactory.add('sectionDown', locale => {
-      const command = editor.commands.get('sectionDown');
-      const view = new _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_4__["default"](locale);
-      view.set({
-        label: "Move section down",
-        class: 'section-down',
-        tooltip: true,
-        icon: _theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_15___default.a,
-      });
-      view.bind('isEnabled').to(command, 'isEnabled');
-      this.listenTo( view, 'execute', () => editor.execute('sectionDown'));
-      return view;
-    });
-
-    editor.ui.componentFactory.add('sections', locale => {
-      const titles = {};
-      const dropdownItems = new _ckeditor_ckeditor5_utils_src_collection__WEBPACK_IMPORTED_MODULE_5__["default"]();
-      const sectionInsertCommand = editor.commands.get('sectionInsert');
-
-      for (const key of Object.keys(sections)) {
-        const section = sections[key];
-        const itemModel = new _ckeditor_ckeditor5_ui_src_model__WEBPACK_IMPORTED_MODULE_6__["default"]({
-          label: section.label,
-          section: key,
-          class: key,
-          withText: true,
-        });
-        itemModel.set({
-          commandName: 'sectionInsert',
-          commandValue: key,
-        });
-        dropdownItems.add({ type: 'button', model: itemModel });
-        titles[key] = section.label;
-      }
-
-      const dropdownView = Object(_ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_7__["createDropdown"])(locale);
-      Object(_ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_7__["addListToDropdown"])(dropdownView, dropdownItems);
-      dropdownView.buttonView.set({
-        isOn: false,
-        withText: true,
-        tooltip: 'Insert new section below.',
-      });
-
-      dropdownView.bind( 'isEnabled' ).to( sectionInsertCommand, 'isEnabled');
-
-      dropdownView.buttonView.bind( 'label' ).to(() => {
-        return 'Insert ...'
-      });
-
-      // Execute command when an item from the dropdown is selected.
-      this.listenTo( dropdownView, 'execute', evt => {
-        editor.execute( 'sectionInsert', { type: evt.source.commandValue } );
-        editor.editing.view.focus();
-      } );
-
-      return dropdownView;
-    });
-
-    editor.ui.componentFactory.add('persona', locale => {
-      const titles = {};
-      const dropdownItems = new _ckeditor_ckeditor5_utils_src_collection__WEBPACK_IMPORTED_MODULE_5__["default"]();
-      const personaCommand = editor.commands.get('sectionPersona');
-      const personas = {
-        any: 'All personas',
-        anonymous: 'Anonymous',
-        personaA: 'Persona A',
-        personaB: 'Persona B',
-      };
-
-      for (const key of Object.keys(personas)) {
-        const label = personas[key];
-        const itemModel = new _ckeditor_ckeditor5_ui_src_model__WEBPACK_IMPORTED_MODULE_6__["default"]({
-          label: label,
-          persona: key,
-          withText: true
-        });
-
-        itemModel.bind('isActive').to(personaCommand, 'value', value => value === key);
-        itemModel.set({
-          commandName: 'sectionPersona',
-          commandValue: key,
-        });
-        dropdownItems.add({ type: 'button', model: itemModel });
-        titles[key] = label;
-      }
-
-      const dropdownView = Object(_ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_7__["createDropdown"])(locale);
-      Object(_ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_7__["addListToDropdown"])(dropdownView, dropdownItems);
-      dropdownView.buttonView.set({
-        isOn: false,
-        withText: true,
-        tooltip: 'Limit to persona',
-      });
-
-      dropdownView.bind( 'isEnabled' ).to( personaCommand, 'isEnabled');
-
-      dropdownView.buttonView.bind( 'label' ).to( personaCommand, 'value', ( value ) => {
-        return titles[ value ];
-      } );
-
-      // Execute command when an item from the dropdown is selected.
-      this.listenTo( dropdownView, 'execute', evt => {
-        editor.execute( 'sectionPersona', { value: evt.source.commandValue } );
-        editor.editing.view.focus();
-      } );
-
-      return dropdownView;
-    });
-  }
-
-  /**
-   * @inheritDoc
-   */
-  afterInit() {
-    const editor = this.editor;
-    const section = editor.config.get('sections');
-    const toolbarConfig = ['sections', '|', 'sectionRemove', 'sectionUp', 'sectionDown', '|', 'persona'];
-
-    /**
-     * A contextual balloon plugin instance.
-     *
-     * @private
-     * @member {module:ui/panel/balloon/contextualballoon~ContextualBalloon}
-     */
-    this._balloon = this.editor.plugins.get( 'ContextualBalloon' );
-
-    /**
-     * A `ToolbarView` instance used to display the buttons specific for image editing.
-     *
-     * @protected
-     * @type {module:ui/toolbar/toolbarview~ToolbarView}
-     */
-    this._toolbar = new _ckeditor_ckeditor5_ui_src_toolbar_toolbarview__WEBPACK_IMPORTED_MODULE_1__["default"]();
-
-    // Add buttons to the toolbar.
-    this._toolbar.fillFromConfig( toolbarConfig, editor.ui.componentFactory );
-
-    this.listenTo( editor.editing.view, 'render', () => {
-      this._checkIsVisible();
-    } );
-
-    // There is no render method after focus is back in editor, we need to check if balloon panel should be visible.
-    this.listenTo( editor.ui.focusTracker, 'change:isFocused', () => {
-      this._checkIsVisible();
-    }, { priority: 'low' } );1
-  }
-
-  /**
-   * Checks whether the toolbar should show up or hide depending on the current selection.
-   *
-   * @private
-   */
-  _checkIsVisible() {
-    const editor = this.editor;
-    if ( !editor.ui.focusTracker.isFocused ) {
-      this._hideToolbar();
-    }
-    else {
-      const section = getSelectedSection( editor.editing.view.document.selection );
-      if ( section ) {
-        this._showToolbar(section);
-      } else {
-        this._hideToolbar();
-      }
-    }
-  }
-
-  /**
-   * Shows the {@link #_toolbar} in the {@link #_balloon}.
-   *
-   * @private
-   */
-  _showToolbar(section) {
-    const editor = this.editor;
-
-    if ( this._isVisible ) {
-      repositionContextualBalloon( editor, section);
-    } else {
-      if ( !this._balloon.hasView( this._toolbar ) ) {
-        this._balloon.add( {
-          view: this._toolbar,
-          position: getBalloonPositionData( editor, section),
-          balloonClassName
-        } );
-      }
-    }
-  }
-
-  /**
-   * Removes the {@link #_toolbar} from the {@link #_balloon}.
-   *
-   * @private
-   */
-  _hideToolbar() {
-    if ( !this._isVisible ) {
-      return;
-    }
-
-    this._balloon.remove( this._toolbar );
-  }
-
-  /**
-   * Returns `true` when the {@link #_toolbar} is the visible view in the {@link #_balloon}.
-   *
-   * @private
-   * @type {Boolean}
-   */
-  get _isVisible() {
-    return this._balloon.visibleView === this._toolbar;
-  }
-}
-
-/**
- * Checks if a section widget is the only selected element.
- *
- * @param {module:engine/view/selection~Selection|module:engine/view/documentselection~DocumentSelection} selection
- * @returns {Boolean}
- */
-function getSelectedSection( selection ) {
-  const selected = selection.getSelectedElement();
-
-  if (selected && selected.name === 'section') {
-    return selected;
-  }
-
-  let element = selection.getFirstPosition().parent;
-  while (element) {
-    if (element.name === 'section') {
-      return element;
-    }
-    element = element.parent;
-  }
-  return false;
-}
-
-/**
- * A helper utility that positions the
- * {@link module:ui/panel/balloon/contextualballoon~ContextualBalloon contextual balloon} instance
- * with respect to the image in the editor content, if one is selected.
- *
- * @param {module:core/editor/editor~Editor} editor The editor instance.
- */
-function repositionContextualBalloon( editor, section) {
-  const balloon = editor.plugins.get( 'ContextualBalloon' );
-  const position = getBalloonPositionData( editor, section);
-  balloon.updatePosition( position );
-}
-
-/**
- * Returns the positioning options that control the geometry of the
- * {@link module:ui/panel/balloon/contextualballoon~ContextualBalloon contextual balloon} with respect
- * to the selected element in the editor content.
- *
- * @param {module:core/editor/editor~Editor} editor The editor instance.
- * @returns {module:utils/dom/position~Options}
- */
-function getBalloonPositionData( editor, section) {
-  const editingView = editor.editing.view;
-  const defaultPositions = _ckeditor_ckeditor5_ui_src_panel_balloon_balloonpanelview__WEBPACK_IMPORTED_MODULE_13__["default"].defaultPositions;
-
-  return {
-    target: editingView.domConverter.viewToDom( section ),
-    positions: [
-      defaultPositions.southArrowNorth,
-    ]
-  };
-}
-
-
-/***/ }),
-
-/***/ "./plugins/ckeditor5-section/theme/icons/arrow-down.svg":
-/*!**************************************************************!*\
-  !*** ./plugins/ckeditor5-section/theme/icons/arrow-down.svg ***!
-  \**************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\" viewBox=\"0 0 100 100\">\n  <polygon points=\"100 43.75 23.938 43.75 58.875 8.813 50 0 0 50 50 100 58.813 91.188 23.938 56.25 100 56.25\" transform=\"rotate(-90 50 50)\"/>\n</svg>\n"
-
-/***/ }),
-
-/***/ "./plugins/ckeditor5-section/theme/icons/arrow-up.svg":
-/*!************************************************************!*\
-  !*** ./plugins/ckeditor5-section/theme/icons/arrow-up.svg ***!
-  \************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\" viewBox=\"0 0 100 100\">\n  <polygon points=\"100 43.75 23.938 43.75 58.875 8.813 50 0 0 50 50 100 58.813 91.188 23.938 56.25 100 56.25\" transform=\"rotate(90 50 50)\"/>\n</svg>\n"
-
-/***/ }),
-
-/***/ "./plugins/ckeditor5-section/theme/icons/trash.svg":
-/*!*********************************************************!*\
-  !*** ./plugins/ckeditor5-section/theme/icons/trash.svg ***!
-  \*********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"78\" height=\"100\" viewBox=\"0 0 78 100\">\n  <path d=\"M61.1111111,33.3333333 L61.1111111,88.8888889 L16.6666667,88.8888889 L16.6666667,33.3333333 L61.1111111,33.3333333 Z M52.7777778,0 L25,0 L19.4444444,5.55555556 L0,5.55555556 L0,16.6666667 L77.7777778,16.6666667 L77.7777778,5.55555556 L58.3333333,5.55555556 L52.7777778,0 Z M72.2222222,22.2222222 L5.55555556,22.2222222 L5.55555556,88.8888889 C5.55555556,95 10.5555556,100 16.6666667,100 L61.1111111,100 C67.2222222,100 72.2222222,95 72.2222222,88.8888889 L72.2222222,22.2222222 Z\"/>\n</svg>\n"
-
-/***/ }),
-
 /***/ "./plugins/ckeditor5-templates/src/commands/mediaselectcommand.js":
 /*!************************************************************************!*\
   !*** ./plugins/ckeditor5-templates/src/commands/mediaselectcommand.js ***!
@@ -71977,6 +71237,223 @@ class MediaSelectCommand extends _ckeditor_ckeditor5_core_src_command__WEBPACK_I
       });
     });
   }
+}
+
+
+/***/ }),
+
+/***/ "./plugins/ckeditor5-templates/src/commands/sectioncommand.js":
+/*!********************************************************************!*\
+  !*** ./plugins/ckeditor5-templates/src/commands/sectioncommand.js ***!
+  \********************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SectionCommand; });
+/* harmony import */ var _ckeditor_ckeditor5_core_src_command__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @ckeditor/ckeditor5-core/src/command */ "./node_modules/@ckeditor/ckeditor5-core/src/command.js");
+
+
+class SectionCommand extends _ckeditor_ckeditor5_core_src_command__WEBPACK_IMPORTED_MODULE_0__["default"] {
+
+  getSelectedSection() {
+    let element = this.editor.model.document.selection.getSelectedElement();
+    if (element) {
+      return element;
+    }
+    element = this.editor.editing.mapper.toViewElement(this.editor.model.document.selection.anchor.parent);
+    while (element) {
+      if (element.name === 'section') {
+        return this.editor.editing.mapper.toModelElement(element);
+      }
+      element = element.parent;
+    }
+    return false;
+  }
+
+}
+
+
+/***/ }),
+
+/***/ "./plugins/ckeditor5-templates/src/commands/sectiondowncommand.js":
+/*!************************************************************************!*\
+  !*** ./plugins/ckeditor5-templates/src/commands/sectiondowncommand.js ***!
+  \************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SectionDownCommand; });
+/* harmony import */ var _sectioncommand__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sectioncommand */ "./plugins/ckeditor5-templates/src/commands/sectioncommand.js");
+
+
+class SectionDownCommand extends _sectioncommand__WEBPACK_IMPORTED_MODULE_0__["default"] {
+
+  refresh() {
+    const currentSection = this.getSelectedSection();
+    this.isEnabled = currentSection && currentSection.nextSibling;
+  }
+
+  execute() {
+    const model = this.editor.model;
+    const currentSection = this.getSelectedSection();
+    model.change(writer => {
+      writer.insert(currentSection, currentSection.nextSibling, 'after');
+    });
+  }
+}
+
+
+/***/ }),
+
+/***/ "./plugins/ckeditor5-templates/src/commands/sectioninsertcommand.js":
+/*!**************************************************************************!*\
+  !*** ./plugins/ckeditor5-templates/src/commands/sectioninsertcommand.js ***!
+  \**************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SectionInsertCommand; });
+/* harmony import */ var _sectioncommand__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sectioncommand */ "./plugins/ckeditor5-templates/src/commands/sectioncommand.js");
+
+
+class SectionInsertCommand extends _sectioncommand__WEBPACK_IMPORTED_MODULE_0__["default"] {
+
+  refresh() {
+    this.isEnabled = !!this.getSelectedSection();
+  }
+
+  execute(values) {
+    const currentSection = this.getSelectedSection();
+    this.editor.model.change(writer => {
+      const sectionElement = writer.createElement('ck-templates__' + values.type);
+      writer.insert(sectionElement, currentSection, 'after');
+    });
+  }
+}
+
+
+/***/ }),
+
+/***/ "./plugins/ckeditor5-templates/src/commands/sectionremovecommand.js":
+/*!**************************************************************************!*\
+  !*** ./plugins/ckeditor5-templates/src/commands/sectionremovecommand.js ***!
+  \**************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SectionRemoveCommand; });
+/* harmony import */ var _sectioncommand__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sectioncommand */ "./plugins/ckeditor5-templates/src/commands/sectioncommand.js");
+
+
+class SectionRemoveCommand extends _sectioncommand__WEBPACK_IMPORTED_MODULE_0__["default"] {
+
+  refresh() {
+    const currentSection = this.getSelectedSection();
+    this.isEnabled = currentSection && (currentSection.previousSibling || currentSection.nextSibling);
+  }
+
+  execute(values) {
+    const currentSection = this.getSelectedSection();
+    this.editor.model.change(writer => {
+      writer.remove(currentSection);
+    });
+  }
+}
+
+
+/***/ }),
+
+/***/ "./plugins/ckeditor5-templates/src/commands/sectionupcommand.js":
+/*!**********************************************************************!*\
+  !*** ./plugins/ckeditor5-templates/src/commands/sectionupcommand.js ***!
+  \**********************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SectionUpCommand; });
+/* harmony import */ var _sectioncommand__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sectioncommand */ "./plugins/ckeditor5-templates/src/commands/sectioncommand.js");
+
+
+class SectionUpCommand extends _sectioncommand__WEBPACK_IMPORTED_MODULE_0__["default"] {
+
+  refresh() {
+    const currentSection = this.getSelectedSection();
+    this.isEnabled = currentSection && currentSection.previousSibling;
+  }
+
+  execute() {
+    const currentSection = this.getSelectedSection();
+    this.editor.model.change(writer => {
+      writer.insert(currentSection, currentSection.previousSibling, 'before');
+    });
+  }
+}
+
+
+/***/ }),
+
+/***/ "./plugins/ckeditor5-templates/src/elements/containerelement.js":
+/*!**********************************************************************!*\
+  !*** ./plugins/ckeditor5-templates/src/elements/containerelement.js ***!
+  \**********************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ContainerElement; });
+/* harmony import */ var _templateelement__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../templateelement */ "./plugins/ckeditor5-templates/src/templateelement.js");
+/**
+ * @module templates/elements/textelement
+ */
+
+
+/**
+ * Element class for text input elements.
+ */
+class ContainerElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["default"] {
+
+  constructor(editor, node, parent = parent, index = 0) {
+    super(editor, node, parent, index);
+    this.allowedElements = node.getAttribute('ck-allowed-elements').split(' ').map(key => 'ck-templates__' + key);
+    this.defaultElement = 'ck-templates__' + node.getAttribute('ck-default-element')
+  }
+
+  /**
+   * @inheritDoc
+   */
+  static applies(node) {
+    return node.getAttribute('ck-editable-type') === 'container';
+  }
+
+  /**
+   * @inheritDoc
+   */
+  get childCheck() {
+    return (def) => {
+      return this.allowedElements.includes(def.name);
+    };
+  }
+
+  postfix(writer, item) {
+    if (item.childCount === 0) {
+      // writer.appendElement(this.defaultElement, item);
+      const element = writer.createElement(this.defaultElement);
+      writer.insert(element, item, 'end');
+      this.getTemplateElement(this.defaultElement).postfix(writer, element);
+    }
+  }
+
 }
 
 
@@ -72106,10 +71583,6 @@ class MediaElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["defaul
       'ck-media-rendered': '',
       'data-media-uuid': '',
     };
-  }
-
-  postfix(writer, item) {
-    super.postfix(writer, item);
   }
 
   /**
@@ -72286,6 +71759,366 @@ class TextElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["default
 
 /***/ }),
 
+/***/ "./plugins/ckeditor5-templates/src/sectiontoolbar.js":
+/*!***********************************************************!*\
+  !*** ./plugins/ckeditor5-templates/src/sectiontoolbar.js ***!
+  \***********************************************************/
+/*! exports provided: default, getSelectedSection, repositionContextualBalloon, getBalloonPositionData */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SectionToolbar; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getSelectedSection", function() { return getSelectedSection; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "repositionContextualBalloon", function() { return repositionContextualBalloon; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getBalloonPositionData", function() { return getBalloonPositionData; });
+/* harmony import */ var _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @ckeditor/ckeditor5-core/src/plugin */ "./node_modules/@ckeditor/ckeditor5-core/src/plugin.js");
+/* harmony import */ var _ckeditor_ckeditor5_ui_src_toolbar_toolbarview__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/toolbar/toolbarview */ "./node_modules/@ckeditor/ckeditor5-ui/src/toolbar/toolbarview.js");
+/* harmony import */ var _ckeditor_ckeditor5_widget_src_widget__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @ckeditor/ckeditor5-widget/src/widget */ "./node_modules/@ckeditor/ckeditor5-widget/src/widget.js");
+/* harmony import */ var _ckeditor_ckeditor5_ui_src_panel_balloon_contextualballoon__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon */ "./node_modules/@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon.js");
+/* harmony import */ var _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/button/buttonview */ "./node_modules/@ckeditor/ckeditor5-ui/src/button/buttonview.js");
+/* harmony import */ var _ckeditor_ckeditor5_utils_src_collection__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @ckeditor/ckeditor5-utils/src/collection */ "./node_modules/@ckeditor/ckeditor5-utils/src/collection.js");
+/* harmony import */ var _ckeditor_ckeditor5_ui_src_model__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/model */ "./node_modules/@ckeditor/ckeditor5-ui/src/model.js");
+/* harmony import */ var _ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/dropdown/utils */ "./node_modules/@ckeditor/ckeditor5-ui/src/dropdown/utils.js");
+/* harmony import */ var _commands_sectioninsertcommand__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./commands/sectioninsertcommand */ "./plugins/ckeditor5-templates/src/commands/sectioninsertcommand.js");
+/* harmony import */ var _commands_sectionremovecommand__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./commands/sectionremovecommand */ "./plugins/ckeditor5-templates/src/commands/sectionremovecommand.js");
+/* harmony import */ var _commands_sectionupcommand__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./commands/sectionupcommand */ "./plugins/ckeditor5-templates/src/commands/sectionupcommand.js");
+/* harmony import */ var _commands_sectiondowncommand__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./commands/sectiondowncommand */ "./plugins/ckeditor5-templates/src/commands/sectiondowncommand.js");
+/* harmony import */ var _ckeditor_ckeditor5_ui_src_panel_balloon_balloonpanelview__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/panel/balloon/balloonpanelview */ "./node_modules/@ckeditor/ckeditor5-ui/src/panel/balloon/balloonpanelview.js");
+/* harmony import */ var _theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../theme/icons/arrow-up.svg */ "./plugins/ckeditor5-templates/theme/icons/arrow-up.svg");
+/* harmony import */ var _theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_13__);
+/* harmony import */ var _theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../theme/icons/arrow-down.svg */ "./plugins/ckeditor5-templates/theme/icons/arrow-down.svg");
+/* harmony import */ var _theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_14__);
+/* harmony import */ var _theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../theme/icons/trash.svg */ "./plugins/ckeditor5-templates/theme/icons/trash.svg");
+/* harmony import */ var _theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_15__);
+/**
+ * @module section/sectiontoolbar
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const balloonClassName = 'ck-toolbar-container-section';
+
+
+
+
+
+class SectionToolbar extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MODULE_0__["default"] {
+
+  static get requires() {
+    return [ _ckeditor_ckeditor5_widget_src_widget__WEBPACK_IMPORTED_MODULE_2__["default"], _ckeditor_ckeditor5_ui_src_panel_balloon_contextualballoon__WEBPACK_IMPORTED_MODULE_3__["default"] ];
+  }
+
+  static get pluginName() {
+    return 'SectionToolbar';
+  }
+
+  init() {
+    const editor = this.editor;
+
+    const balloonToolbar = editor.plugins.get( 'BalloonToolbar' );
+
+    // If the `BalloonToolbar` plugin is loaded, it should be disabled for images
+    // which have their own toolbar to avoid duplication.
+    // https://github.com/ckeditor/ckeditor5-image/issues/110
+    if ( balloonToolbar ) {
+      this.listenTo( balloonToolbar, 'show', evt => {
+        if ( getSelectedSection( editor.editing.view.document.selection ) ) {
+          evt.stop();
+        }
+      }, { priority: 'high' } );
+    }
+
+    editor.commands.add('sectionInsert', new _commands_sectioninsertcommand__WEBPACK_IMPORTED_MODULE_8__["default"](editor));
+    editor.commands.add('sectionRemove', new _commands_sectionremovecommand__WEBPACK_IMPORTED_MODULE_9__["default"](editor));
+    editor.commands.add('sectionUp', new _commands_sectionupcommand__WEBPACK_IMPORTED_MODULE_10__["default"](editor));
+    editor.commands.add('sectionDown', new _commands_sectiondowncommand__WEBPACK_IMPORTED_MODULE_11__["default"](editor));
+
+    const sections = editor.config.get('templates');
+    Object.keys(sections).forEach((name) => {
+      let {label} = sections[name];
+      editor.ui.componentFactory.add('sectionInsert:' + name, locale => {
+        const command = editor.commands.get('sectionInsert');
+        const view = new _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_4__["default"](locale);
+        view.set({
+          label: "Insert " + label,
+          tooltip: true,
+          class: 'section-insert',
+        });
+        view.bind('isEnabled').to(command, 'isEnabled');
+        this.listenTo( view, 'execute', () => editor.execute('sectionInsert', {type: name}));
+        return view;
+      });
+    });
+
+    editor.ui.componentFactory.add('sectionRemove', locale => {
+      const command = editor.commands.get('sectionRemove');
+      const view = new _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_4__["default"](locale);
+      view.set({
+        label: "Remove section",
+        class: 'section-remove',
+        tooltip: true,
+        icon: _theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_15___default.a,
+      });
+      view.bind('isEnabled').to(command, 'isEnabled');
+      this.listenTo( view, 'execute', () => editor.execute('sectionRemove'));
+      return view;
+    });
+
+    editor.ui.componentFactory.add('sectionUp', locale => {
+      const command = editor.commands.get('sectionUp');
+      const view = new _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_4__["default"](locale);
+      view.set({
+        label: "Move section up",
+        class: 'section-up',
+        tooltip: true,
+        icon: _theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_13___default.a,
+      });
+      view.bind('isEnabled').to(command, 'isEnabled');
+      this.listenTo( view, 'execute', () => editor.execute('sectionUp'));
+      return view;
+    });
+
+    editor.ui.componentFactory.add('sectionDown', locale => {
+      const command = editor.commands.get('sectionDown');
+      const view = new _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_4__["default"](locale);
+      view.set({
+        label: "Move section down",
+        class: 'section-down',
+        tooltip: true,
+        icon: _theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_14___default.a,
+      });
+      view.bind('isEnabled').to(command, 'isEnabled');
+      this.listenTo( view, 'execute', () => editor.execute('sectionDown'));
+      return view;
+    });
+
+    editor.ui.componentFactory.add('sections', locale => {
+      const titles = {};
+      const dropdownItems = new _ckeditor_ckeditor5_utils_src_collection__WEBPACK_IMPORTED_MODULE_5__["default"]();
+      const sectionInsertCommand = editor.commands.get('sectionInsert');
+
+      for (const key of Object.keys(sections)) {
+        const section = sections[key];
+        const itemModel = new _ckeditor_ckeditor5_ui_src_model__WEBPACK_IMPORTED_MODULE_6__["default"]({
+          label: section.label,
+          section: key,
+          class: key,
+          withText: true,
+        });
+        itemModel.set({
+          commandName: 'sectionInsert',
+          commandValue: key,
+        });
+        dropdownItems.add({ type: 'button', model: itemModel });
+        titles[key] = section.label;
+      }
+
+      const dropdownView = Object(_ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_7__["createDropdown"])(locale);
+      Object(_ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_7__["addListToDropdown"])(dropdownView, dropdownItems);
+      dropdownView.buttonView.set({
+        isOn: false,
+        withText: true,
+        tooltip: 'Insert new section below.',
+      });
+
+      dropdownView.bind( 'isEnabled' ).to( sectionInsertCommand, 'isEnabled');
+
+      dropdownView.buttonView.bind( 'label' ).to(() => {
+        return 'Insert ...'
+      });
+
+      // Execute command when an item from the dropdown is selected.
+      this.listenTo( dropdownView, 'execute', evt => {
+        editor.execute( 'sectionInsert', { type: evt.source.commandValue } );
+        editor.editing.view.focus();
+      } );
+
+      return dropdownView;
+    });
+  }
+
+  /**
+   * @inheritDoc
+   */
+  afterInit() {
+    const editor = this.editor;
+    const toolbarConfig = ['sections', '|', 'sectionRemove', 'sectionUp', 'sectionDown'];
+
+    /**
+     * A contextual balloon plugin instance.
+     *
+     * @private
+     * @member {module:ui/panel/balloon/contextualballoon~ContextualBalloon}
+     */
+    this._balloon = this.editor.plugins.get( 'ContextualBalloon' );
+
+    /**
+     * A `ToolbarView` instance used to display the buttons specific for image editing.
+     *
+     * @protected
+     * @type {module:ui/toolbar/toolbarview~ToolbarView}
+     */
+    this._toolbar = new _ckeditor_ckeditor5_ui_src_toolbar_toolbarview__WEBPACK_IMPORTED_MODULE_1__["default"]();
+
+    // Add buttons to the toolbar.
+    this._toolbar.fillFromConfig( toolbarConfig, editor.ui.componentFactory );
+
+    this.listenTo( editor.editing.view, 'render', () => {
+      this._checkIsVisible();
+    } );
+
+    // There is no render method after focus is back in editor, we need to check if balloon panel should be visible.
+    this.listenTo( editor.ui.focusTracker, 'change:isFocused', () => {
+      this._checkIsVisible();
+    }, { priority: 'low' } );1
+  }
+
+  /**
+   * Checks whether the toolbar should show up or hide depending on the current selection.
+   *
+   * @private
+   */
+  _checkIsVisible() {
+    const editor = this.editor;
+    if ( !editor.ui.focusTracker.isFocused ) {
+      this._hideToolbar();
+    }
+    else {
+      const section = getSelectedSection( editor.editing.view.document.selection );
+      if ( section ) {
+        this._showToolbar(section);
+      } else {
+        this._hideToolbar();
+      }
+    }
+  }
+
+  /**
+   * Shows the {@link #_toolbar} in the {@link #_balloon}.
+   *
+   * @private
+   */
+  _showToolbar(section) {
+    const editor = this.editor;
+
+    if ( this._isVisible ) {
+      repositionContextualBalloon( editor, section);
+    } else {
+      if ( !this._balloon.hasView( this._toolbar ) ) {
+        this._balloon.add( {
+          view: this._toolbar,
+          position: getBalloonPositionData( editor, section),
+          balloonClassName
+        } );
+      }
+    }
+  }
+
+  /**
+   * Removes the {@link #_toolbar} from the {@link #_balloon}.
+   *
+   * @private
+   */
+  _hideToolbar() {
+    if ( !this._isVisible ) {
+      return;
+    }
+
+    this._balloon.remove( this._toolbar );
+  }
+
+  /**
+   * Returns `true` when the {@link #_toolbar} is the visible view in the {@link #_balloon}.
+   *
+   * @private
+   * @type {Boolean}
+   */
+  get _isVisible() {
+    return this._balloon.visibleView === this._toolbar;
+  }
+}
+
+/**
+ * Checks if a section widget is the only selected element.
+ *
+ * @param {module:engine/view/selection~Selection|module:engine/view/documentselection~DocumentSelection} selection
+ * @returns {Boolean}
+ */
+function getSelectedSection( selection ) {
+  const selected = selection.getSelectedElement();
+
+  if (selected && selected.name === 'section') {
+    return selected;
+  }
+
+  let position = selection.getFirstPosition();
+
+  if (!position) {
+    return false;
+  }
+
+  let element = position.parent;
+  while (element) {
+    if (element.name === 'section') {
+      return element;
+    }
+    element = element.parent;
+  }
+  return false;
+}
+
+/**
+ * A helper utility that positions the
+ * {@link module:ui/panel/balloon/contextualballoon~ContextualBalloon contextual balloon} instance
+ * with respect to the image in the editor content, if one is selected.
+ *
+ * @param {module:core/editor/editor~Editor} editor The editor instance.
+ */
+function repositionContextualBalloon( editor, section) {
+  const balloon = editor.plugins.get( 'ContextualBalloon' );
+  const position = getBalloonPositionData( editor, section);
+  balloon.updatePosition( position );
+}
+
+/**
+ * Returns the positioning options that control the geometry of the
+ * {@link module:ui/panel/balloon/contextualballoon~ContextualBalloon contextual balloon} with respect
+ * to the selected element in the editor content.
+ *
+ * @param {module:core/editor/editor~Editor} editor The editor instance.
+ * @returns {module:utils/dom/position~Options}
+ */
+function getBalloonPositionData( editor, section) {
+  const editingView = editor.editing.view;
+  const defaultPositions = _ckeditor_ckeditor5_ui_src_panel_balloon_balloonpanelview__WEBPACK_IMPORTED_MODULE_12__["default"].defaultPositions;
+
+  return {
+    target: editingView.domConverter.viewToDom( section ),
+    positions: [
+      defaultPositions.southArrowNorth,
+    ]
+  };
+}
+
+
+/***/ }),
+
 /***/ "./plugins/ckeditor5-templates/src/templateelement.js":
 /*!************************************************************!*\
   !*** ./plugins/ckeditor5-templates/src/templateelement.js ***!
@@ -72314,6 +72147,14 @@ __webpack_require__.r(__webpack_exports__);
  * @class TemplateElement
  */
 class TemplateElement {
+
+  setTemplateManager(manager) {
+    this.templateManager = manager;
+  }
+
+  getTemplateElement(name) {
+    return this.templateManager.getTemplate(name);
+  }
 
   /**
    * Check if the current element applies for a given node.
@@ -72481,6 +72322,10 @@ class TemplateElement {
 
   postfix(writer, item) {
 
+    if (item.name === 'ck-templates__text') {
+      //debugger;
+    }
+
     // Template attributes that are not part of the model are copied into the model.
     for (let attr of this.node.attributes) {
       if (!Array.from(item.getAttributeKeys()).includes(attr.name)) {
@@ -72545,9 +72390,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ckeditor_ckeditor5_widget_src_widget__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ckeditor/ckeditor5-widget/src/widget */ "./node_modules/@ckeditor/ckeditor5-widget/src/widget.js");
 /* harmony import */ var _templateelement__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./templateelement */ "./plugins/ckeditor5-templates/src/templateelement.js");
 /* harmony import */ var _commands_mediaselectcommand__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./commands/mediaselectcommand */ "./plugins/ckeditor5-templates/src/commands/mediaselectcommand.js");
-/* harmony import */ var _theme_css_media_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../theme/css/media.css */ "./plugins/ckeditor5-templates/theme/css/media.css");
-/* harmony import */ var _theme_css_media_css__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_theme_css_media_css__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _ckeditor_ckeditor5_engine_src_model_operation_attributeoperation__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @ckeditor/ckeditor5-engine/src/model/operation/attributeoperation */ "./node_modules/@ckeditor/ckeditor5-engine/src/model/operation/attributeoperation.js");
+/* harmony import */ var _sectiontoolbar__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sectiontoolbar */ "./plugins/ckeditor5-templates/src/sectiontoolbar.js");
+/* harmony import */ var _theme_css_media_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../theme/css/media.css */ "./plugins/ckeditor5-templates/theme/css/media.css");
+/* harmony import */ var _theme_css_media_css__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_theme_css_media_css__WEBPACK_IMPORTED_MODULE_5__);
 /**
  * @module templates/templates
  */
@@ -72565,22 +72410,28 @@ __webpack_require__.r(__webpack_exports__);
  */
 class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MODULE_0__["default"] {
 
+  getTemplate(name) {
+    return this.templates[name];
+  }
+
   /**
    * @inheritDoc
    */
   constructor(editor) {
     super(editor);
     editor.config.define('templates', []);
+    editor.config.define('rootTemplate', null);
     editor.config.define('templateElements', []);
     editor.config.define('entitySelector', () => '');
     editor.config.define('entityRenderer', () => '');
+    this.templates = {};
   }
 
   /**
    * @inheritDoc
    */
   static get requires() {
-    return [_ckeditor_ckeditor5_widget_src_widget__WEBPACK_IMPORTED_MODULE_1__["default"]];
+    return [_ckeditor_ckeditor5_widget_src_widget__WEBPACK_IMPORTED_MODULE_1__["default"], _sectiontoolbar__WEBPACK_IMPORTED_MODULE_4__["default"]];
   }
 
   /**
@@ -72597,12 +72448,51 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
 
     const templates = this.editor.config.get('templates');
     Object.keys(templates).forEach((name) => {
-      const template = (new DOMParser()).parseFromString(templates[name], 'text/xml').documentElement;
+      const template = (new DOMParser()).parseFromString(templates[name].template, 'text/xml').documentElement;
       template.setAttribute('ck-name', name);
       this._registerElement(template);
     });
 
+    const rootTemplate = this.editor.config.get('rootTemplate');
+    if (rootTemplate) {
+      const templateId = 'ck-templates__' + rootTemplate;
+      this.editor.model.schema.addChildCheck((context, def) => {
+        if (context.endsWith('$root') && def.name === templateId) {
+          return true;
+        }
+      });
+      this.editor.model.document.registerPostFixer( writer => this._cleanRoot( writer, templateId) );
+      this.editor.on( 'dataReady', () => {
+        this.editor.model.enqueueChange( 'transparent', writer => this._cleanRoot( writer, templateId) );
+      }, { priority: 'lowest' } );
+    }
+
     this.editor.commands.add('mediaSelect', new _commands_mediaselectcommand__WEBPACK_IMPORTED_MODULE_3__["default"](this.editor));
+  }
+
+  _cleanRoot(writer, rootTemplate) {
+
+    const model = this.editor.model;
+
+    for ( const rootName of model.document.getRootNames() ) {
+      const root = model.document.getRoot( rootName );
+
+      if (root.rootName === '$graveyard' ) {
+        continue
+      }
+
+      for (let child of root.getChildren()) {
+        if (child.name !== rootTemplate) {
+          writer.remove(child);
+          return true;
+        }
+      }
+
+      if (root.isEmpty) {
+        writer.appendElement(rootTemplate, root);
+        return true;
+      }
+    }
   }
 
   /**
@@ -72632,6 +72522,7 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
 
     /** @type {TemplateElement} */
     const element = new ElementConstructor(this.editor, template, parent, index);
+    this.templates[element.name] = element;
 
     /** @type {TemplateElement[]} */
     const children = childNodes
@@ -72639,6 +72530,7 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
         .filter( child => !!child);
 
     element.setChildren(children);
+    element.setTemplateManager(this);
 
     const attributes = Array.from(new Set(Array.from(template.attributes)
         .map(attr => attr.name)
@@ -72658,11 +72550,13 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
     }
 
     this.editor.model.document.registerPostFixer((writer) => {
+      let changed = false;
       for (const entry of this.editor.model.document.differ.getChanges()) {
         if (entry.type === 'insert' && element.name === entry.name) {
-          return element.postfix(writer, entry.position.nodeAfter);
+          changed = changed || element.postfix(writer, entry.position.nodeAfter);
         }
       }
+      return changed;
     });
 
     this.editor.model.schema.addChildCheck((context, def) => {
@@ -72730,6 +72624,28 @@ if(false) {}
 
 /***/ }),
 
+/***/ "./plugins/ckeditor5-templates/theme/icons/arrow-down.svg":
+/*!****************************************************************!*\
+  !*** ./plugins/ckeditor5-templates/theme/icons/arrow-down.svg ***!
+  \****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\" viewBox=\"0 0 100 100\">\n  <polygon points=\"100 43.75 23.938 43.75 58.875 8.813 50 0 0 50 50 100 58.813 91.188 23.938 56.25 100 56.25\" transform=\"rotate(-90 50 50)\"/>\n</svg>\n"
+
+/***/ }),
+
+/***/ "./plugins/ckeditor5-templates/theme/icons/arrow-up.svg":
+/*!**************************************************************!*\
+  !*** ./plugins/ckeditor5-templates/theme/icons/arrow-up.svg ***!
+  \**************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\" viewBox=\"0 0 100 100\">\n  <polygon points=\"100 43.75 23.938 43.75 58.875 8.813 50 0 0 50 50 100 58.813 91.188 23.938 56.25 100 56.25\" transform=\"rotate(90 50 50)\"/>\n</svg>\n"
+
+/***/ }),
+
 /***/ "./plugins/ckeditor5-templates/theme/icons/search.svg":
 /*!************************************************************!*\
   !*** ./plugins/ckeditor5-templates/theme/icons/search.svg ***!
@@ -72738,6 +72654,17 @@ if(false) {}
 /***/ (function(module, exports) {
 
 module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\">\n  <path d=\"M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z\"/>\n</svg>\n"
+
+/***/ }),
+
+/***/ "./plugins/ckeditor5-templates/theme/icons/trash.svg":
+/*!***********************************************************!*\
+  !*** ./plugins/ckeditor5-templates/theme/icons/trash.svg ***!
+  \***********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"78\" height=\"100\" viewBox=\"0 0 78 100\">\n  <path d=\"M61.1111111,33.3333333 L61.1111111,88.8888889 L16.6666667,88.8888889 L16.6666667,33.3333333 L61.1111111,33.3333333 Z M52.7777778,0 L25,0 L19.4444444,5.55555556 L0,5.55555556 L0,16.6666667 L77.7777778,16.6666667 L77.7777778,5.55555556 L58.3333333,5.55555556 L52.7777778,0 Z M72.2222222,22.2222222 L5.55555556,22.2222222 L5.55555556,88.8888889 C5.55555556,95 10.5555556,100 16.6666667,100 L61.1111111,100 C67.2222222,100 72.2222222,95 72.2222222,88.8888889 L72.2222222,22.2222222 Z\"/>\n</svg>\n"
 
 /***/ }),
 
@@ -72768,9 +72695,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ckeditor_ckeditor5_essentials_src_essentials__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @ckeditor/ckeditor5-essentials/src/essentials */ "./node_modules/@ckeditor/ckeditor5-essentials/src/essentials.js");
 /* harmony import */ var _plugins_ckeditor5_templates_src_templates__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../plugins/ckeditor5-templates/src/templates */ "./plugins/ckeditor5-templates/src/templates.js");
 /* harmony import */ var _plugins_ckeditor5_templates_src_templateelement__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../plugins/ckeditor5-templates/src/templateelement */ "./plugins/ckeditor5-templates/src/templateelement.js");
-/* harmony import */ var _plugins_ckeditor5_section_src_section__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../plugins/ckeditor5-section/src/section */ "./plugins/ckeditor5-section/src/section.js");
-/* harmony import */ var _plugins_ckeditor5_templates_src_elements_textelement__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../plugins/ckeditor5-templates/src/elements/textelement */ "./plugins/ckeditor5-templates/src/elements/textelement.js");
-/* harmony import */ var _plugins_ckeditor5_templates_src_elements_mediaelement__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../plugins/ckeditor5-templates/src/elements/mediaelement */ "./plugins/ckeditor5-templates/src/elements/mediaelement.js");
+/* harmony import */ var _plugins_ckeditor5_templates_src_elements_textelement__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../plugins/ckeditor5-templates/src/elements/textelement */ "./plugins/ckeditor5-templates/src/elements/textelement.js");
+/* harmony import */ var _plugins_ckeditor5_templates_src_elements_mediaelement__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../plugins/ckeditor5-templates/src/elements/mediaelement */ "./plugins/ckeditor5-templates/src/elements/mediaelement.js");
+/* harmony import */ var _plugins_ckeditor5_templates_src_elements_containerelement__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../plugins/ckeditor5-templates/src/elements/containerelement */ "./plugins/ckeditor5-templates/src/elements/containerelement.js");
 /**
  * @license Copyright (c) 2003-2018, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md.
@@ -72790,11 +72717,11 @@ __webpack_require__.r(__webpack_exports__);
 class SectionsEditor extends _ckeditor_ckeditor5_editor_balloon_src_ballooneditor__WEBPACK_IMPORTED_MODULE_0__["default"] {}
 
 // Plugins to include in the build.
-SectionsEditor.builtinPlugins = [ _ckeditor_ckeditor5_essentials_src_essentials__WEBPACK_IMPORTED_MODULE_3__["default"], _plugins_ckeditor5_templates_src_templates__WEBPACK_IMPORTED_MODULE_4__["default"], /*Paragraph, Autoformat,*/ _plugins_ckeditor5_section_src_section__WEBPACK_IMPORTED_MODULE_6__["default"]];
+SectionsEditor.builtinPlugins = [ _ckeditor_ckeditor5_essentials_src_essentials__WEBPACK_IMPORTED_MODULE_3__["default"], _plugins_ckeditor5_templates_src_templates__WEBPACK_IMPORTED_MODULE_4__["default"], /*Paragraph, Autoformat*/];
 
 // Editor configuration.
 SectionsEditor.defaultConfig = {
-  templateElements: [_plugins_ckeditor5_templates_src_elements_mediaelement__WEBPACK_IMPORTED_MODULE_8__["default"], _plugins_ckeditor5_templates_src_elements_textelement__WEBPACK_IMPORTED_MODULE_7__["default"], _plugins_ckeditor5_templates_src_templateelement__WEBPACK_IMPORTED_MODULE_5__["default"]],
+  templateElements: [_plugins_ckeditor5_templates_src_elements_mediaelement__WEBPACK_IMPORTED_MODULE_7__["default"], _plugins_ckeditor5_templates_src_elements_textelement__WEBPACK_IMPORTED_MODULE_6__["default"], _plugins_ckeditor5_templates_src_elements_containerelement__WEBPACK_IMPORTED_MODULE_8__["default"], _plugins_ckeditor5_templates_src_templateelement__WEBPACK_IMPORTED_MODULE_5__["default"]],
   blockToolbar: [],
 	toolbar: {items: []},
 	// This value must be kept in sync with the language defined in webpack.config.js.

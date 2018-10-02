@@ -104,10 +104,6 @@ export default class MediaElement extends TemplateElement {
     };
   }
 
-  postfix(writer, item) {
-    super.postfix(writer, item);
-  }
-
   /**
    * @inheritDoc
    */

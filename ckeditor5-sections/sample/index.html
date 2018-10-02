@@ -57,28 +57,46 @@
 <script>
 	SectionsEditor.create( document.querySelector( '#editor' ) , {
     defaultSection: 'text',
+		rootTemplate: 'root',
     templates: {
-      text: `
-        <section class="text">
-          <h2 ck-editable-type="text">Enter a headline ...</h2>
-          <p ck-editable-type="text">Enter some text ...</p>
-        </section>
-      `,
+      root: {
+        label: 'Root',
+        template: `
+          <root class="root">
+            <container class="root-container" ck-editable-type="container" ck-allowed-elements="text image gallery" ck-default-element="text"></container>
+          </root>
+        `,
+      },
 
-      image: `
-        <section class="image">
-        	<div ck-editable-type="media" data-media-type="image" data-media-display="hero"/>
-        </section>
-      `,
-
-    },
-    sections: {
       text: {
         label: 'Text',
+        template: `
+          <section class="text">
+            <h2 ck-editable-type="text">Enter a headline ...</h2>
+            <p ck-editable-type="text">Enter some text ...</p>
+          </section>
+        `,
       },
+
       image: {
         label: 'Image',
-      },
+				template: `
+          <section class="image">
+            <div ck-editable-type="media" data-media-type="image" data-media-display="hero"/>
+            <h3 ck-editable-type="text"></h3>
+          </section>
+        `,
+			},
+
+			gallery: {
+        label: 'Gallery',
+				template: `
+          <section class="gallery">
+            <h2 ck-editable-type="text">Gallery title ...</h2>
+            <container ck-editable-type="container" ck-allowed-elements="image" ck-default-element="image"></container>
+          </section>
+				`,
+			},
     },
 		mediaSelector: function (type, operation, callback) {
       if (type !== 'image') {
