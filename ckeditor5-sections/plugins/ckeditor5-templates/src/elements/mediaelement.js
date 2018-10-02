@@ -114,44 +114,24 @@ export default class MediaElement extends TemplateElement {
     };
   }
 
-  get upcast() {
-    // Todo: construct in a way that it doesn't have to be a straight copy.
-    return upcastElementToElement({
-      view: (viewElement) => {
-        if (this.matches(viewElement)) {
-          return {template: true};
-        }
-        return null;
-      },
-      model: (viewElement, modelWriter) => {
-        const attributes = Object.assign(
-            // By default set all attributes defined in the template.
-            Array.from(this.node.attributes)
-                .map(attr => ({[attr.name]: attr.value}))
-                .reduce((acc, val) => Object.assign(acc, val), {}),
-            Array.from(viewElement.getAttributeKeys())
-            .map(key => ({[key]: viewElement.getAttribute(key)}))
-            .reduce((acc, val) => Object.assign(acc, val), {})
-        );
-        const model = modelWriter.createElement(this.name, attributes);
+  toModelElement(viewElement, modelWriter) {
+    const model = super.toModelElement(viewElement, modelWriter);
 
-        if (attributes['data-media-uuid']) {
-          window.setTimeout(() => {
-            this.editor.model.change(writer => {
-              writer.setAttribute('ck-media-loading', true, model);
-            });
-            this._mediaRenderer(model.getAttribute('data-media-uuid'), model.getAttribute('data-media-display'), content => {
-              this.editor.model.change(writer => {
-                writer.setAttribute('ck-media-loading', false, model);
-                writer.setAttribute('ck-media-rendered', content, model);
-              });
-            });
-          }, 500);
-        }
+    if (model.getAttribute('data-media-uuid')) {
+      window.setTimeout(() => {
+        this.editor.model.change(writer => {
+          writer.setAttribute('ck-media-loading', true, model);
+        });
+        this._mediaRenderer(model.getAttribute('data-media-uuid'), model.getAttribute('data-media-display'), content => {
+          this.editor.model.change(writer => {
+            writer.setAttribute('ck-media-loading', false, model);
+            writer.setAttribute('ck-media-rendered', content, model);
+          });
+        });
+      }, 500);
+    }
 
-        return model;
-      }
-    });
+    return model;
   }
 
   /**

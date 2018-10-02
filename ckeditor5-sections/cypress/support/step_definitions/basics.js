@@ -3,7 +3,7 @@
 beforeEach(() => {
   cy.visit('./sample/index.html');
   // Make sure the editor is focused.
-  cy.get('#editor').as('container').click();
+  cy.get('.root > div').as('container').click();
 });
 
 Given(`I opened an empty document`, () => {
@@ -23,28 +23,21 @@ Given(/^I click the (first|second|third|last) section$/, (position) => {
     last: ':last-child'
   }[position];
 
-  cy.get('@container').within(() => {
-    cy.get(`section${selector}`).as('widget').click();
-  });
+  cy.get('@container').children().filter(selector).as('widget').click();
 });
 
 Given(/^there (is|are) (no|\d+) sections?$/, (_, number, contents) => {
   for (let count = 1; count < number; count++) {
-    cy.get('@container').within(() => {
-      cy.get(`section:last-child`).click();
-    });
+    cy.get('@container').children().filter(':last-child').click();
     cy.contains('Insert ...').click();
     cy.contains('Text').click();
   }
   if (contents) {
     const raw = contents.raw();
     for (let i = 0; i < raw.length; i++) {
-      console.log(raw[i][0]);
-      cy.get('@container').within(() => {
-        cy.get(`section:nth(${i})`).within(() => {
-          cy.get('p').type(raw[i][0]);
-        })
-      });
+      cy.get('@container').children().filter(`:nth(${i})`).within(() => {
+        cy.get('p').type(raw[i][0]);
+      })
     }
   }
 });
@@ -65,14 +58,12 @@ Given(/^I enter "(.*)"$/, (text) => {
 });
 
 Then (/^there should be (\d+)\s?(.*?) sections?$/, (number, type) => {
-  cy.get('@container').within(() => {
-    if (type) {
-      cy.get(`section.${type}`).should('have.length', number);
-    }
-    else {
-      cy.get(`section`).should('have.length', number);
-    }
-  });
+  if (type) {
+    cy.get('@container').children().filter(`.${type}`).should('have.length', number);
+  }
+  else {
+    cy.get('@container').children().should('have.length', number);
+  }
 });
 
 Then(/^the preview should show "([^"]*)"$/, (text) => {
@@ -86,7 +77,7 @@ Then(/^the (first|second|third|last) preview section should show "([^"]*)"$/, (p
     third: ':nth(2)',
     last: ':last-child'
   }[position];
-    cy.get(`section${selector}`).within(() => {
+    cy.get(`.text${selector}`).within(() => {
       cy.contains(text);
     });
 });

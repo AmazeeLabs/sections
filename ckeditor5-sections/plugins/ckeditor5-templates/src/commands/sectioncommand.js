@@ -9,7 +9,7 @@ export default class SectionCommand extends Command {
     }
     element = this.editor.editing.mapper.toViewElement(this.editor.model.document.selection.anchor.parent);
     while (element) {
-      if (element.name === 'section') {
+      if (element.parent && element.parent.getCustomProperty('container')) {
         return this.editor.editing.mapper.toModelElement(element);
       }
       element = element.parent;

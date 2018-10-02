@@ -71264,7 +71264,7 @@ class SectionCommand extends _ckeditor_ckeditor5_core_src_command__WEBPACK_IMPOR
     }
     element = this.editor.editing.mapper.toViewElement(this.editor.model.document.selection.anchor.parent);
     while (element) {
-      if (element.name === 'section') {
+      if (element.parent && element.parent.getCustomProperty('container')) {
         return this.editor.editing.mapper.toModelElement(element);
       }
       element = element.parent;
@@ -71436,6 +71436,19 @@ class ContainerElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["de
     return node.getAttribute('ck-editable-type') === 'container';
   }
 
+
+  toModelElement(viewElement, modelWriter) {
+    const model = super.toModelElement(viewElement, modelWriter);
+    modelWriter.setAttribute('ck-container', true, model);
+    return model;
+  }
+
+  toEditorElement(modelElement, viewWriter) {
+     const element = super.toEditorElement(modelElement, viewWriter);
+     viewWriter.setCustomProperty('container', true, element);
+     return element;
+  }
+
   /**
    * @inheritDoc
    */
@@ -71595,44 +71608,24 @@ class MediaElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["defaul
     };
   }
 
-  get upcast() {
-    // Todo: construct in a way that it doesn't have to be a straight copy.
-    return Object(_ckeditor_ckeditor5_engine_src_conversion_upcast_converters__WEBPACK_IMPORTED_MODULE_7__["upcastElementToElement"])({
-      view: (viewElement) => {
-        if (this.matches(viewElement)) {
-          return {template: true};
-        }
-        return null;
-      },
-      model: (viewElement, modelWriter) => {
-        const attributes = Object.assign(
-            // By default set all attributes defined in the template.
-            Array.from(this.node.attributes)
-                .map(attr => ({[attr.name]: attr.value}))
-                .reduce((acc, val) => Object.assign(acc, val), {}),
-            Array.from(viewElement.getAttributeKeys())
-            .map(key => ({[key]: viewElement.getAttribute(key)}))
-            .reduce((acc, val) => Object.assign(acc, val), {})
-        );
-        const model = modelWriter.createElement(this.name, attributes);
+  toModelElement(viewElement, modelWriter) {
+    const model = super.toModelElement(viewElement, modelWriter);
 
-        if (attributes['data-media-uuid']) {
-          window.setTimeout(() => {
-            this.editor.model.change(writer => {
-              writer.setAttribute('ck-media-loading', true, model);
-            });
-            this._mediaRenderer(model.getAttribute('data-media-uuid'), model.getAttribute('data-media-display'), content => {
-              this.editor.model.change(writer => {
-                writer.setAttribute('ck-media-loading', false, model);
-                writer.setAttribute('ck-media-rendered', content, model);
-              });
-            });
-          }, 500);
-        }
+    if (model.getAttribute('data-media-uuid')) {
+      window.setTimeout(() => {
+        this.editor.model.change(writer => {
+          writer.setAttribute('ck-media-loading', true, model);
+        });
+        this._mediaRenderer(model.getAttribute('data-media-uuid'), model.getAttribute('data-media-display'), content => {
+          this.editor.model.change(writer => {
+            writer.setAttribute('ck-media-loading', false, model);
+            writer.setAttribute('ck-media-rendered', content, model);
+          });
+        });
+      }, 500);
+    }
 
-        return model;
-      }
-    });
+    return model;
   }
 
   /**
@@ -72063,7 +72056,8 @@ class SectionToolbar extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORT
 function getSelectedSection( selection ) {
   const selected = selection.getSelectedElement();
 
-  if (selected && selected.name === 'section') {
+  // debugger;
+  if (selected && selected.parent.getCustomProperty('container')) {
     return selected;
   }
 
@@ -72074,8 +72068,8 @@ function getSelectedSection( selection ) {
   }
 
   let element = position.parent;
-  while (element) {
-    if (element.name === 'section') {
+  while (element.parent) {
+    if (element.parent.getCustomProperty('container')) {
       return element;
     }
     element = element.parent;
@@ -72254,11 +72248,25 @@ class TemplateElement {
    * @param {module:engine/view/element~Element} viewElement
    * @returns {Object}
    */
-  matches(viewElement) {
+  matchesViewElement(viewElement) {
     const templateClasses = Array.from(this.node.classList);
     return viewElement.name === this.node.tagName
       && templateClasses.filter(cls => viewElement.hasClass(cls)).length === templateClasses.length
-      && (!this.parent || this.parent.matches(viewElement.parent))
+      && (!this.parent || this.parent.matchesViewElement(viewElement.parent))
+  }
+
+  toModelElement(viewElement, modelWriter) {
+    const attributes = Object.assign(
+        // By default set all attributes defined in the template.
+        Array.from(this.node.attributes)
+            .map(attr => ({[attr.name]: attr.value}))
+            .reduce((acc, val) => Object.assign(acc, val), {}),
+        // Override with actual values.
+        Array.from(viewElement.getAttributeKeys())
+            .map(key => ({[key]: viewElement.getAttribute(key)}))
+            .reduce((acc, val) => Object.assign(acc, val), {})
+    );
+    return modelWriter.createElement(this.name, attributes);
   }
 
   /**
@@ -72269,23 +72277,13 @@ class TemplateElement {
   get upcast() {
     return Object(_ckeditor_ckeditor5_engine_src_conversion_upcast_converters__WEBPACK_IMPORTED_MODULE_1__["upcastElementToElement"])({
       view: (viewElement) => {
-        if (this.matches(viewElement)) {
+        if (this.matchesViewElement(viewElement)) {
           return {template: true};
         }
         return null;
       },
       model: (viewElement, modelWriter) => {
-        const attributes = Object.assign(
-            // By default set all attributes defined in the template.
-            Array.from(this.node.attributes)
-                .map(attr => ({[attr.name]: attr.value}))
-                .reduce((acc, val) => Object.assign(acc, val), {}),
-            // Override with actual values.
-            Array.from(viewElement.getAttributeKeys())
-              .map(key => ({[key]: viewElement.getAttribute(key)}))
-              .reduce((acc, val) => Object.assign(acc, val), {})
-        );
-        return modelWriter.createElement(this.name, attributes);
+        return this.toModelElement(viewElement, modelWriter);
       }
     });
   }
@@ -72299,12 +72297,16 @@ class TemplateElement {
     });
   }
 
+  toEditorElement(modelElement, viewWriter) {
+    const element = viewWriter.createContainerElement(this.node.tagName, this.getModelAttributes(modelElement));
+    return this.parent ? element : Object(_ckeditor_ckeditor5_widget_src_utils__WEBPACK_IMPORTED_MODULE_2__["toWidget"])(element, viewWriter);
+  }
+
   get editingDowncast() {
     return Object(_ckeditor_ckeditor5_engine_src_conversion_downcast_converters__WEBPACK_IMPORTED_MODULE_0__["downcastElementToElement"])({
       model: this.name,
       view: (modelElement, viewWriter) => {
-        const element = viewWriter.createContainerElement(this.node.tagName, this.getModelAttributes(modelElement));
-        return this.parent ? element : Object(_ckeditor_ckeditor5_widget_src_utils__WEBPACK_IMPORTED_MODULE_2__["toWidget"])(element, viewWriter);
+        return this.toEditorElement(modelElement, viewWriter);
       }
     });
   }

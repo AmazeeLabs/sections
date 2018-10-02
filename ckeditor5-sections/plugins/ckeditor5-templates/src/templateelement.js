@@ -120,11 +120,25 @@ export default class TemplateElement {
    * @param {module:engine/view/element~Element} viewElement
    * @returns {Object}
    */
-  matches(viewElement) {
+  matchesViewElement(viewElement) {
     const templateClasses = Array.from(this.node.classList);
     return viewElement.name === this.node.tagName
       && templateClasses.filter(cls => viewElement.hasClass(cls)).length === templateClasses.length
-      && (!this.parent || this.parent.matches(viewElement.parent))
+      && (!this.parent || this.parent.matchesViewElement(viewElement.parent))
+  }
+
+  toModelElement(viewElement, modelWriter) {
+    const attributes = Object.assign(
+        // By default set all attributes defined in the template.
+        Array.from(this.node.attributes)
+            .map(attr => ({[attr.name]: attr.value}))
+            .reduce((acc, val) => Object.assign(acc, val), {}),
+        // Override with actual values.
+        Array.from(viewElement.getAttributeKeys())
+            .map(key => ({[key]: viewElement.getAttribute(key)}))
+            .reduce((acc, val) => Object.assign(acc, val), {})
+    );
+    return modelWriter.createElement(this.name, attributes);
   }
 
   /**
@@ -135,23 +149,13 @@ export default class TemplateElement {
   get upcast() {
     return upcastElementToElement({
       view: (viewElement) => {
-        if (this.matches(viewElement)) {
+        if (this.matchesViewElement(viewElement)) {
           return {template: true};
         }
         return null;
       },
       model: (viewElement, modelWriter) => {
-        const attributes = Object.assign(
-            // By default set all attributes defined in the template.
-            Array.from(this.node.attributes)
-                .map(attr => ({[attr.name]: attr.value}))
-                .reduce((acc, val) => Object.assign(acc, val), {}),
-            // Override with actual values.
-            Array.from(viewElement.getAttributeKeys())
-              .map(key => ({[key]: viewElement.getAttribute(key)}))
-              .reduce((acc, val) => Object.assign(acc, val), {})
-        );
-        return modelWriter.createElement(this.name, attributes);
+        return this.toModelElement(viewElement, modelWriter);
       }
     });
   }
@@ -165,12 +169,16 @@ export default class TemplateElement {
     });
   }
 
+  toEditorElement(modelElement, viewWriter) {
+    const element = viewWriter.createContainerElement(this.node.tagName, this.getModelAttributes(modelElement));
+    return this.parent ? element : toWidget(element, viewWriter);
+  }
+
   get editingDowncast() {
     return downcastElementToElement({
       model: this.name,
       view: (modelElement, viewWriter) => {
-        const element = viewWriter.createContainerElement(this.node.tagName, this.getModelAttributes(modelElement));
-        return this.parent ? element : toWidget(element, viewWriter);
+        return this.toEditorElement(modelElement, viewWriter);
       }
     });
   }

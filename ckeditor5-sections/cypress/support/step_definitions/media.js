@@ -2,14 +2,14 @@
 Given(`there is an empty image section`, () => {
   cy.window().then(window => {
     window.editor.setData(`
-      <root class="root">
-        <container class="root-container">
-          <section class="image">
+      <div class="root">
+        <div class="root-container">
+          <figure class="image">
             <div data-media-type="image" data-media-display="hero"/>
             <figcaption>Insert text ...</figcaption>
-          </section>
-        </container>
-      </root>
+          </figure>
+        </div>
+      </div>
     `);
   })
 });
@@ -39,29 +39,29 @@ Then(`the preview contains a media entity`, () => {
 Given(`there is an empty gallery`, () => {
   cy.window().then(window => {
     window.editor.setData(`
-      <root class="root">
-        <container class="root-container">
+      <div class="root">
+        <div class="root-container">
           <section class="gallery">
             <h2></h2>
-            <container>
-              <section class="image">
+            <div>
+              <figure class="image">
                 <div data-media-type="image" data-media-display="hero"/>
-                <h3>Insert text ...</h3>
-              </section>
-            </container>
+                <figcaption>Insert text ...</figcaption>
+              </figure>
+            </div>
           </section>
-        </container>
-      </root>
+        </div>
+      </div>
     `);
   })
 });
 
 Then(`there should be an empty image`, () => {
   cy.get('@container').within(() => {
-    cy.get('section.image').should('be.visible');
+    cy.get('figure.image').should('be.visible');
   });
 });
 
 When(`I click the first gallery image`, () => {
-  cy.get('#editor section.image').click();
+  cy.get('#editor figure.image').click();
 });

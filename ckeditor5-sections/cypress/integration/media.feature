@@ -6,6 +6,11 @@ Feature: Embedded media widgets
     And I click the "Image" toolbar button
     Then there should be 1 image section
 
+  Scenario: Toolbar on images
+    Given there is an empty image section
+    And I click the first section
+    Then the section toolbar appears
+
   Scenario: Select an image
     Given there is an empty image section
     And I click the first section

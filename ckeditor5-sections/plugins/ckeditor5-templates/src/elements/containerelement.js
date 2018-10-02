@@ -21,6 +21,19 @@ export default class ContainerElement extends TemplateElement {
     return node.getAttribute('ck-editable-type') === 'container';
   }
 
+
+  toModelElement(viewElement, modelWriter) {
+    const model = super.toModelElement(viewElement, modelWriter);
+    modelWriter.setAttribute('ck-container', true, model);
+    return model;
+  }
+
+  toEditorElement(modelElement, viewWriter) {
+     const element = super.toEditorElement(modelElement, viewWriter);
+     viewWriter.setCustomProperty('container', true, element);
+     return element;
+  }
+
   /**
    * @inheritDoc
    */
