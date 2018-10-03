@@ -71460,9 +71460,8 @@ class ContainerElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["de
 
   postfix(writer, item) {
     if (item.childCount === 0) {
-      writer.model.enqueueChange(writer.batch, writer => {
-         writer.appendElement(this.defaultElement, item);
-      });
+       writer.appendElement(this.defaultElement, item);
+       return true;
     }
   }
 
@@ -72347,18 +72346,19 @@ class TemplateElement {
       }
     }
 
+    let changed = false;
+
     for (let name in childSeats) {
       if (childSeats[name]) {
-        writer.model.enqueueChange(writer.batch, writer => {
-          writer.insert(childSeats[name], item, 'end');
-        });
+        writer.insert(childSeats[name], item, 'end');
       }
       else {
-        writer.model.enqueueChange(writer.batch, writer => {
-          writer.insertElement(name, item, 'end');
-        });
+        writer.insertElement(name, item, 'end');
+        changed = true;
       }
     }
+
+    return changed;
   }
 
   getModelAttributes(modelElement) {
@@ -72550,7 +72550,9 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
       for (const entry of this.editor.model.document.differ.getChanges()) {
         if (entry.type === 'insert' && element.name === entry.name) {
           const item = entry.position.nodeAfter;
-          this._recursiveElementPostFix(element, writer, item);
+          if (this._recursiveElementPostFix(element, writer, item)) {
+            return true;
+          }
         }
       }
     });
@@ -72565,16 +72567,18 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
   }
 
   _recursiveElementPostFix(element, writer, item) {
+    let changed = false;
     if (item instanceof _ckeditor_ckeditor5_engine_src_model_element__WEBPACK_IMPORTED_MODULE_2__["default"]) {
       if (!item.getChildren) {
         debugger;
       }
       const children = item.getChildren();
       for (let child of children) {
-        this._recursiveElementPostFix(this.elements[child.name], writer, child);
+        changed = this._recursiveElementPostFix(this.elements[child.name], writer, child) || changed;
       }
-      element.postfix(writer, item);
+      changed = element.postfix(writer, item) || changed;
     }
+    return changed;
   }
 
 }

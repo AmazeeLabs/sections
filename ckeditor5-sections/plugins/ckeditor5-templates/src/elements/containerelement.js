@@ -45,9 +45,8 @@ export default class ContainerElement extends TemplateElement {
 
   postfix(writer, item) {
     if (item.childCount === 0) {
-      writer.model.enqueueChange(writer.batch, writer => {
-         writer.appendElement(this.defaultElement, item);
-      });
+       writer.appendElement(this.defaultElement, item);
+       return true;
     }
   }
 

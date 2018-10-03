@@ -155,7 +155,9 @@ export default class Templates extends Plugin {
       for (const entry of this.editor.model.document.differ.getChanges()) {
         if (entry.type === 'insert' && element.name === entry.name) {
           const item = entry.position.nodeAfter;
-          this._recursiveElementPostFix(element, writer, item);
+          if (this._recursiveElementPostFix(element, writer, item)) {
+            return true;
+          }
         }
       }
     });
@@ -170,16 +172,18 @@ export default class Templates extends Plugin {
   }
 
   _recursiveElementPostFix(element, writer, item) {
+    let changed = false;
     if (item instanceof Element) {
       if (!item.getChildren) {
         debugger;
       }
       const children = item.getChildren();
       for (let child of children) {
-        this._recursiveElementPostFix(this.elements[child.name], writer, child);
+        changed = this._recursiveElementPostFix(this.elements[child.name], writer, child) || changed;
       }
-      element.postfix(writer, item);
+      changed = element.postfix(writer, item) || changed;
     }
+    return changed;
   }
 
 }

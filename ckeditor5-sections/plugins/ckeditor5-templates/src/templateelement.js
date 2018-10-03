@@ -219,18 +219,19 @@ export default class TemplateElement {
       }
     }
 
+    let changed = false;
+
     for (let name in childSeats) {
       if (childSeats[name]) {
-        writer.model.enqueueChange(writer.batch, writer => {
-          writer.insert(childSeats[name], item, 'end');
-        });
+        writer.insert(childSeats[name], item, 'end');
       }
       else {
-        writer.model.enqueueChange(writer.batch, writer => {
-          writer.insertElement(name, item, 'end');
-        });
+        writer.insertElement(name, item, 'end');
+        changed = true;
       }
     }
+
+    return changed;
   }
 
   getModelAttributes(modelElement) {
