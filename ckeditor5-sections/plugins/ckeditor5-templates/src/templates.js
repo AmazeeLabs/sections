@@ -4,6 +4,7 @@
 
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
+import Element from '@ckeditor/ckeditor5-engine/src/model/element'
 import TemplateElement from './templateelement';
 import MediaSelectCommand from "./commands/mediaselectcommand";
 import SectionToolbar from "./sectiontoolbar";
@@ -15,10 +16,6 @@ import "../theme/css/media.css";
  */
 export default class Templates extends Plugin {
 
-  getTemplate(name) {
-    return this.templates[name];
-  }
-
   /**
    * @inheritDoc
    */
@@ -29,7 +26,7 @@ export default class Templates extends Plugin {
     editor.config.define('templateElements', []);
     editor.config.define('entitySelector', () => '');
     editor.config.define('entityRenderer', () => '');
-    this.templates = {};
+    this.elements = {};
   }
 
   /**
@@ -127,7 +124,7 @@ export default class Templates extends Plugin {
 
     /** @type {TemplateElement} */
     const element = new ElementConstructor(this.editor, template, parent, index);
-    this.templates[element.name] = element;
+    this.elements[element.name] = element;
 
     /** @type {TemplateElement[]} */
     const children = childNodes
@@ -156,8 +153,9 @@ export default class Templates extends Plugin {
 
     this.editor.model.document.registerPostFixer((writer) => {
       for (const entry of this.editor.model.document.differ.getChanges()) {
+        const item = entry.position.nodeAfter;
         if (entry.type === 'insert' && element.name === entry.name) {
-          element.postfix(writer, entry.position.nodeAfter);
+          this._recursiveElementPostFix(element, writer, item);
         }
       }
     });
@@ -169,6 +167,19 @@ export default class Templates extends Plugin {
     });
 
     return element;
+  }
+
+  _recursiveElementPostFix(element, writer, item) {
+    if (item instanceof Element) {
+      if (!item.getChildren) {
+        debugger;
+      }
+      const children = item.getChildren();
+      for (let child of children) {
+        this._recursiveElementPostFix(this.elements[child.name], writer, child);
+      }
+      element.postfix(writer, item);
+    }
   }
 
 }

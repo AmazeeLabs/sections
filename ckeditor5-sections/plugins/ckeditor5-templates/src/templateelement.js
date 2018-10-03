@@ -85,17 +85,22 @@ export default class TemplateElement {
   }
 
   /**
+   * @private
+   */
+  get _name() {
+    const name = (this.node.getAttribute('ck-name') || 'child' + this.index);
+    return this.parent ? this.parent._name + '__' + name : name;
+  }
+  /**
    * Returns the calculated name for this element.
    *
    * @returns {String}
    */
   get name() {
-    if (!this._name) {
-      const name = (this.node.getAttribute('ck-name') || 'child' + this.index);
-      this._name = this.parent ? this.parent.name + '__' + name : name;
-      this._name = 'ck-templates__' + this._name;
+    if (!this._nameCache) {
+      this._nameCache = 'ck-templates__' + this._name;
     }
-    return this._name;
+    return this._nameCache;
   }
 
   /**
@@ -196,7 +201,7 @@ export default class TemplateElement {
 
   postfix(writer, item) {
 
-    // Template attributes that are not part of the model are copied into the model.
+    // Template attributes that are not part of the model are copied into the model initially.
     for (let attr of this.node.attributes) {
       if (!Array.from(item.getAttributeKeys()).includes(attr.name)) {
         writer.setAttribute(attr.name, attr.value, item);
@@ -206,19 +211,10 @@ export default class TemplateElement {
     const childSeats = this.children.map((child) => ({[child.name]: true}))
         .reduce((acc, val) => Object.assign(acc, val), {});
 
-    const removable = [];
-
     for (let child of item.getChildren()) {
       if (childSeats.hasOwnProperty(child.name) && childSeats[child.name]) {
         childSeats[child.name] = false;
       }
-      else {
-        removable.push(child);
-      }
-    }
-
-    for (let child of removable) {
-      writer.remove(child);
     }
 
     for (let name in childSeats) {

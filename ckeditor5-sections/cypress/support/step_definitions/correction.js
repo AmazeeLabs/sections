@@ -37,3 +37,23 @@ Given(`there is a text section missing the p element`, () => {
 Then(`an empty p element is added`, () => {
   cy.get('#editor p').should('exist');
 });
+
+Given(`there is a text section with element p before h2`, () => {
+  cy.window().then(window => {
+    window.editor.setData(`
+    <div class="root">
+      <div class="root-container">
+        <div class="text">
+          <p>Thats in the wrong order</p>
+          <h2>This one too</h2>
+        </div>
+      </div>
+    </div>
+    `);
+  })
+});
+
+Then(`it is corrected to h2 before p`, () => {
+  cy.get('#editor .text').children().first().filter('h2');
+  cy.get('#editor .text').children().last().filter('p');
+});
