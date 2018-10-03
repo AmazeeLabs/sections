@@ -18,8 +18,8 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
-afterEach(function() {
-  if (this.currentTest.state === 'failed') {
-    Cypress.runner.stop()
-  }
+
+beforeEach(() => {
+  cy.visit('./sample/index.html#cypress');
 });
+

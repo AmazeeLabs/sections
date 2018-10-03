@@ -55,79 +55,86 @@
 
 <script src="../build/ckeditor.js"></script>
 <script>
-	SectionsEditor.create( document.querySelector( '#editor' ) , {
-    defaultSection: 'text',
-		rootTemplate: 'root',
-    templates: {
-      root: {
-        label: 'Root',
-        template: `
-          <div class="root">
-            <div class="root-container" ck-editable-type="container" ck-allowed-elements="text image gallery" ck-default-element="text"></div>
-          </div>
-        `,
+
+  window.initEditor = function () {
+    SectionsEditor.create( document.getElementById( 'editor' ) , {
+      defaultSection: 'text',
+      rootTemplate: 'root',
+      templates: {
+        root: {
+          label: 'Root',
+          template: `
+            <div class="root">
+              <div class="root-container" ck-editable-type="container" ck-allowed-elements="text image gallery" ck-default-element="text"></div>
+            </div>
+          `,
+        },
+
+        text: {
+          label: 'Text',
+          template: `
+            <div class="text">
+              <h2 ck-editable-type="text">Enter a headline ...</h2>
+              <p ck-editable-type="text">Enter some text ...</p>
+            </div>
+          `,
+        },
+
+        image: {
+          label: 'Image',
+          template: `
+            <figure class="image">
+              <div ck-editable-type="media" data-media-type="image" data-media-display="hero"/>
+              <figcaption ck-editable-type="text"></figcaption>
+            </figure>
+          `,
+        },
+
+        gallery: {
+          label: 'Gallery',
+          template: `
+            <div class="gallery">
+              <h2 ck-editable-type="text">Gallery title ...</h2>
+              <div ck-editable-type="container" ck-allowed-elements="image" ck-default-element="image"></div>
+            </div>
+          `,
+        },
       },
-
-      text: {
-        label: 'Text',
-        template: `
-          <div class="text">
-            <h2 ck-editable-type="text">Enter a headline ...</h2>
-            <p ck-editable-type="text">Enter some text ...</p>
-          </div>
-        `,
+      mediaSelector: function (type, operation, callback) {
+        if (type !== 'image') {
+          throw "Unknown media type " + type;
+        }
+        if (!(operation === 'add' || operation === 'select')) {
+          throw "Unknown media operation " + operation;
+        }
+        callback('123');
       },
-
-      image: {
-        label: 'Image',
-				template: `
-          <figure class="image">
-            <div ck-editable-type="media" data-media-type="image" data-media-display="hero"/>
-            <figcaption ck-editable-type="text"></figcaption>
-          </figure>
-        `,
-			},
-
-			gallery: {
-        label: 'Gallery',
-				template: `
-          <div class="gallery">
-            <h2 ck-editable-type="text">Gallery title ...</h2>
-            <div ck-editable-type="container" ck-allowed-elements="image" ck-default-element="image"></div>
-          </div>
-				`,
-			},
-    },
-		mediaSelector: function (type, operation, callback) {
-      if (type !== 'image') {
-        throw "Unknown media type " + type;
-			}
-      if (!(operation === 'add' || operation === 'select')) {
-        throw "Unknown media operation " + operation;
+      mediaRenderer: function (uuid, display, callback) {
+        if (uuid !== '123') {
+          throw "Unknown media uuid " + uuid;
+        }
+        if (display !== 'hero') {
+          throw "Unknown media display " + display;
+        }
+        window.setTimeout(function () {
+          callback('<img src="https://picsum.photos/800/400"/>');
+        }, 1000);
       }
-      callback('123');
-		},
-		mediaRenderer: function (uuid, display, callback) {
-      if (uuid !== '123') {
-        throw "Unknown media uuid " + uuid;
-      }
-      if (display !== 'hero') {
-        throw "Unknown media display " + display;
-      }
-      window.setTimeout(function () {
-        callback('<img src="https://picsum.photos/800/400"/>');
-			}, 1000);
-		}
-	})
-  .then( editor => {
-    window.editor = editor;
-    editor.model.document.on('change', () => {
-      document.getElementById('preview').innerHTML = editor.getData();
+    })
+    .then( editor => {
+      window.editor = editor;
+      editor.model.document.on('change', () => {
+        document.getElementById('preview').innerHTML = editor.getData();
+      });
+    })
+    .catch( err => {
+      console.error( err.stack );
     });
-  })
-  .catch( err => {
-    console.error( err.stack );
-  });
+	}
+
+  if (window.location.hash !== '#cypress') {
+    window.initEditor();
+	}
 </script>
 
 </body>

@@ -1,17 +1,17 @@
 /* global Given, When, Then */
 Given(`there is an empty image section`, () => {
-  cy.window().then(window => {
-    window.editor.setData(`
-      <div class="root">
-        <div class="root-container">
-          <figure class="image">
-            <div data-media-type="image" data-media-display="hero"/>
-            <figcaption>Insert text ...</figcaption>
-          </figure>
-        </div>
-      </div>
-    `);
-  })
+  cy.initEditor(`
+    <figure class="image"></figure>
+  `);
+});
+
+Given(`there is an image section`, () => {
+  cy.initEditor(`
+    <figure class="image">
+      <div data-media-uuid="123" data-media-type="image" data-media-display="hero"></div>
+      <figcaption>Insert text ...</figcaption>
+    </figure>
+  `);
 });
 
 When(/^I click the "(.*)" button$/, label => {
@@ -37,23 +37,12 @@ Then(`the preview contains a media entity`, () => {
 });
 
 Given(`there is an empty gallery`, () => {
-  cy.window().then(window => {
-    window.editor.setData(`
-      <div class="root">
-        <div class="root-container">
-          <section class="gallery">
-            <h2></h2>
-            <div>
-              <figure class="image">
-                <div data-media-type="image" data-media-display="hero"/>
-                <figcaption>Insert text ...</figcaption>
-              </figure>
-            </div>
-          </section>
-        </div>
-      </div>
-    `);
-  })
+  cy.initEditor(`
+    <section class="gallery">
+      <h2></h2>
+      <div class="gallery__items"></div>
+    </section>
+  `);
 });
 
 Then(`there should be an empty image`, () => {

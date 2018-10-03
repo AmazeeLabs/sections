@@ -23,3 +23,12 @@
 //
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
+Cypress.Commands.add("initEditor", (content) => {
+  cy.window().then(window => {
+    window.document.getElementById('editor').innerHTML = `<div class="root"><div class="root-container">${content}</div>`;
+    window.initEditor();
+  });
+
+  cy.get('.root-container').as('container').click();
+});

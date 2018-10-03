@@ -3,7 +3,8 @@ Feature: Embedded media
   Media objects can be embedded and display a preview.
 
   Scenario: Add an empty image section
-    Given I click the first section
+    Given I opened an empty document
+    And I click the first section
     And I click the "Insert ..." toolbar button
     And I click the "Image" toolbar button
     Then there should be 1 image section
@@ -30,6 +31,6 @@ Feature: Embedded media
     And the preview contains a media entity
 
   Scenario: Existing image section
-    Given I opened a document with content from "image.html"
+    Given there is an image section
     Then I should see an image preview
     And the preview contains a media entity

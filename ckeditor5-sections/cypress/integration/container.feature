@@ -7,7 +7,7 @@ Feature: Containers
     Then there should be 1 text section
 
   Scenario: Non-empty documents are initialized correctly
-    Given I opened a document with content from "text.html"
+    Given I opened a document with existing content
     Then the first preview section should show "Text 1"
     And the second preview section should show "Text 2"
 

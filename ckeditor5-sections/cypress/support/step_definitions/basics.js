@@ -1,18 +1,21 @@
 /* global Given, When, Then */
-
-beforeEach(() => {
-  cy.visit('./sample/index.html');
-  // Make sure the editor is focused.
-  cy.get('.root > div').as('container').click();
-});
-
 Given(`I opened an empty document`, () => {
+  cy.initEditor('');
 });
 
-Given(/^I opened a document with content from "(.*)"$/, file => {
-  cy.fixture(file).then((content) => {
-    cy.window().then(window => window.editor.setData(content));
-  });
+Given(/^I opened a document with existing content$/, file => {
+  cy.initEditor(`
+    <div class="text">
+      <h2>Headline 1</h2>
+      <p>Text 1 </p>
+    </div>
+    <div class="text">
+      <h2>Headline 2</h2>
+      <p>Text 2 </p>
+    </div>
+  `);
+
+
 });
 
 Given(/^I click the (first|second|third|last) section$/, (position) => {
@@ -27,19 +30,18 @@ Given(/^I click the (first|second|third|last) section$/, (position) => {
 });
 
 Given(/^there (is|are) (no|\d+) sections?$/, (_, number, contents) => {
-  for (let count = 1; count < number; count++) {
-    cy.get('@container').children().filter(':last-child').click();
-    cy.contains('Insert ...').click();
-    cy.contains('Text').click();
-  }
   if (contents) {
-    const raw = contents.raw();
-    for (let i = 0; i < raw.length; i++) {
-      cy.get('@container').children().filter(`:nth(${i})`).within(() => {
-        cy.get('p').type(raw[i][0]);
-      })
-    }
+    debugger;
   }
+  const content = Array.from(Array(parseInt(number)).keys()).map(i => {
+    return `
+      <div class="text">
+        <h2></h2>
+        <p>${contents ? contents.raw()[i][0] : ''}</p>
+      </div>
+    `
+  }).join('');
+  cy.initEditor(content);
 });
 
 Given(/^I click "([^"]*)"$/, (text) => {
