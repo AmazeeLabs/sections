@@ -72125,9 +72125,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ckeditor_ckeditor5_engine_src_conversion_downcast_converters__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @ckeditor/ckeditor5-engine/src/conversion/downcast-converters */ "./node_modules/@ckeditor/ckeditor5-engine/src/conversion/downcast-converters.js");
 /* harmony import */ var _ckeditor_ckeditor5_engine_src_conversion_upcast_converters__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ckeditor/ckeditor5-engine/src/conversion/upcast-converters */ "./node_modules/@ckeditor/ckeditor5-engine/src/conversion/upcast-converters.js");
 /* harmony import */ var _ckeditor_ckeditor5_widget_src_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @ckeditor/ckeditor5-widget/src/utils */ "./node_modules/@ckeditor/ckeditor5-widget/src/utils.js");
+/* harmony import */ var _ckeditor_ckeditor5_engine_src_model_range__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @ckeditor/ckeditor5-engine/src/model/range */ "./node_modules/@ckeditor/ckeditor5-engine/src/model/range.js");
 /**
  * @module templates/element
  */
+
+
 
 
 
@@ -72335,19 +72338,24 @@ class TemplateElement {
       }
     }
 
-    const childSeats = this.children.map((child) => ({[child.name]: true}))
+    const childSeats = this.children.map((child) => ({[child.name]: false}))
         .reduce((acc, val) => Object.assign(acc, val), {});
 
     for (let child of item.getChildren()) {
-      if (childSeats.hasOwnProperty(child.name) && childSeats[child.name]) {
-        childSeats[child.name] = false;
+      if (childSeats.hasOwnProperty(child.name) && !childSeats[child.name]) {
+        childSeats[child.name] = child;
       }
     }
 
     for (let name in childSeats) {
       if (childSeats[name]) {
         writer.model.enqueueChange(writer.batch, writer => {
-          writer.appendElement(name, item);
+          writer.insert(childSeats[name], item, 'end');
+        });
+      }
+      else {
+        writer.model.enqueueChange(writer.batch, writer => {
+          writer.insertElement(name, item, 'end');
         });
       }
     }

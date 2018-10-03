@@ -53,6 +53,21 @@ Given(`there is a text section with element p before h2`, () => {
   })
 });
 
+Given(`there is a text section with element h3 before p`, () => {
+  cy.window().then(window => {
+    window.editor.setData(`
+    <div class="root">
+      <div class="root-container">
+        <div class="text">
+          <h3>This one too</h3>
+          <p>Thats in the wrong order</p>
+        </div>
+      </div>
+    </div>
+    `);
+  })
+});
+
 Then(`it is corrected to h2 before p`, () => {
   cy.get('#editor .text').children().first().filter('h2');
   cy.get('#editor .text').children().last().filter('p');

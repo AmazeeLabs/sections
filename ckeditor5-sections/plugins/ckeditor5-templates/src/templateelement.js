@@ -7,6 +7,8 @@ import { upcastElementToElement } from '@ckeditor/ckeditor5-engine/src/conversio
 
 import { toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
 
+import Range from '@ckeditor/ckeditor5-engine/src/model/range'
+
 /**
  * The base class for template elements.
  *
@@ -208,19 +210,24 @@ export default class TemplateElement {
       }
     }
 
-    const childSeats = this.children.map((child) => ({[child.name]: true}))
+    const childSeats = this.children.map((child) => ({[child.name]: false}))
         .reduce((acc, val) => Object.assign(acc, val), {});
 
     for (let child of item.getChildren()) {
-      if (childSeats.hasOwnProperty(child.name) && childSeats[child.name]) {
-        childSeats[child.name] = false;
+      if (childSeats.hasOwnProperty(child.name) && !childSeats[child.name]) {
+        childSeats[child.name] = child;
       }
     }
 
     for (let name in childSeats) {
       if (childSeats[name]) {
         writer.model.enqueueChange(writer.batch, writer => {
-          writer.appendElement(name, item);
+          writer.insert(childSeats[name], item, 'end');
+        });
+      }
+      else {
+        writer.model.enqueueChange(writer.batch, writer => {
+          writer.insertElement(name, item, 'end');
         });
       }
     }

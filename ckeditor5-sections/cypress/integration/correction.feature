@@ -10,12 +10,10 @@ Feature: Automatic document correction
     Given there is a text section missing the p element
     Then an empty p element is added
 
-#  Scenario: Wrong order
-#    Given there is a text section with element p before h2
-#    Then it is corrected to h2 before p
-#
-#  Scenario: Unexpected, missing
-#    Given there is a text section with elements h3 + p
-#    Then the it is corrected to h2 + p
+  Scenario: Wrong order
+    Given there is a text section with element p before h2
+    Then it is corrected to h2 before p
 
-
+  Scenario: Unexpected, missing
+    Given there is a text section with element h3 before p
+    Then it is corrected to h2 before p
