@@ -44,6 +44,7 @@ export default class ContainerElement extends TemplateElement {
   }
 
   postfix(writer, item) {
+    super.postfix(writer, item);
     if (item.childCount === 0) {
        writer.appendElement(this.defaultElement, item);
        return true;

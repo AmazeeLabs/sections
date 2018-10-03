@@ -2,24 +2,16 @@ Feature: Containers
 
   Containers allow to arrange add/remove and arrange sections.
 
-  Scenario: Empty documents are initialized with a default section
-    Given I opened an empty document
-    Then there should be 1 text section
-
-  Scenario: Non-empty documents are initialized correctly
-    Given I opened a document with existing content
-    Then the first preview section should show "Text 1"
-    And the second preview section should show "Text 2"
-
-  Scenario: Show the toolbar
-    Given there is 1 section
-    And I click the first section
-    Then the section toolbar appears
-
   Scenario: Prevent removal of the last section
     Given there is 1 section
     And I click the first section
     Then the "Remove section" toolbar button should be disabled
+
+  Scenario: Prevent nesting root containers
+    Given I opened an empty document
+    And I click the first section
+    And I click the "Insert" toolbar button
+    Then the "Root" toolbar button should be hidden
 
   Scenario: Add a section
     Given there is 1 section

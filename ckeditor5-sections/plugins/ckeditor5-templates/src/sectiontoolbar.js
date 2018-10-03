@@ -51,26 +51,28 @@ export default class SectionToolbar extends Plugin {
       }, { priority: 'high' } );
     }
 
-    editor.commands.add('sectionInsert', new SectionInsertCommand(editor));
     editor.commands.add('sectionRemove', new SectionRemoveCommand(editor));
     editor.commands.add('sectionUp', new SectionUpCommand(editor));
     editor.commands.add('sectionDown', new SectionDownCommand(editor));
 
     const sections = editor.config.get('templates');
     Object.keys(sections).forEach((name) => {
-      let {label} = sections[name];
-      editor.ui.componentFactory.add('sectionInsert:' + name, locale => {
-        const command = editor.commands.get('sectionInsert');
-        const view = new ButtonView(locale);
-        view.set({
-          label: "Insert " + label,
-          tooltip: true,
-          class: 'section-insert',
-        });
-        view.bind('isEnabled').to(command, 'isEnabled');
-        this.listenTo( view, 'execute', () => editor.execute('sectionInsert', {type: name}));
-        return view;
-      });
+      const commandName = `sectionInsert:${name}`;
+      // let {label} = sections[name];
+      editor.commands.add(commandName, new SectionInsertCommand(editor, name));
+      // editor.ui.componentFactory.add('sectionInsert:' + name, locale => {
+      //   const command = editor.commands.get(commandName);
+      //   const view = new ButtonView(locale);
+      //   view.set({
+      //     label: "Insert " + label,
+      //     tooltip: true,
+      //   });
+      //
+      //   view.bind('isVisible').to(command, 'isEnabled');
+      //
+      //   this.listenTo( view, 'execute', () => editor.execute(commandName));
+      //   return view;
+      // });
     });
 
     editor.ui.componentFactory.add('sectionRemove', locale => {
@@ -118,10 +120,15 @@ export default class SectionToolbar extends Plugin {
     editor.ui.componentFactory.add('sections', locale => {
       const titles = {};
       const dropdownItems = new Collection();
-      const sectionInsertCommand = editor.commands.get('sectionInsert');
 
       for (const key of Object.keys(sections)) {
+
+        const commandName = `sectionInsert:${key}`;
+        editor.commands.add(commandName, new SectionInsertCommand(editor, key));
+
         const section = sections[key];
+
+        const command = editor.commands.get(commandName);
         const itemModel = new Model({
           label: section.label,
           section: key,
@@ -129,9 +136,9 @@ export default class SectionToolbar extends Plugin {
           withText: true,
         });
         itemModel.set({
-          commandName: 'sectionInsert',
-          commandValue: key,
+          commandName: commandName,
         });
+        itemModel.bind('isVisible').to(command, 'isEnabled');
         dropdownItems.add({ type: 'button', model: itemModel });
         titles[key] = section.label;
       }
@@ -144,15 +151,13 @@ export default class SectionToolbar extends Plugin {
         tooltip: 'Insert new section below.',
       });
 
-      dropdownView.bind( 'isEnabled' ).to( sectionInsertCommand, 'isEnabled');
-
       dropdownView.buttonView.bind( 'label' ).to(() => {
         return 'Insert ...'
       });
 
       // Execute command when an item from the dropdown is selected.
       this.listenTo( dropdownView, 'execute', evt => {
-        editor.execute( 'sectionInsert', { type: evt.source.commandValue } );
+        editor.execute( evt.source.commandName);
         editor.editing.view.focus();
       } );
 

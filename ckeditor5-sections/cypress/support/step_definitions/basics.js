@@ -26,7 +26,7 @@ Given(/^I click the (first|second|third|last) section$/, (position) => {
     last: ':last-child'
   }[position];
 
-  cy.get('@container').children().filter(selector).as('widget').click();
+  cy.get('@container').children().filter(selector)  .as('widget').click();
 });
 
 Given(/^there (is|are) (no|\d+) sections?$/, (_, number, contents) => {
@@ -88,13 +88,16 @@ Then(`the section toolbar appears`, () => {
   cy.get('.ck-balloon-panel').should('be.visible');
 });
 
-Then(/^the "([^"]*)" toolbar button should be (disabled|enabled)$/, (text, state) => {
+Then(/^the "([^"]*)" toolbar button should be (disabled|enabled|hidden)$/, (text, state) => {
   cy.get('.ck-balloon-panel').within(() => {
     if (state === 'disabled') {
       cy.contains(text).filter(`.ck-disabled`);
     }
+    else if (state === 'hidden') {
+      cy.contains(text).should('not.be.visible');
+    }
     else {
-      cy.contains(text).not(`.ck-disabled`);
+      cy.contains(text).not(`.ck-enabled`);
     }
   });
 });
@@ -104,5 +107,10 @@ When(/^I click the "([^"]*)" toolbar button$/, (text) => {
   cy.get('.ck-balloon-panel').within(() => {
       cy.contains(text).not(`.ck-disabled`).click();
   });
+});
+
+When(/^I click the first image$/, (text) => {
+  cy.get('#editor .gallery__images').as('container');
+  cy.get('@container').children().filter('.image').click();
 });
 

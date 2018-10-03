@@ -71324,14 +71324,27 @@ __webpack_require__.r(__webpack_exports__);
 
 class SectionInsertCommand extends _sectioncommand__WEBPACK_IMPORTED_MODULE_0__["default"] {
 
+  constructor(editor, section) {
+    super(editor);
+    this.section = section;
+  }
+
   refresh() {
-    this.isEnabled = !!this.getSelectedSection();
+    this.isEnabled = false;
+    const current = this.getSelectedSection();
+    if (current && current.parent) {
+      const allowed = (current.parent.getAttribute('ck-allowed-elements') || '').split(' ');
+      debugger;
+      if(allowed.includes(this.section)) {
+        this.isEnabled = true;
+      }
+    }
   }
 
   execute(values) {
     const currentSection = this.getSelectedSection();
     this.editor.model.change(writer => {
-      const sectionElement = writer.createElement('ck-templates__' + values.type);
+      const sectionElement = writer.createElement('ck-templates__' + this.section);
       writer.insert(sectionElement, currentSection, 'after');
     });
   }
@@ -71459,6 +71472,7 @@ class ContainerElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["de
   }
 
   postfix(writer, item) {
+    super.postfix(writer, item);
     if (item.childCount === 0) {
        writer.appendElement(this.defaultElement, item);
        return true;
@@ -71835,26 +71849,28 @@ class SectionToolbar extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORT
       }, { priority: 'high' } );
     }
 
-    editor.commands.add('sectionInsert', new _commands_sectioninsertcommand__WEBPACK_IMPORTED_MODULE_8__["default"](editor));
     editor.commands.add('sectionRemove', new _commands_sectionremovecommand__WEBPACK_IMPORTED_MODULE_9__["default"](editor));
     editor.commands.add('sectionUp', new _commands_sectionupcommand__WEBPACK_IMPORTED_MODULE_10__["default"](editor));
     editor.commands.add('sectionDown', new _commands_sectiondowncommand__WEBPACK_IMPORTED_MODULE_11__["default"](editor));
 
     const sections = editor.config.get('templates');
     Object.keys(sections).forEach((name) => {
-      let {label} = sections[name];
-      editor.ui.componentFactory.add('sectionInsert:' + name, locale => {
-        const command = editor.commands.get('sectionInsert');
-        const view = new _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_4__["default"](locale);
-        view.set({
-          label: "Insert " + label,
-          tooltip: true,
-          class: 'section-insert',
-        });
-        view.bind('isEnabled').to(command, 'isEnabled');
-        this.listenTo( view, 'execute', () => editor.execute('sectionInsert', {type: name}));
-        return view;
-      });
+      const commandName = `sectionInsert:${name}`;
+      // let {label} = sections[name];
+      editor.commands.add(commandName, new _commands_sectioninsertcommand__WEBPACK_IMPORTED_MODULE_8__["default"](editor, name));
+      // editor.ui.componentFactory.add('sectionInsert:' + name, locale => {
+      //   const command = editor.commands.get(commandName);
+      //   const view = new ButtonView(locale);
+      //   view.set({
+      //     label: "Insert " + label,
+      //     tooltip: true,
+      //   });
+      //
+      //   view.bind('isVisible').to(command, 'isEnabled');
+      //
+      //   this.listenTo( view, 'execute', () => editor.execute(commandName));
+      //   return view;
+      // });
     });
 
     editor.ui.componentFactory.add('sectionRemove', locale => {
@@ -71902,10 +71918,15 @@ class SectionToolbar extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORT
     editor.ui.componentFactory.add('sections', locale => {
       const titles = {};
       const dropdownItems = new _ckeditor_ckeditor5_utils_src_collection__WEBPACK_IMPORTED_MODULE_5__["default"]();
-      const sectionInsertCommand = editor.commands.get('sectionInsert');
 
       for (const key of Object.keys(sections)) {
+
+        const commandName = `sectionInsert:${key}`;
+        editor.commands.add(commandName, new _commands_sectioninsertcommand__WEBPACK_IMPORTED_MODULE_8__["default"](editor, key));
+
         const section = sections[key];
+
+        const command = editor.commands.get(commandName);
         const itemModel = new _ckeditor_ckeditor5_ui_src_model__WEBPACK_IMPORTED_MODULE_6__["default"]({
           label: section.label,
           section: key,
@@ -71913,9 +71934,9 @@ class SectionToolbar extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORT
           withText: true,
         });
         itemModel.set({
-          commandName: 'sectionInsert',
-          commandValue: key,
+          commandName: commandName,
         });
+        itemModel.bind('isVisible').to(command, 'isEnabled');
         dropdownItems.add({ type: 'button', model: itemModel });
         titles[key] = section.label;
       }
@@ -71928,15 +71949,13 @@ class SectionToolbar extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORT
         tooltip: 'Insert new section below.',
       });
 
-      dropdownView.bind( 'isEnabled' ).to( sectionInsertCommand, 'isEnabled');
-
       dropdownView.buttonView.bind( 'label' ).to(() => {
         return 'Insert ...'
       });
 
       // Execute command when an item from the dropdown is selected.
       this.listenTo( dropdownView, 'execute', evt => {
-        editor.execute( 'sectionInsert', { type: evt.source.commandValue } );
+        editor.execute( evt.source.commandName);
         editor.editing.view.focus();
       } );
 

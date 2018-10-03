@@ -95,7 +95,7 @@
           template: `
             <div class="gallery">
               <h2 ck-editable-type="text">Gallery title ...</h2>
-              <div ck-editable-type="container" ck-allowed-elements="image" ck-default-element="image"></div>
+              <div class="gallery__images" ck-editable-type="container" ck-allowed-elements="image" ck-default-element="image"></div>
             </div>
           `,
         },
@@ -118,7 +118,7 @@
         }
         window.setTimeout(function () {
           callback('<img src="https://picsum.photos/800/400"/>');
-        }, 1000);
+        }, 500);
       }
     })
     .then( editor => {
