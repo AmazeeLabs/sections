@@ -57,7 +57,7 @@
             }
 
             Drupal.ajax({
-              url: path + '?media_library_widget_id=' + $(input).attr('id') + typeFilter + '&media_library_remaining=1',
+              url: path + '?media_library_widget_id=' + $(input).attr('id') + typeFilter + '&media_library_remaining=1&return_type=uuid',
               dialogType: 'modal',
               dialog: {
                 dialogClass: 'media-library-widget-modal',
