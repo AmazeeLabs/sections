@@ -2,16 +2,10 @@
 
 namespace Drupal\sections\Plugin\views\field;
 
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\CloseDialogCommand;
-use Drupal\Core\Ajax\InvokeCommand;
-use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Url;
-use Drupal\views\Plugin\views\field\FieldPluginBase;
-use Drupal\views\Render\ViewsRenderPipelineMarkup;
-use Drupal\views\ResultRow;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Drupal\media_library\Plugin\views\field\MediaLibrarySelectForm;
 
 /**
  * Defines a field that outputs a checkbox and form for selecting media.
@@ -20,29 +14,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  *
  * @internal
  */
-class SectionsMediaLibrarySelectForm extends FieldPluginBase {
+class SectionsMediaLibrarySelectForm extends MediaLibrarySelectForm {
 
   /**
    * {@inheritdoc}
-   */
-  public function getValue(ResultRow $row, $field = NULL) {
-    return '<!--form-item-' . $this->options['id'] . '--' . $row->index . '-->';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function render(ResultRow $values) {
-    return ViewsRenderPipelineMarkup::create($this->getValue($values));
-  }
-
-  /**
-   * Form constructor for the media library select form.
-   *
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
    */
   public function viewsForm(array &$form, FormStateInterface $form_state) {
     // Only add the bulk form options and buttons if there are results.
@@ -52,6 +27,8 @@ class SectionsMediaLibrarySelectForm extends FieldPluginBase {
 
     // Render checkboxes for all rows.
     $form[$this->options['id']]['#tree'] = TRUE;
+    $return_type = \Drupal::request()->query->get('return_type');
+
     foreach ($this->view->result as $row_index => $row) {
       $entity = $this->getEntity($row);
       $form[$this->options['id']][$row_index] = [
@@ -60,7 +37,7 @@ class SectionsMediaLibrarySelectForm extends FieldPluginBase {
           '@label' => $entity->label(),
         ]),
         '#title_display' => 'invisible',
-        '#return_value' => $entity->uuid(),
+        '#return_value' => $return_type == 'uuid' ? $entity->uuid(): $entity->id(),
       ];
     }
 
@@ -81,48 +58,6 @@ class SectionsMediaLibrarySelectForm extends FieldPluginBase {
 
     $form['actions']['submit']['#value'] = $this->t('Select media');
     $form['actions']['submit']['#field_id'] = $this->options['id'];
-  }
-
-  /**
-   * Submit handler for the media library select form.
-   *
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
-   *
-   * @return \Drupal\Core\Ajax\AjaxResponse
-   *   A command to send the selection to the current field widget.
-   */
-  public static function updateWidget(array &$form, FormStateInterface $form_state) {
-    $widget_id = \Drupal::request()->query->get('media_library_widget_id');
-    if (!$widget_id || !is_string($widget_id)) {
-      throw new BadRequestHttpException('The "media_library_widget_id" query parameter is required and must be a string.');
-    }
-    $field_id = $form_state->getTriggeringElement()['#field_id'];
-    $selected = array_values(array_filter($form_state->getValue($field_id, [])));
-    // Pass the selection to the field widget based on the current widget ID.
-    return (new AjaxResponse())
-      ->addCommand(new InvokeCommand("[data-media-library-widget-value=\"$widget_id\"]", 'val', [implode(',', $selected)]))
-      ->addCommand(new InvokeCommand("[data-media-library-widget-update=\"$widget_id\"]", 'trigger', ['mousedown']))
-      ->addCommand(new CloseDialogCommand());
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function viewsFormValidate(array &$form, FormStateInterface $form_state) {
-    $selected = array_filter($form_state->getValue($this->options['id']));
-    if (empty($selected)) {
-      $form_state->setErrorByName('', $this->t('No items selected.'));
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function clickSortable() {
-    return FALSE;
   }
 
 }
