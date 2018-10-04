@@ -8,6 +8,7 @@ use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
  * Plugin implementation of the 'sections' widget.
@@ -20,19 +21,36 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   }
  * )
  */
-class SectionsWidget extends WidgetBase {
+class SectionsWidget extends WidgetBase implements ContainerFactoryPluginInterface {
 
   /**
+   * Module handler object.
+   *
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
   protected $moduleHandler;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $plugin_id,
+      $plugin_definition,
+      $configuration['field_definition'],
+      $configuration['settings'],
+      $configuration['third_party_settings'],
+      $container->get('module_handler')
+    );
+  }
 
   public function __construct(
     string $plugin_id,
     $plugin_definition,
     FieldDefinitionInterface $field_definition,
     array $settings,
-    array $third_party_settings
+    array $third_party_settings,
+    ModuleHandlerInterface $module_handler
   ) {
     parent::__construct(
       $plugin_id,
@@ -41,8 +59,7 @@ class SectionsWidget extends WidgetBase {
       $settings,
       $third_party_settings
     );
-    // TODO: inject the module handler
-    $this->moduleHandler = \Drupal::service('module_handler');
+    $this->moduleHandler = $module_handler;
   }
 
   /**

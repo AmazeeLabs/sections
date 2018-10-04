@@ -46,8 +46,18 @@
             //   &media_library_remaining=1
             currentCallback = callback;
             var path = (operation === 'add') ? '/admin/content/media-widget-upload' : '/admin/content/media-widget';
+
+            // Filter allowed media types.
+            var typeFilter = '';
+            if (typeof type != 'undefined') {
+              var types = type.split(',');
+              types.forEach((item) => {
+                typeFilter += '&media_library_allowed_types[' + item + ']=' + item;
+              });
+            }
+
             Drupal.ajax({
-              url: path + '?media_library_widget_id=' + $(input).attr('id') + '&media_library_remaining=1',
+              url: path + '?media_library_widget_id=' + $(input).attr('id') + typeFilter + '&media_library_remaining=1',
               dialogType: 'modal',
               dialog: {
                 dialogClass: 'media-library-widget-modal',
