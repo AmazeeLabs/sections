@@ -50,7 +50,7 @@
             // Filter allowed media types.
             var typeFilter = '';
             if (typeof type != 'undefined') {
-              var types = type.split(',');
+              var types = type.split(' ');
               types.forEach((item) => {
                 typeFilter += '&media_library_allowed_types[' + item + ']=' + item;
               });
