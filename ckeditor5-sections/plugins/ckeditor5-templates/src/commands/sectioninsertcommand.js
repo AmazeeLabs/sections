@@ -12,7 +12,6 @@ export default class SectionInsertCommand extends SectionCommand {
     const current = this.getSelectedSection();
     if (current && current.parent) {
       const allowed = (current.parent.getAttribute('ck-allowed-elements') || '').split(' ');
-      debugger;
       if(allowed.includes(this.section)) {
         this.isEnabled = true;
       }

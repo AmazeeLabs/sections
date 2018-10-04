@@ -174,9 +174,6 @@ export default class Templates extends Plugin {
   _recursiveElementPostFix(element, writer, item) {
     let changed = false;
     if (item instanceof Element) {
-      if (!item.getChildren) {
-        debugger;
-      }
       const children = item.getChildren();
       for (let child of children) {
         changed = this._recursiveElementPostFix(this.elements[child.name], writer, child) || changed;
