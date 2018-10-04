@@ -34,15 +34,10 @@
         });
 
         SectionsEditor.create( editor , {
-          defaultSection: drupalSettings.defaultSection,
+          rootTemplate: '_root',
+          templates: drupalSettings.sections,
 
-          templates: Object.keys(drupalSettings.sections)
-            .map(function (key) { return {[key]: drupalSettings.sections[key].template }})
-            .reduce(function (acc, val) { return Object.assign(acc, val)}, {}),
-
-          sections: drupalSettings.sections,
-
-          entitySelector: function (type, add, callback) {
+          mediaSelector: function (type, operation, callback) {
             ///admin/content/media-widget
             //   ?media_library_widget_id=field_media-
             //   &media_library_allowed_types%5Bimage%5D=image
@@ -50,7 +45,7 @@
             //   &media_library_allowed_types%5Bvideo%5D=video
             //   &media_library_remaining=1
             currentCallback = callback;
-            var path = add ? '/admin/content/media-widget-upload' : '/admin/content/media-widget';
+            var path = (operation === 'add') ? '/admin/content/media-widget-upload' : '/admin/content/media-widget';
             Drupal.ajax({
               url: path + '?media_library_widget_id=' + $(input).attr('id') + '&media_library_remaining=1',
               dialogType: 'modal',
@@ -63,8 +58,8 @@
             }).execute();
 
           },
-          entityRenderer: function (type, id, display, callback) {
-            $.ajax('/sections/media-preview/' + id + '/' + display).done(callback);
+          mediaRenderer: function (uuid, display, callback) {
+            $.ajax('/sections/media-preview/' + uuid + '/' + display || 'default').done(callback);
           }
         })
         .then( editor => {

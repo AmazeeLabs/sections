@@ -1,5 +1,0 @@
-editor:
-  version: VERSION
-  css:
-    base:
-      css/sections.css: {}

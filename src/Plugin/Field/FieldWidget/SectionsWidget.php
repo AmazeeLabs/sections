@@ -2,9 +2,12 @@
 
 namespace Drupal\sections\Plugin\Field\FieldWidget;
 
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the 'sections' widget.
@@ -18,6 +21,29 @@ use Drupal\Core\Form\FormStateInterface;
  * )
  */
 class SectionsWidget extends WidgetBase {
+
+  /**
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  public function __construct(
+    string $plugin_id,
+    $plugin_definition,
+    FieldDefinitionInterface $field_definition,
+    array $settings,
+    array $third_party_settings
+  ) {
+    parent::__construct(
+      $plugin_id,
+      $plugin_definition,
+      $field_definition,
+      $settings,
+      $third_party_settings
+    );
+    // TODO: inject the module handler
+    $this->moduleHandler = \Drupal::service('module_handler');
+  }
 
   /**
    * {@inheritdoc}
@@ -94,43 +120,60 @@ class SectionsWidget extends WidgetBase {
     $element = &$main_widget['value'];
     $element['#attributes']['class'][] = 'sections-editor';
 
-    $main_widget['#attached']['library'][] = 'sections/editor';
     $sections = $this->collectSections();
-    $sectionKeys = array_keys($sections);
+
+    $defaultSection = $this->getSetting('defaultSection');
+    $enabledSections = array_filter(array_values($this->getSetting('enabledSections')));
+
+    $sections['_root'] = [
+      'label' => $this->t('Document root'),
+      'template' => '<div class="root"><div class="root-container" ck-editable-type="container" ck-allowed-elements="' . implode(' ', $enabledSections) . '" ck-default-element="' . $defaultSection . '"></div></div>',
+    ];
+
     $main_widget['#attached']['drupalSettings']['sections'] = $sections;
-    $main_widget['#attached']['drupalSettings']['defaultSection'] = reset($sectionKeys);
     $main_widget['format'] = [
       '#type' => 'value',
       '#value' => 'sections',
     ];
 
+    $libraries = [
+      'sections/default-sections',
+    ];
+
+    $this->moduleHandler->alter('sections_libraries', $libraries);
+
+    $main_widget['#attached']['library'][] = 'sections/editor';
+    foreach ($libraries as $library) {
+      $main_widget['#attached']['library'][] = $library;
+    }
+
     return $main_widget;
   }
 
   protected function collectSections() {
-    /** @var \Drupal\Core\Theme\ThemeManagerInterface $themeManager */
-    $themeManager = \Drupal::service('theme.manager');
-    /** @var \Drupal\Core\Extension\ThemeHandler $themeHandler */
-    $themeHandler = \Drupal::service('theme_handler');
-    $info = $themeHandler->getTheme($themeManager->getActiveTheme()->getName())->info;
-    $path = $themeManager->getActiveTheme()->getPath();
+    /** @var \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler */
+    $moduleHandler = \Drupal::service('module_handler');
 
-    if (isset($info['sections']) && $info['sections']) {
-      return array_map(function($section) use ($path) {
-        return [
-          'label' => $this->t($section['label']),
-          'template' => file_get_contents($path . '/' . $section['template']),
-        ] + $section;
-      }, $info['sections']);
-    }
-    else {
-      return [
-        'no_sections_defined' => [
-          'label' => t('No sections defined'),
-          'template' => '<section><h2>No sections defined.</h2><p>Please add some sections to your active theme.</p></section>',
-        ]
-      ];
-    }
+    $path = drupal_get_path('module', 'sections') . '/sections';
+
+    $sections = [
+      'text' => [
+        'label' => $this->t('Text'),
+        'template' => file_get_contents($path . '/text.html'),
+      ],
+      'media' => [
+        'label' => $this->t('Media'),
+        'template' => file_get_contents($path . '/media.html'),
+      ],
+      'gallery' => [
+        'label' => $this->t('Gallery'),
+        'template' => file_get_contents($path . '/gallery.html'),
+      ],
+    ];
+
+    $moduleHandler->alter('sections', $sections);
+
+    return $sections;
   }
 
 }

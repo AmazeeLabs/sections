@@ -12,3 +12,9 @@ editor:
   - core/drupal.dialog
   - core/jquery.once
   - core/drupal
+
+default-sections:
+  version: VERSION
+  css:
+    base:
+      sections/default-sections.css: {}
