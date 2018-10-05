@@ -82,6 +82,10 @@ class SectionsMediaFilter extends FilterBase implements ContainerFactoryPluginIn
       foreach ($xpath->query('//div[@data-media-uuid]') as $node) {
         $media_uuid = $node->getAttribute('data-media-uuid');
         $display = $node->getAttribute('data-media-display');
+        // Clear attributes and normalize.
+        $node->removeAttribute('data-media-uuid');
+        $node->removeAttribute('data-media-display');
+
         if (empty($display)) {
           $display = 'default';
         }
@@ -97,12 +101,11 @@ class SectionsMediaFilter extends FilterBase implements ContainerFactoryPluginIn
           ->item(0)
           ->childNodes;
 
-        // Insert rendered media before the element and remove it.
+        // Insert rendered media into the element.
         foreach ($updated_nodes as $updated_node) {
           $updated_node = $document->importNode($updated_node, TRUE);
-          $node->parentNode->insertBefore($updated_node, $node);
+          $node->appendChild($updated_node);
         }
-        $node->parentNode->removeChild($node);
       }
       $result->setProcessedText(Html::serialize($document));
     }
