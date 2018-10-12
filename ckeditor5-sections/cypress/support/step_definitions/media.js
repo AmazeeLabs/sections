@@ -1,11 +1,11 @@
 /* global Given, When, Then */
-Given(`there is an empty image section`, () => {
+Given(`there is an empty image element`, () => {
   cy.initEditor(`
     <figure class="image"></figure>
   `);
 });
 
-Given(`there is an image section`, () => {
+Given(`there is an image element`, () => {
   cy.initEditor(`
     <figure class="image">
       <div data-media-uuid="123" data-media-type="image" data-media-display="hero"></div>
@@ -14,7 +14,7 @@ Given(`there is an image section`, () => {
   `);
 });
 
-When(/^I click the "(.*)" button$/, label => {
+When(/^I click the "(.*)" image button$/, label => {
   cy.get('@widget').within(() => {
     cy.contains(label).click();
   });
@@ -38,10 +38,10 @@ Then(`the preview contains a media entity`, () => {
 
 Given(`there is an empty gallery`, () => {
   cy.initEditor(`
-    <section class="gallery">
+    <element class="gallery">
       <h2></h2>
       <div class="gallery__items"></div>
-    </section>
+    </element>
   `);
 });
 

@@ -12,17 +12,17 @@ import Collection from '@ckeditor/ckeditor5-utils/src/collection';
 import Model from '@ckeditor/ckeditor5-ui/src/model';
 import { createDropdown, addListToDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';
 
-import SectionInsertCommand from './commands/sectioninsertcommand';
-import SectionRemoveCommand from './commands/sectionremovecommand';
-import SectionUpCommand from './commands/sectionupcommand';
-import SectionDownCommand from './commands/sectiondowncommand';
+import Insertaftercommand from './commands/insertaftercommand';
+import Elementremovecommand from './commands/elementremovecommand';
+import Elementupcommand from './commands/elementupcommand';
+import Elementdowncommand from './commands/elementdowncommand';
 
 import BalloonPanelView from '@ckeditor/ckeditor5-ui/src/panel/balloon/balloonpanelview';
 
 const balloonClassName = 'ck-toolbar-container-section';
 
-import iconUp from '../theme/icons/arrow-up.svg';
-import iconDown from '../theme/icons/arrow-down.svg';
+import iconUp from '../theme/icons/arrow-down.svg';
+import iconDown from '../theme/icons/arrow-up.svg';
 import iconRemove from '../theme/icons/trash.svg';
 
 export default class SectionToolbar extends Plugin {
@@ -51,15 +51,15 @@ export default class SectionToolbar extends Plugin {
       }, { priority: 'high' } );
     }
 
-    editor.commands.add('sectionRemove', new SectionRemoveCommand(editor));
-    editor.commands.add('sectionUp', new SectionUpCommand(editor));
-    editor.commands.add('sectionDown', new SectionDownCommand(editor));
+    editor.commands.add('sectionRemove', new Elementremovecommand(editor));
+    editor.commands.add('sectionUp', new Elementupcommand(editor));
+    editor.commands.add('sectionDown', new Elementdowncommand(editor));
 
     const sections = editor.config.get('templates');
     Object.keys(sections).forEach((name) => {
       const commandName = `sectionInsert:${name}`;
       // let {label} = sections[name];
-      editor.commands.add(commandName, new SectionInsertCommand(editor, name));
+      editor.commands.add(commandName, new Insertaftercommand(editor, name));
       // editor.ui.componentFactory.add('sectionInsert:' + name, locale => {
       //   const command = editor.commands.get(commandName);
       //   const view = new ButtonView(locale);
@@ -124,7 +124,7 @@ export default class SectionToolbar extends Plugin {
       for (const key of Object.keys(sections)) {
 
         const commandName = `sectionInsert:${key}`;
-        editor.commands.add(commandName, new SectionInsertCommand(editor, key));
+        editor.commands.add(commandName, new Insertaftercommand(editor, key));
 
         const section = sections[key];
 

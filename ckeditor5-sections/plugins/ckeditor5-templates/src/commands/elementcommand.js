@@ -1,8 +1,9 @@
 import Command from '@ckeditor/ckeditor5-core/src/command';
 
-export default class SectionCommand extends Command {
+export default class ElementCommand extends Command {
 
-  getSelectedSection() {
+  // TODO: cache this in containercontrols
+  getSelectedElement() {
     let element = this.editor.model.document.selection.getSelectedElement();
     if (element) {
       return element;

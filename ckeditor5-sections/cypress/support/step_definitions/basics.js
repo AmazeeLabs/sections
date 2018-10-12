@@ -18,7 +18,7 @@ Given(/^I opened a document with existing content$/, file => {
 
 });
 
-Given(/^I click the (first|second|third|last) section$/, (position) => {
+Given(/^I click the (first|second|third|last) element$/, (position) => {
   const selector = {
     first: ':first-child',
     second: ':nth(1)',
@@ -29,10 +29,7 @@ Given(/^I click the (first|second|third|last) section$/, (position) => {
   cy.get('@container').children().filter(selector)  .as('widget').click();
 });
 
-Given(/^there (is|are) (no|\d+) sections?$/, (_, number, contents) => {
-  if (contents) {
-    debugger;
-  }
+Given(/^there (is|are) (no|\d+) elements?$/, (_, number, contents) => {
   const content = Array.from(Array(parseInt(number)).keys()).map(i => {
     return `
       <div class="text">
@@ -59,7 +56,7 @@ Given(/^I enter "(.*)"$/, (text) => {
   cy.get('@editable').type(text);
 });
 
-Then (/^there should be (\d+)\s?(.*?) sections?$/, (number, type) => {
+Then (/^there should be (\d+)\s?(.*?) elements?$/, (number, type) => {
   if (type) {
     cy.get('@container').children().filter(`.${type}`).should('have.length', number);
   }
@@ -72,7 +69,7 @@ Then(/^the preview should show "([^"]*)"$/, (text) => {
   cy.get('#preview').contains(text);
 });
 
-Then(/^the (first|second|third|last) preview section should show "([^"]*)"$/, (position, text) => {
+Then(/^the (first|second|third|last) preview element should show "([^"]*)"$/, (position, text) => {
   const selector = {
     first: ':first-child',
     second: ':nth(1)',
@@ -84,29 +81,26 @@ Then(/^the (first|second|third|last) preview section should show "([^"]*)"$/, (p
     });
 });
 
-Then(`the section toolbar appears`, () => {
-  cy.get('.ck-balloon-panel').should('be.visible');
+Then(/^the "([^"]*)" button should be (disabled|enabled|hidden)$/, (text, state) => {
+  if (state === 'disabled') {
+    cy.contains(text).filter(`.ck-disabled`);
+  }
+  else if (state === 'hidden') {
+    cy.contains(text).should('not.be.visible');
+  }
+  else {
+    cy.contains(text).not(`.ck-enabled`);
+  }
 });
 
-Then(/^the "([^"]*)" toolbar button should be (disabled|enabled|hidden)$/, (text, state) => {
-  cy.get('.ck-balloon-panel').within(() => {
-    if (state === 'disabled') {
-      cy.contains(text).filter(`.ck-disabled`);
-    }
-    else if (state === 'hidden') {
-      cy.contains(text).should('not.be.visible');
-    }
-    else {
-      cy.contains(text).not(`.ck-enabled`);
-    }
-  });
+When(/^I click the "([^"]*)" container button$/, (text) => {
+  // target the visible toolbar first.
+  cy.contains(text).not(`.ck-disabled`).click();
 });
-
 
 When(/^I click the "([^"]*)" toolbar button$/, (text) => {
-  cy.get('.ck-balloon-panel').within(() => {
-      cy.contains(text).not(`.ck-disabled`).click();
-  });
+  // target the visible toolbar first.
+  cy.get('.ck-balloon-panel_visible').contains(text).not(`.ck-disabled`).click();
 });
 
 When(/^I click the first image$/, (text) => {
@@ -114,3 +108,10 @@ When(/^I click the first image$/, (text) => {
   cy.get('@container').children().filter('.image').click();
 });
 
+Then(/^the container control buttons appear$/, () => {
+  cy.contains('Remove element');
+  cy.contains('Move element up');
+  cy.contains('Move element down');
+  cy.contains('Insert element above');
+  cy.contains('Insert element below');
+});

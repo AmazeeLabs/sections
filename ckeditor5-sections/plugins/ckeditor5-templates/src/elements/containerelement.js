@@ -31,6 +31,7 @@ export default class ContainerElement extends TemplateElement {
   toEditorElement(modelElement, viewWriter) {
      const element = super.toEditorElement(modelElement, viewWriter);
      viewWriter.setCustomProperty('container', true, element);
+     viewWriter.addClass('ck-container', element);
      return element;
   }
 

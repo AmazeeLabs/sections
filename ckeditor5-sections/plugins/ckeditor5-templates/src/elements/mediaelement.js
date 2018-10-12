@@ -9,7 +9,6 @@ import SearchIcon from '../../theme/icons/search.svg';
 import UploadIcon from '../../theme/icons/upload.svg';
 import ButtonView from "@ckeditor/ckeditor5-ui/src/button/buttonview";
 import AttributeOperation from "@ckeditor/ckeditor5-engine/src/model/operation/attributeoperation";
-import {upcastElementToElement} from "@ckeditor/ckeditor5-engine/src/conversion/upcast-converters";
 
 /**
  * Entity view element.

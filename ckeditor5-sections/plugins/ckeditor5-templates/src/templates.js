@@ -7,9 +7,9 @@ import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import Element from '@ckeditor/ckeditor5-engine/src/model/element'
 import TemplateElement from './templateelement';
 import MediaSelectCommand from "./commands/mediaselectcommand";
-import SectionToolbar from "./sectiontoolbar";
 
 import "../theme/css/media.css";
+import ContainerControls from "./ui/containercontrols";
 
 /**
  * @extends module:core/plugin~Plugin
@@ -33,7 +33,7 @@ export default class Templates extends Plugin {
    * @inheritDoc
    */
   static get requires() {
-    return [Widget, SectionToolbar];
+    return [Widget, ContainerControls];
   }
 
   /**

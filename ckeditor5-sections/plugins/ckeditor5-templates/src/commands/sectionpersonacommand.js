@@ -1,6 +1,6 @@
-import SectionCommand from './sectioncommand';
+import Elementcommand from './elementcommand';
 
-export default class SectionPersonaCommand extends SectionCommand {
+export default class SectionPersonaCommand extends Elementcommand {
 
   refresh() {
     this.isEnabled = !!this.getSelectedSection();
