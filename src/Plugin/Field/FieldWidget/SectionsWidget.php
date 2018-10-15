@@ -157,6 +157,10 @@ class SectionsWidget extends WidgetBase implements ContainerFactoryPluginInterfa
       ]
     ];
 
+    /** @var \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler */
+    $moduleHandler = \Drupal::service('module_handler');
+    $moduleHandler->alter('sections_attributes', $templateAttributes);
+
     $main_widget['#attached']['drupalSettings']['sections']['templates'] = $sections;
     $main_widget['#attached']['drupalSettings']['sections']['templateAttributes'] = $templateAttributes;
     $main_widget['format'] = [
