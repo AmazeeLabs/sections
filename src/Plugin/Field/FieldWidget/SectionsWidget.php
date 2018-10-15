@@ -147,7 +147,18 @@ class SectionsWidget extends WidgetBase implements ContainerFactoryPluginInterfa
       'template' => '<div class="root"><div class="root-container" ck-editable-type="container" ck-allowed-elements="' . implode(' ', $enabledSections) . '" ck-default-element="' . $defaultSection . '"></div></div>',
     ];
 
-    $main_widget['#attached']['drupalSettings']['sections'] = $sections;
+    $templateAttributes = [
+      'data-gallery-type' => [
+        'label' => $this->t('Gallery type'),
+        'options' => [
+          'simple' => $this->t('Simple'),
+          'slider' => $this->t('Slider'),
+        ],
+      ]
+    ];
+
+    $main_widget['#attached']['drupalSettings']['sections']['templates'] = $sections;
+    $main_widget['#attached']['drupalSettings']['sections']['templateAttributes'] = $templateAttributes;
     $main_widget['format'] = [
       '#type' => 'value',
       '#value' => 'sections',

@@ -35,15 +35,10 @@
 
         SectionsEditor.create( editor , {
           rootTemplate: '_root',
-          templates: drupalSettings.sections,
+          templates: drupalSettings.sections.templates,
+          templateAttributes: drupalSettings.sections.templateAttributes,
 
           mediaSelector: function (type, operation, callback) {
-            ///admin/content/media-widget
-            //   ?media_library_widget_id=field_media-
-            //   &media_library_allowed_types%5Bimage%5D=image
-            //   &media_library_allowed_types%5Bremote_video%5D=remote_video
-            //   &media_library_allowed_types%5Bvideo%5D=video
-            //   &media_library_remaining=1
             currentCallback = callback;
             var path = (operation === 'add') ? '/admin/content/media-widget-upload' : '/admin/content/media-widget';
 
