@@ -275,7 +275,6 @@ export default class SectionToolbar extends Plugin {
 export function getSelectedSection( selection ) {
   const selected = selection.getSelectedElement();
 
-  // debugger;
   if (selected && selected.parent.getCustomProperty('container')) {
     return selected;
   }

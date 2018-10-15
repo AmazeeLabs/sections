@@ -8,7 +8,6 @@ export default class ElementRemoveCommand extends ElementCommand {
   }
 
   execute(values) {
-    debugger;
     const currentElement = this.getSelectedElement();
     this.editor.model.change(writer => {
       writer.remove(currentElement);

@@ -73,7 +73,7 @@
         text: {
           label: 'Text',
           template: `
-            <div class="text">
+            <div class="text" first="a" second="">
               <h2 ck-editable-type="text">Enter a headline ...</h2>
               <p ck-editable-type="text">Enter some text ...</p>
             </div>
@@ -93,13 +93,29 @@
         gallery: {
           label: 'Gallery',
           template: `
-            <div class="gallery">
+            <div class="gallery" second="">
               <h2 ck-editable-type="text">Gallery title ...</h2>
               <div class="gallery__images" ck-editable-type="container" ck-allowed-elements="image" ck-default-element="image"></div>
             </div>
           `,
         },
       },
+			templateAttributes: {
+        first: {
+          label: 'Setting 1',
+					options: {
+            a: 'Option A',
+						b: 'Option B',
+					}
+				},
+        second: {
+          label: 'Setting 2',
+          options: {
+            c: 'Option C',
+            d: 'Option D',
+          }
+        },
+			},
       mediaSelector: function (type, operation, callback) {
         if (type !== 'image') {
           throw "Unknown media type " + type;

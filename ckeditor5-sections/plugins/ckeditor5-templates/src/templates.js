@@ -24,6 +24,7 @@ export default class Templates extends Plugin {
     editor.config.define('templates', []);
     editor.config.define('rootTemplate', null);
     editor.config.define('templateElements', []);
+    editor.config.define('templateAttributes', {});
     editor.config.define('entitySelector', () => '');
     editor.config.define('entityRenderer', () => '');
     this.elements = {};

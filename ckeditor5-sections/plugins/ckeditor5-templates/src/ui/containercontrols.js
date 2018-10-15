@@ -12,6 +12,7 @@ import iconUp from '../../theme/icons/arrow-up.svg';
 import iconDown from '../../theme/icons/arrow-down.svg';
 import iconRemove from '../../theme/icons/trash.svg';
 import iconAdd from '../../theme/icons/add.svg';
+import iconConfigure from '../../theme/icons/configure.svg';
 
 import ElementRemoveCommand from "../commands/elementremovecommand";
 import ElementUpCommand from "../commands/elementupcommand";
@@ -25,6 +26,7 @@ import BalloonPanelView from "@ckeditor/ckeditor5-ui/src/panel/balloon/balloonpa
 import clickOutsideHandler from "@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler";
 
 import '../../theme/css/container.css';
+import TemplateAttributeCommand from "../commands/templateattributecommand";
 
 const toPx = toUnit( 'px' );
 
@@ -51,6 +53,19 @@ class ContainerButtonView extends ButtonView {
     });
   }
 
+  isConfigureButton() {
+    return false;
+  }
+}
+
+class ConfigureButtonView extends ContainerButtonView {
+  constructor( locale ) {
+    super( locale );
+  }
+
+  isConfigureButton() {
+    return true;
+  }
 }
 
 export default class ContainerControls extends Plugin {
@@ -62,12 +77,16 @@ export default class ContainerControls extends Plugin {
   constructor( editor ) {
     super( editor );
 
+    this.templateAttributes = editor.config.get('templateAttributes');
+
     this.insertBeforeToolbarView = this._createToolbarView();
     this.insertBeforePanelView = this._createPanelView(this.insertBeforeToolbarView);
 
     this.insertAfterToolbarView = this._createToolbarView();
     this.insertAfterPanelView = this._createPanelView(this.insertAfterToolbarView);
 
+    this.configurationToolbarView = this._createToolbarView();
+    this.configurationPanelView = this._createPanelView(this.configurationToolbarView);
 
     editor.commands.add('elementUp', new ElementUpCommand(editor));
     editor.commands.add('elementDown', new ElementDownCommand(editor));
@@ -94,6 +113,14 @@ export default class ContainerControls extends Plugin {
         position: 'top right 1',
         command: editor.commands.get('elementRemove')
       },
+      elementConfigure: {
+        buttonClass: ConfigureButtonView,
+        label: editor.t('Configure element'),
+        icon: iconConfigure,
+        class: 'element-configure',
+        position: 'top right 2',
+        panel: this.configurationPanelView
+      },
       insertBefore: {
         label: editor.t('Insert element above'),
         icon: iconAdd,
@@ -111,7 +138,8 @@ export default class ContainerControls extends Plugin {
     };
 
     this.buttonViews = Object.keys(this.buttons).map((key) => {
-      const buttonView = new ContainerButtonView(editor.locale);
+      const ButtonConstructor = this.buttons[key].buttonClass || ContainerButtonView;
+      const buttonView = new ButtonConstructor(editor.locale);
       buttonView.set(this.buttons[key]);
 
       if (this.buttons[key].command) {
@@ -210,6 +238,60 @@ export default class ContainerControls extends Plugin {
         return dropdownView;
       });
     }
+
+    for (const attr of Object.keys(this.templateAttributes)) {
+      editor.commands.add(`setTemplateAttribute:${attr}`, new TemplateAttributeCommand(editor, attr));
+      editor.ui.componentFactory.add(`templateAttribute:${attr}`, locale => {
+        const dropdownItems = new Collection();
+
+        const templateAttribute = this.templateAttributes[attr];
+        const commandName = `setTemplateAttribute:${attr}`;
+        const command = editor.commands.get(commandName);
+        const titles = {};
+
+        for (const key of Object.keys(templateAttribute.options)) {
+          const option = templateAttribute.options[key];
+          const itemModel = new Model({
+            label: option,
+            withText: true,
+          });
+
+          itemModel.bind('isActive').to(command, 'value', value => value === key);
+          itemModel.set({
+            commandName: commandName,
+            commandValue: key,
+          });
+          titles[key] = option;
+
+          dropdownItems.add({ type: 'button', model: itemModel });
+        }
+
+        const dropdownView = createDropdown(locale);
+        addListToDropdown(dropdownView, dropdownItems);
+
+        dropdownView.buttonView.set({
+          isOn: false,
+          withText: true,
+          label: templateAttribute.label,
+          tooltip: `Configure the ${templateAttribute.label} option.`,
+        });
+
+        dropdownView.buttonView.bind( 'label' ).to( command, 'value', ( value ) => {
+          return titles[ value ] || templateAttribute.label;
+        } );
+
+        dropdownView.bind('isEnabled').to(command, 'isEnabled', (value) => {
+          return value;
+        });
+
+        // Execute command when an item from the dropdown is selected.
+        this.listenTo( dropdownView, 'execute', evt => {
+          editor.execute( evt.source.commandName, {value: evt.source.commandValue});
+        });
+
+        return dropdownView;
+      });
+    }
   }
 
   /**
@@ -271,6 +353,7 @@ export default class ContainerControls extends Plugin {
       if ( data.directChange ) {
         this._hidePanel(this.insertBeforePanelView);
         this._hidePanel(this.insertAfterToolbarView);
+        this._hidePanel(this.configurationPanelView);
       }
     } );
 
@@ -314,14 +397,28 @@ export default class ContainerControls extends Plugin {
       return;
     }
 
+    this.configurationToolbarView.items.clear();
+    this.configurationToolbarView.fillFromConfig( Object.keys(this.templateAttributes)
+        .filter(attr => modelTarget.hasAttribute(attr))
+        .map(attr => `templateAttribute:${attr}`)
+    , editor.ui.componentFactory );
     const domTarget = view.domConverter.mapViewToDom( editor.editing.mapper.toViewElement( modelTarget ) );
 
     for (const buttonView of this.buttonViews) {
-      buttonView.isVisible = true;
-      this._attachButtonToElement(domTarget, buttonView, 'left top 1')
+      this._attachButtonToElement(domTarget, buttonView);
+
 
       if (buttonView.panel && buttonView.panel.isVisible) {
         this._showPanel(buttonView, buttonView.panel);
+      }
+
+      if (buttonView.isConfigureButton()) {
+        const intersection = Array.from(modelTarget.getAttributeKeys())
+            .filter(key => Object.keys(this.templateAttributes).includes(key));
+        buttonView.isVisible = !!intersection.length;
+      }
+      else {
+        buttonView.isVisible = true;
       }
     }
 
@@ -404,6 +501,7 @@ export default class ContainerControls extends Plugin {
   _hidePanels() {
     this.insertBeforePanelView.isVisible = false;
     this.insertAfterPanelView.isVisible = false;
+    this.configurationPanelView.isVisible = false;
   }
 
   getSelectedElement() {

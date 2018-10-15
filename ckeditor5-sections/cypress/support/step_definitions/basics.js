@@ -26,7 +26,7 @@ Given(/^I click the (first|second|third|last) element$/, (position) => {
     last: ':last-child'
   }[position];
 
-  cy.get('@container').children().filter(selector)  .as('widget').click();
+  cy.get('@container').children().filter(selector).as('widget').click();
 });
 
 Given(/^there (is|are) (no|\d+) elements?$/, (_, number, contents) => {
