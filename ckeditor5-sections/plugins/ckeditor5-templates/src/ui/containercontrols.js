@@ -461,7 +461,7 @@ export default class ContainerControls extends Plugin {
 
           if (primary === 'top' && secondary === 'right') {
             return {
-              top: contentRect.top + (buttonRect.height / 3) + (buttonRect.height) * parseInt(offset - 1),
+              top: contentRect.top - buttonRect.height + (buttonRect.height) * parseInt(offset),
               left: contentRect.left + contentRect.width,
             };
           }

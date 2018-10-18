@@ -1,0 +1,12 @@
+.ck-reset_all .ck-button {
+  color: #555;
+}
+
+.ck-reset_all .element-configure:hover {
+  color: #f6ba35;
+  background: none !important;
+}
+
+.ck-reset_all .element-remove:hover {
+  color: #C81C27;
+}
