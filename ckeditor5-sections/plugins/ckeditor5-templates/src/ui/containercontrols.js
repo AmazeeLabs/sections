@@ -31,11 +31,11 @@ import TemplateAttributeCommand from "../commands/templateattributecommand";
 const toPx = toUnit( 'px' );
 
 class ContainerButtonView extends ButtonView {
-  constructor ( locale ) {
-    super( locale );
+  constructor (locale) {
+    super(locale);
     const bind = this.bindTemplate;
-    this.set( 'top', 0 );
-    this.set( 'left', 0);
+    this.set('top', 0);
+    this.set('left', 0);
     this.set('isVisible', false);
     this.set('position', 'top left 1');
 
@@ -49,6 +49,73 @@ class ContainerButtonView extends ButtonView {
           top: bind.to('top', val => toPx(val)),
           left: bind.to('left', val => toPx(val)),
         }
+      }
+    });
+  }
+
+  isConfigureButton() {
+    return false;
+  }
+}
+
+class NewSectionButtonView extends ButtonView {
+  constructor (locale) {
+    super(locale);
+    const bind = this.bindTemplate;
+    this.set('top', 0);
+    this.set('left', 0);
+    this.set('width', 0);
+    this.set('isVisible', false);
+    this.set('class', '');
+    this.set('isEnabled', true);
+    this.set('panel', null);
+    this.set('command', null);
+
+    const containerButton = new ContainerButtonView(locale);
+    containerButton.set('isVisible', true);
+    containerButton.set('isEnabled', true);
+    containerButton.bind('label').to(this, 'label');
+    containerButton.bind('icon').to(this, 'icon');
+    containerButton.bind('class').to(this, 'class');
+    containerButton.bind('panel').to(this, 'panel');
+
+    this.containerButton = containerButton;
+
+    this.setTemplate({
+      tag: 'div',
+      children: [
+        containerButton,
+      ],
+      attributes: {
+        class: [
+          'new-section',
+          bind.if( 'isEnabled', 'ck-disabled', value => !value ),
+          bind.if( 'isVisible', 'ck-hidden', value => !value ),
+          bind.to( 'isOn', value => value ? 'ck-on' : 'ck-off' )
+        ],
+        style: {
+          position: 'absolute',
+          top: bind.to('top', val => toPx(val)),
+          left: bind.to('left', val => toPx(val)),
+          width: bind.to('width', val => toPx(val)),
+        }
+      },
+      on: {
+        mousedown: bind.to(evt => {
+          evt.preventDefault();
+        }),
+
+        click: bind.to( evt => {
+          // We can't make the button disabled using the disabled attribute, because it won't be focusable.
+          // Though, shouldn't this condition be moved to the button controller?
+          if ( this.isEnabled ) {
+            this.fire( 'execute' );
+          } else {
+            // Prevent the default when button is disabled, to block e.g.
+            // automatic form submitting. See ckeditor/ckeditor5-link#74.
+            evt.preventDefault();
+          }
+        })
       }
     });
   }
@@ -122,25 +189,28 @@ export default class ContainerControls extends Plugin {
         panel: this.configurationPanelView
       },
       insertBefore: {
+        buttonClass: NewSectionButtonView,
         label: editor.t('Insert element above'),
         icon: iconAdd,
         class: 'element-insert-before',
-        position: 'top center',
+        position: 'top new-section',
         panel: this.insertBeforePanelView,
       },
       insertAfter: {
+        buttonClass: NewSectionButtonView,
         label: editor.t('Insert element below'),
         icon: iconAdd,
         class: 'element-insert-after',
-        position: 'bottom center',
+        position: 'bottom new-section',
         panel: this.insertAfterPanelView,
       },
     };
 
     this.buttonViews = Object.keys(this.buttons).map((key) => {
-      const ButtonConstructor = this.buttons[key].buttonClass || ContainerButtonView;
+      const ButtonConstructor = this.buttons[key].buttonClass ? this.buttons[key].buttonClass : ContainerButtonView;
       const buttonView = new ButtonConstructor(editor.locale);
       buttonView.set(this.buttons[key]);
+      buttonView.render();
 
       if (this.buttons[key].command) {
         const command = this.buttons[key].command;
@@ -154,15 +224,15 @@ export default class ContainerControls extends Plugin {
         const panel = this.buttons[key].panel;
         panel.button = buttonView;
         buttonView.bind( 'isOn' ).to( panel, 'isVisible' );
+
         // Toggle the panelView upon buttonView#execute.
         this.listenTo( buttonView, 'execute', () => {
           if ( !panel.isVisible ) {
-            this._showPanel(buttonView, panel);
+            this._showPanel(buttonView.containerButton || buttonView, panel);
           } else {
             this._hidePanel(panel);
           }
         });
-        buttonView.render();
 
         // Close the #panelView upon clicking outside of the plugin UI.
         clickOutsideHandler( {
@@ -465,24 +535,27 @@ export default class ContainerControls extends Plugin {
               left: contentRect.left + contentRect.width - buttonRect.width - (buttonRect.height) * parseInt(offset - 1),
             };
           }
-          if (primary === 'top' && secondary === 'center') {
+
+          if (primary === 'top' && secondary === 'new-section') {
             return {
-              top: contentRect.top - buttonRect.height,
+              top: contentRect.top - buttonRect.height - 20,
               left: contentRect.left + (contentRect.width - buttonRect.width)/2,
             };
           }
-          if (primary === 'bottom' && secondary === 'center') {
+
+          if (primary === 'bottom' && secondary === 'new-section') {
             return {
-              top: contentRect.top + contentRect.height,
+              top: contentRect.top + contentRect.height + 20,
               left: contentRect.left + (contentRect.width - buttonRect.width)/2,
             };
           }
         }
       ]
-    } );
+    });
 
     buttonView.top = buttonPosition.top;
     buttonView.left = buttonPosition.left;
+    buttonView.width = editableRect.width;
   }
 
   _showPanel(button, panel) {

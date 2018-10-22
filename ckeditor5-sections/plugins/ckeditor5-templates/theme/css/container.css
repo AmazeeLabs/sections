@@ -1,0 +1,65 @@
+.ck .root .ck-widget {
+  margin: 40px 0;
+}
+
+.new-section {
+  height: 5px !important;
+  background: #555 !important;
+}
+
+.element-insert-before,
+.element-insert-after {
+  top: -12px !important;
+  left: 100% !important;
+}
+
+.element-insert-before:before,
+.element-insert-after:before {
+  content: '';
+  width: 100%;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  z-index: 1;
+}
+
+.element-insert-before:hover,
+.element-insert-after:hover {
+  background: none !important;
+  cursor: pointer;
+}
+
+.element-insert-before:active,
+.element-insert-after:active {
+  background: none !important;
+}
+
+.element-insert-before .ck-button__label,
+.element-insert-after .ck-button__label {
+  display: block !important;
+  padding: 0 20px;
+  margin-left: 15px;
+  background: #555;
+  color: #FFF !important;
+  position: relative;
+}
+
+.element-insert-before .ck-button__label:before,
+.element-insert-after .ck-button__label:before {
+  right: 100%;
+  top: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+.element-insert-before .ck-button__label:before,
+.element-insert-after .ck-button__label:before {
+  border-color: transparent;
+  border-right-color: #555;
+  border-width: 5px;
+  margin-top: -5px;
+}
