@@ -1,12 +1,28 @@
+:root {
+  --ck-icon-size: 25px;
+  --ck-color-button-default: #555;
+  --ck-color-button-default-hover: #000;
+  --ck-color-button-configure-hover: #f6ba35;
+  --ck-color-button-remove-hover: #C81C27;
+}
+
 .ck-reset_all .ck-button {
-  color: #555;
+  color: var(--ck-color-button-default);
 }
 
 .ck-reset_all .element-configure:hover {
-  color: #f6ba35;
-  background: none !important;
+  color: var(--ck-color-button-configure-hover);
 }
 
 .ck-reset_all .element-remove:hover {
-  color: #C81C27;
+  color: var(--ck-color-button-remove-hover);
+}
+
+.ck-reset_all .ck-button:hover {
+  background: none !important;
+}
+
+.ck-reset_all .element-up:hover,
+.ck-reset_all .element-down:hover {
+  color: var(--ck-color-button-default-hover);
 }

@@ -103,6 +103,7 @@ export default class ContainerControls extends Plugin {
       elementDown: {
         label: editor.t('Move element down'),
         icon: iconDown,
+        class: 'element-down',
         position: 'bottom right 1',
         command: editor.commands.get('elementDown')
       },
