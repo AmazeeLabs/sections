@@ -30,7 +30,7 @@ import TemplateAttributeCommand from "../commands/templateattributecommand";
 
 const toPx = toUnit( 'px' );
 
-class ContainerButtonView extends ButtonView {
+export class ContainerButtonView extends ButtonView {
   constructor ( locale ) {
     super( locale );
     const bind = this.bindTemplate;
@@ -102,6 +102,7 @@ export default class ContainerControls extends Plugin {
       },
       elementDown: {
         label: editor.t('Move element down'),
+        class: 'element-down',
         icon: iconDown,
         position: 'left top 2',
         command: editor.commands.get('elementDown')

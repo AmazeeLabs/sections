@@ -7,10 +7,19 @@ export default class ElementUpCommand extends ElementCommand {
     this.isEnabled = currentElement && currentElement.previousSibling;
   }
 
-  execute() {
+  execute(button) {
+    const model = this.editor.model;
     const currentElement = this.getSelectedElement();
-    this.editor.model.change(writer => {
+    model.change(writer => {
       writer.insert(currentElement, currentElement.previousSibling, 'before');
+    });
+
+    const view = this.editor.editing.view;
+    const domTarget = view.domConverter.mapViewToDom(editor.editing.mapper.toViewElement( currentElement ) );
+    const scrollToElement = require('scroll-to-element');
+    scrollToElement(domTarget, {
+      offset: 0,
+      duration: 1500
     });
   }
 }
