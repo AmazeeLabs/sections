@@ -22699,6 +22699,9 @@ class Schema {
 			return false;
 		}
 
+		// if (!this._checkContextMatch( def, context )) {
+    //   debugger;
+    // }
 		return this._checkContextMatch( def, context );
 	}
 
@@ -98117,6 +98120,12 @@ class ContainerElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["de
   }
 
 
+  get schemaExtensions() {
+    return this.allowedElements.map((el) => {
+      return { element: el, info: { allowIn: this.name }};
+    });
+  }
+
   toModelElement(viewElement, modelWriter) {
     const model = super.toModelElement(viewElement, modelWriter);
     modelWriter.setAttribute('ck-container', true, model);
@@ -98128,15 +98137,6 @@ class ContainerElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["de
      viewWriter.setCustomProperty('container', true, element);
      viewWriter.addClass('ck-container', element);
      return element;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  get childCheck() {
-    return (def) => {
-      return this.allowedElements.includes(def.name);
-    };
   }
 
   postfix(writer, item) {
@@ -98198,6 +98198,15 @@ class FormattedElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["de
     });
   }
 
+  get schemaExtensions() {
+    return [{
+      element: '$block',
+      info: {
+        allowIn: this.name,
+      }
+    }];
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -98229,8 +98238,8 @@ class FormattedElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["de
     }
 
     if (item.childCount === 0) {
-      const paragraph = writer.createElement('paragraph');
-      if (this.editor.model.schema.checkChild(item, paragraph)) {
+      if (this.editor.model.schema.checkChild(item, 'paragraph')) {
+        const paragraph = writer.createElement('paragraph');
         writer.insert( paragraph, item, 'end' );
         writer.insert(writer.createText(this.node.textContent), paragraph);
         return true;
@@ -98479,19 +98488,14 @@ class TextElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["default
    */
   get schema() {
     return Object.assign(super.schema, {
-      isLimit: true,
-      allowContentOf: '$block'
+      isLimit: true
     });
   }
 
-  /**
-   * @inheritDoc
-   */
-  get childCheck() {
-    return (def) => {
-      // Only allow plain text elements as children.
-      return def.name === '$text';
-    };
+  get schemaExtensions() {
+    return [
+      { element: '$text', info: { allowIn: this.name }},
+    ];
   }
 
   /**
@@ -98652,6 +98656,10 @@ class TemplateElement {
     };
   }
 
+  get schemaExtensions() {
+    return [];
+  }
+
   /**
    * Attributes that are allowed by default, without being added to the template.
    *
@@ -98728,15 +98736,6 @@ class TemplateElement {
     });
   }
 
-  /**
-   * Return a child-check function for this element.
-   *
-   * @returns {function(*): boolean}
-   */
-  get childCheck() {
-    return null;
-  }
-
   postfix(writer, item) {
 
     // Template attributes that are not part of the model are copied into the model initially.
@@ -98803,9 +98802,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _theme_css_media_css__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_theme_css_media_css__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var _ui_containercontrols__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ui/containercontrols */ "./plugins/ckeditor5-templates/src/ui/containercontrols.js");
 /* harmony import */ var _ckeditor_ckeditor5_widget_src_utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @ckeditor/ckeditor5-widget/src/utils */ "./node_modules/@ckeditor/ckeditor5-widget/src/utils.js");
+/* harmony import */ var _ckeditor_ckeditor5_paragraph_src_paragraph__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @ckeditor/ckeditor5-paragraph/src/paragraph */ "./node_modules/@ckeditor/ckeditor5-paragraph/src/paragraph.js");
 /**
  * @module templates/templates
  */
+
 
 
 
@@ -98840,7 +98841,7 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
    * @inheritDoc
    */
   static get requires() {
-    return [_ckeditor_ckeditor5_widget_src_widget__WEBPACK_IMPORTED_MODULE_1__["default"], _ui_containercontrols__WEBPACK_IMPORTED_MODULE_6__["default"]];
+    return [_ckeditor_ckeditor5_widget_src_widget__WEBPACK_IMPORTED_MODULE_1__["default"], _ui_containercontrols__WEBPACK_IMPORTED_MODULE_6__["default"], _ckeditor_ckeditor5_paragraph_src_paragraph__WEBPACK_IMPORTED_MODULE_8__["default"]];
   }
 
   /**
@@ -98849,27 +98850,36 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
   static get pluginName() {
     return 'Templates';
   }
-
   /**
    * @inheritDoc
    */
   init() {
 
+    this.elements = {};
     const templates = this.editor.config.get('templates');
+
     Object.keys(templates).forEach((name) => {
       const template = (new DOMParser()).parseFromString(templates[name].template, 'text/xml').documentElement;
       template.setAttribute('ck-name', name);
       this._registerElement(template);
     });
 
+    Object.keys(this.elements).forEach((name) => {
+      this.elements[name].schemaExtensions.forEach((ext) => {
+        this.editor.model.schema.extend(ext.element, ext.info);
+      });
+    });
+
     const rootTemplate = this.editor.config.get('rootTemplate');
     if (rootTemplate) {
       const templateId = 'ck-templates__' + rootTemplate;
       this.editor.model.schema.addChildCheck((context, def) => {
-        if (context.endsWith('$root') && def.name === templateId) {
-          return true;
+        if (context.endsWith('$root') && def.name !== templateId) {
+          return false;
         }
       });
+
+      this.editor.model.schema.extend(templateId, { allowIn: '$root'});
       this.editor.model.document.registerPostFixer( writer => this._cleanRoot( writer, templateId) );
       this.editor.on( 'dataReady', () => {
         this.editor.model.enqueueChange( 'transparent', writer => this._cleanRoot( writer, templateId) );
@@ -98877,6 +98887,10 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
     }
 
     this.editor.commands.add('mediaSelect', new _commands_mediaselectcommand__WEBPACK_IMPORTED_MODULE_4__["default"](this.editor));
+
+    this.editor.model.schema.extend('paragraph', {
+      allowIn: 'ck-templates__text__child1',
+    });
 
     const balloonToolbar = this.editor.plugins.get( 'BalloonToolbar' );
     // If the `BalloonToolbar` plugin is loaded, it should be disabled for images
@@ -98900,13 +98914,6 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
 
       if (root.rootName === '$graveyard' ) {
         continue
-      }
-
-      for (let child of root.getChildren()) {
-        if (child.name !== rootTemplate) {
-          writer.remove(child);
-          return true;
-        }
       }
 
       if (root.isEmpty) {
@@ -98960,6 +98967,7 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
     this.editor.model.schema.register(element.name, Object.assign({
       allowAttributes: attributes,
     }, element.schema));
+
     this.editor.conversion.for('upcast').add(element.upcast);
     this.editor.conversion.for('dataDowncast').add(element.dataDowncast);
     this.editor.conversion.for('editingDowncast').add(element.editingDowncast);
@@ -98969,13 +98977,6 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
         this.editor.conversion.for('downcast').add(modelToViewAttributeConverter(attr, element.name))
       }
     }
-
-    // TODO: turn into one childcheck that iterates through templates
-    this.editor.model.schema.addChildCheck((context, def) => {
-      if (context.endsWith(element.name) && element.childCheck) {
-        return element.childCheck(def);
-      }
-    });
 
     // TODO: turn into one postfixer that iterates through templates
     this.editor.model.document.registerPostFixer((writer) => {
@@ -99584,12 +99585,11 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
   }
 
   getSelectedElement() {
-    let element = this.editor.model.document.selection.getSelectedElement();
-    if (element) {
-      return element;
-    }
+    const modelElement = this.editor.model.document.selection.getSelectedElement()
+      || this.editor.model.document.selection.anchor.parent;
 
-    element = this.editor.editing.mapper.toViewElement(this.editor.model.document.selection.anchor.parent);
+    let element = this.editor.editing.mapper.toViewElement(modelElement);
+
     while (element) {
       if (element.parent && element.parent.getCustomProperty('container')) {
         return this.editor.editing.mapper.toModelElement(element);

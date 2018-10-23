@@ -11,6 +11,7 @@ import MediaSelectCommand from "./commands/mediaselectcommand";
 import "../theme/css/media.css";
 import ContainerControls from "./ui/containercontrols";
 import {isWidget} from "@ckeditor/ckeditor5-widget/src/utils";
+import Paragraph from "@ckeditor/ckeditor5-paragraph/src/paragraph";
 
 /**
  * @extends module:core/plugin~Plugin
@@ -35,7 +36,7 @@ export default class Templates extends Plugin {
    * @inheritDoc
    */
   static get requires() {
-    return [Widget, ContainerControls];
+    return [Widget, ContainerControls, Paragraph];
   }
 
   /**
@@ -44,27 +45,36 @@ export default class Templates extends Plugin {
   static get pluginName() {
     return 'Templates';
   }
-
   /**
    * @inheritDoc
    */
   init() {
 
+    this.elements = {};
     const templates = this.editor.config.get('templates');
+
     Object.keys(templates).forEach((name) => {
       const template = (new DOMParser()).parseFromString(templates[name].template, 'text/xml').documentElement;
       template.setAttribute('ck-name', name);
       this._registerElement(template);
     });
 
+    Object.keys(this.elements).forEach((name) => {
+      this.elements[name].schemaExtensions.forEach((ext) => {
+        this.editor.model.schema.extend(ext.element, ext.info);
+      });
+    });
+
     const rootTemplate = this.editor.config.get('rootTemplate');
     if (rootTemplate) {
       const templateId = 'ck-templates__' + rootTemplate;
       this.editor.model.schema.addChildCheck((context, def) => {
-        if (context.endsWith('$root') && def.name === templateId) {
-          return true;
+        if (context.endsWith('$root') && def.name !== templateId) {
+          return false;
         }
       });
+
+      this.editor.model.schema.extend(templateId, { allowIn: '$root'});
       this.editor.model.document.registerPostFixer( writer => this._cleanRoot( writer, templateId) );
       this.editor.on( 'dataReady', () => {
         this.editor.model.enqueueChange( 'transparent', writer => this._cleanRoot( writer, templateId) );
@@ -72,6 +82,10 @@ export default class Templates extends Plugin {
     }
 
     this.editor.commands.add('mediaSelect', new MediaSelectCommand(this.editor));
+
+    this.editor.model.schema.extend('paragraph', {
+      allowIn: 'ck-templates__text__child1',
+    });
 
     const balloonToolbar = this.editor.plugins.get( 'BalloonToolbar' );
     // If the `BalloonToolbar` plugin is loaded, it should be disabled for images
@@ -95,13 +109,6 @@ export default class Templates extends Plugin {
 
       if (root.rootName === '$graveyard' ) {
         continue
-      }
-
-      for (let child of root.getChildren()) {
-        if (child.name !== rootTemplate) {
-          writer.remove(child);
-          return true;
-        }
       }
 
       if (root.isEmpty) {
@@ -155,6 +162,7 @@ export default class Templates extends Plugin {
     this.editor.model.schema.register(element.name, Object.assign({
       allowAttributes: attributes,
     }, element.schema));
+
     this.editor.conversion.for('upcast').add(element.upcast);
     this.editor.conversion.for('dataDowncast').add(element.dataDowncast);
     this.editor.conversion.for('editingDowncast').add(element.editingDowncast);
@@ -164,13 +172,6 @@ export default class Templates extends Plugin {
         this.editor.conversion.for('downcast').add(modelToViewAttributeConverter(attr, element.name))
       }
     }
-
-    // TODO: turn into one childcheck that iterates through templates
-    this.editor.model.schema.addChildCheck((context, def) => {
-      if (context.endsWith(element.name) && element.childCheck) {
-        return element.childCheck(def);
-      }
-    });
 
     // TODO: turn into one postfixer that iterates through templates
     this.editor.model.document.registerPostFixer((writer) => {

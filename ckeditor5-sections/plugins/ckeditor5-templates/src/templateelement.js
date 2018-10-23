@@ -124,6 +124,10 @@ export default class TemplateElement {
     };
   }
 
+  get schemaExtensions() {
+    return [];
+  }
+
   /**
    * Attributes that are allowed by default, without being added to the template.
    *
@@ -198,15 +202,6 @@ export default class TemplateElement {
         return this.toEditorElement(modelElement, viewWriter);
       }
     });
-  }
-
-  /**
-   * Return a child-check function for this element.
-   *
-   * @returns {function(*): boolean}
-   */
-  get childCheck() {
-    return null;
   }
 
   postfix(writer, item) {

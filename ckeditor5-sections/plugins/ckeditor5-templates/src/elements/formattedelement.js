@@ -29,6 +29,15 @@ export default class FormattedElement extends TemplateElement {
     });
   }
 
+  get schemaExtensions() {
+    return [{
+      element: '$block',
+      info: {
+        allowIn: this.name,
+      }
+    }];
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -60,8 +69,8 @@ export default class FormattedElement extends TemplateElement {
     }
 
     if (item.childCount === 0) {
-      const paragraph = writer.createElement('paragraph');
-      if (this.editor.model.schema.checkChild(item, paragraph)) {
+      if (this.editor.model.schema.checkChild(item, 'paragraph')) {
+        const paragraph = writer.createElement('paragraph');
         writer.insert( paragraph, item, 'end' );
         writer.insert(writer.createText(this.node.textContent), paragraph);
         return true;
