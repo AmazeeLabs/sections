@@ -10,6 +10,7 @@ import MediaSelectCommand from "./commands/mediaselectcommand";
 
 import "../theme/css/media.css";
 import ContainerControls from "./ui/containercontrols";
+import {isWidget} from "@ckeditor/ckeditor5-widget/src/utils";
 
 /**
  * @extends module:core/plugin~Plugin
@@ -71,6 +72,18 @@ export default class Templates extends Plugin {
     }
 
     this.editor.commands.add('mediaSelect', new MediaSelectCommand(this.editor));
+
+    const balloonToolbar = this.editor.plugins.get( 'BalloonToolbar' );
+    // If the `BalloonToolbar` plugin is loaded, it should be disabled for images
+    // which have their own toolbar to avoid duplication.
+    // https://github.com/ckeditor/ckeditor5-image/issues/110
+    if ( balloonToolbar ) {
+      this.listenTo( balloonToolbar, 'show', evt => {
+        if ( isWidgetSelected( this.editor.editing.view.document.selection ) ) {
+          evt.stop();
+        }
+      }, { priority: 'high' } );
+    }
   }
 
   _cleanRoot(writer, rootTemplate) {
@@ -152,6 +165,14 @@ export default class Templates extends Plugin {
       }
     }
 
+    // TODO: turn into one childcheck that iterates through templates
+    this.editor.model.schema.addChildCheck((context, def) => {
+      if (context.endsWith(element.name) && element.childCheck) {
+        return element.childCheck(def);
+      }
+    });
+
+    // TODO: turn into one postfixer that iterates through templates
     this.editor.model.document.registerPostFixer((writer) => {
       for (const entry of this.editor.model.document.differ.getChanges()) {
         if (entry.type === 'insert' && element.name === entry.name) {
@@ -163,21 +184,17 @@ export default class Templates extends Plugin {
       }
     });
 
-    this.editor.model.schema.addChildCheck((context, def) => {
-      if (context.endsWith(element.name)) {
-        return element.childCheck(def);
-      }
-    });
-
     return element;
   }
 
   _recursiveElementPostFix(element, writer, item) {
     let changed = false;
     if (item instanceof Element) {
-      const children = item.getChildren();
-      for (let child of children) {
-        changed = this._recursiveElementPostFix(this.elements[child.name], writer, child) || changed;
+      if (element.postfixChildren) {
+        const children = item.getChildren();
+        for (let child of children) {
+          changed = this._recursiveElementPostFix(this.elements[child.name], writer, child) || changed;
+        }
       }
       changed = element.postfix(writer, item) || changed;
     }
@@ -205,4 +222,11 @@ export function modelToViewAttributeConverter( attributeKey, element ) {
       viewWriter.removeAttribute( data.attributeKey, entity );
     }
   }
+}
+
+
+function isWidgetSelected( selection ) {
+  const viewElement = selection.getSelectedElement();
+
+  return !!( viewElement && isWidget( viewElement ) );
 }

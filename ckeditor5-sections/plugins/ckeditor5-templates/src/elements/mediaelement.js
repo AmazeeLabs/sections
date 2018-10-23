@@ -4,6 +4,7 @@
 import TemplateElement from "../templateelement";
 import {downcastElementToElement} from "@ckeditor/ckeditor5-engine/src/conversion/downcast-converters";
 import View from "@ckeditor/ckeditor5-ui/src/view";
+import { toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
 
 import SearchIcon from '../../theme/icons/search.svg';
 import UploadIcon from '../../theme/icons/upload.svg';
@@ -91,25 +92,15 @@ export default class MediaElement extends TemplateElement {
    * @inheritDoc
    */
   get schema() {
-    return {
-      isLimit: true,
-    };
+    return Object.assign(super.schema, {
+      isObject: true,
+    });
   }
 
   get defaultAttributes() {
     return {
       'ck-media-rendered': '',
       'data-media-uuid': '',
-    };
-  }
-
-  /**
-   * @inheritDoc
-   */
-  get childCheck() {
-    return (def) => {
-      // Object elements never have children.
-      return false;
     };
   }
 
@@ -143,7 +134,7 @@ export default class MediaElement extends TemplateElement {
         const editor = this.editor;
 
         // Create an editable textfield of the given type and attach the content as placeholder.
-        return writer.createUIElement(this.node.tagName, this.getModelAttributes(modelElement), function (domDocument) {
+        return toWidget(writer.createUIElement(this.node.tagName, this.getModelAttributes(modelElement), function (domDocument) {
           const domElement = this.toDomElement(domDocument);
           const view = new MediaView(modelElement, editor);
           view.render();
@@ -152,7 +143,7 @@ export default class MediaElement extends TemplateElement {
           const preview = domElement.querySelector('.ck-media-content');
 
           editor.model.document.on('change:data', (evt, batch) => {
-            for (const op of batch.getOperations()) {
+            for (const op of batch.operations) {
               if (op instanceof AttributeOperation && op.key === 'ck-media-rendered') {
                 if (modelElement === op.range.start.nodeAfter) {
                   preview.innerHTML = op.newValue;
@@ -176,7 +167,7 @@ export default class MediaElement extends TemplateElement {
             preview.innerHTML = '<div class="ck-media-placeholder"/>';
           }
           return domElement;
-        });
+        }), writer);
       }
     });
   }

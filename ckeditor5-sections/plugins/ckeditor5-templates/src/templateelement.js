@@ -7,8 +7,6 @@ import { upcastElementToElement } from '@ckeditor/ckeditor5-engine/src/conversio
 
 import { toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
 
-import Range from '@ckeditor/ckeditor5-engine/src/model/range'
-
 /**
  * The base class for template elements.
  *
@@ -30,6 +28,15 @@ export default class TemplateElement {
    * @param {Element} node
    */
   static applies(node) {
+    return true;
+  }
+
+  /**
+   * Determines if children should be automatically postfixed.
+   *
+   * @returns {boolean}
+   */
+  get postfixChildren() {
     return true;
   }
 
@@ -111,7 +118,10 @@ export default class TemplateElement {
    * @returns {*}
    */
   get schema() {
-    return {};
+    return {
+      isObject: !this.parent,
+      allowIn: !this.parent ? [] : this.parent.name
+    };
   }
 
   /**
@@ -196,9 +206,7 @@ export default class TemplateElement {
    * @returns {function(*): boolean}
    */
   get childCheck() {
-    return (def) => {
-      return this.childNames.includes(def.name);
-    };
+    return null;
   }
 
   postfix(writer, item) {
