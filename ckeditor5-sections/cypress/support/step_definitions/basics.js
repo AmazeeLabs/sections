@@ -7,11 +7,15 @@ Given(/^I opened a document with existing content$/, file => {
   cy.initEditor(`
     <div class="text">
       <h2>Headline 1</h2>
-      <p>Text 1 </p>
+      <div class="content-wrapper">
+        <p>Text 1 </p>
+      </div>
     </div>
     <div class="text">
       <h2>Headline 2</h2>
-      <p>Text 2 </p>
+      <div class="content-wrapper">
+        <p>Text 2 </p>
+      </div>
     </div>
   `);
 
@@ -34,7 +38,9 @@ Given(/^there (is|are) (no|\d+) elements?$/, (_, number, contents) => {
     return `
       <div class="text">
         <h2></h2>
-        <p>${contents ? contents.raw()[i][0] : ''}</p>
+        <div class="content-wrapper">
+          <p>${contents ? contents.raw()[i][0] : ''}</p>
+        </div>
       </div>
     `
   }).join('');
@@ -49,6 +55,13 @@ Given(/^I click the textfield "([^"]*)"$/, (text) => {
   cy.get('@widget').within(() => {
     cy.get(`[data-placeholder="${text}"]`).as('editable');
     cy.get('@editable').click();
+  });
+});
+
+Given(/^I edit the textarea "([^"]*)"$/, (text) => {
+  cy.get('@widget').within(() => {
+    cy.contains(text).parent().as('editable');
+    cy.get('@editable').clear();
   });
 });
 

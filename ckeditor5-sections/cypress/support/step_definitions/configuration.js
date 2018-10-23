@@ -35,7 +35,7 @@ When(/^I choose "(.*)" for the first setting$/, (option) => {
 });
 
 Then(/^"(.*)" remains selected$/, (option) => {
-  cy.contains('Configure element').click();
+  cy.contains('Configure element').click().click();
   cy.get('.ck-balloon-panel_visible').contains(option).should('be.visible');
 });
 
