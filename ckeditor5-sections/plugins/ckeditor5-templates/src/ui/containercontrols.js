@@ -30,7 +30,7 @@ import TemplateAttributeCommand from "../commands/templateattributecommand";
 
 const toPx = toUnit( 'px' );
 
-export class ContainerButtonView extends ButtonView {
+class ContainerButtonView extends ButtonView {
   constructor ( locale ) {
     super( locale );
     const bind = this.bindTemplate;

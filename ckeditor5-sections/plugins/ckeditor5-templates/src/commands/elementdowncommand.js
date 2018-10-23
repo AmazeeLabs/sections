@@ -7,7 +7,7 @@ export default class ElementDownCommand extends ElementCommand {
     this.isEnabled = currentElement && currentElement.nextSibling;
   }
 
-  execute(button) {
+  execute() {
     const model = this.editor.model;
     const currentElement = this.getSelectedElement();
     model.change(writer => {

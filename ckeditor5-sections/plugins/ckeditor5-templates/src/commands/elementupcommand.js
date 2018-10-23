@@ -7,7 +7,7 @@ export default class ElementUpCommand extends ElementCommand {
     this.isEnabled = currentElement && currentElement.previousSibling;
   }
 
-  execute(button) {
+  execute() {
     const model = this.editor.model;
     const currentElement = this.getSelectedElement();
     model.change(writer => {
