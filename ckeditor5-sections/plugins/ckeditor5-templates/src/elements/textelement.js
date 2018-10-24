@@ -22,19 +22,15 @@ export default class TextElement extends TemplateElement {
    * @inheritDoc
    */
   get schema() {
-    return {
-      isLimit: true,
-    };
+    return Object.assign(super.schema, {
+      isLimit: true
+    });
   }
 
-  /**
-   * @inheritDoc
-   */
-  get childCheck() {
-    return (def) => {
-      // Only allow plain text elements as children.
-      return def.name === '$text';
-    };
+  get schemaExtensions() {
+    return [
+      { element: '$text', info: { allowIn: this.name }},
+    ];
   }
 
   /**

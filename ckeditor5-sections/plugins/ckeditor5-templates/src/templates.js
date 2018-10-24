@@ -10,6 +10,8 @@ import MediaSelectCommand from "./commands/mediaselectcommand";
 
 import "../theme/css/media.css";
 import ContainerControls from "./ui/containercontrols";
+import {isWidget} from "@ckeditor/ckeditor5-widget/src/utils";
+import Paragraph from "@ckeditor/ckeditor5-paragraph/src/paragraph";
 
 /**
  * @extends module:core/plugin~Plugin
@@ -34,7 +36,7 @@ export default class Templates extends Plugin {
    * @inheritDoc
    */
   static get requires() {
-    return [Widget, ContainerControls];
+    return [Widget, ContainerControls, Paragraph];
   }
 
   /**
@@ -43,27 +45,36 @@ export default class Templates extends Plugin {
   static get pluginName() {
     return 'Templates';
   }
-
   /**
    * @inheritDoc
    */
   init() {
 
+    this.elements = {};
     const templates = this.editor.config.get('templates');
+
     Object.keys(templates).forEach((name) => {
       const template = (new DOMParser()).parseFromString(templates[name].template, 'text/xml').documentElement;
       template.setAttribute('ck-name', name);
       this._registerElement(template);
     });
 
+    Object.keys(this.elements).forEach((name) => {
+      this.elements[name].schemaExtensions.forEach((ext) => {
+        this.editor.model.schema.extend(ext.element, ext.info);
+      });
+    });
+
     const rootTemplate = this.editor.config.get('rootTemplate');
     if (rootTemplate) {
       const templateId = 'ck-templates__' + rootTemplate;
       this.editor.model.schema.addChildCheck((context, def) => {
-        if (context.endsWith('$root') && def.name === templateId) {
-          return true;
+        if (context.endsWith('$root') && def.name !== templateId) {
+          return false;
         }
       });
+
+      this.editor.model.schema.extend(templateId, { allowIn: '$root'});
       this.editor.model.document.registerPostFixer( writer => this._cleanRoot( writer, templateId) );
       this.editor.on( 'dataReady', () => {
         this.editor.model.enqueueChange( 'transparent', writer => this._cleanRoot( writer, templateId) );
@@ -71,6 +82,22 @@ export default class Templates extends Plugin {
     }
 
     this.editor.commands.add('mediaSelect', new MediaSelectCommand(this.editor));
+
+    this.editor.model.schema.extend('paragraph', {
+      allowIn: 'ck-templates__text__child1',
+    });
+
+    const balloonToolbar = this.editor.plugins.get( 'BalloonToolbar' );
+    // If the `BalloonToolbar` plugin is loaded, it should be disabled for images
+    // which have their own toolbar to avoid duplication.
+    // https://github.com/ckeditor/ckeditor5-image/issues/110
+    if ( balloonToolbar ) {
+      this.listenTo( balloonToolbar, 'show', evt => {
+        if ( isWidgetSelected( this.editor.editing.view.document.selection ) ) {
+          evt.stop();
+        }
+      }, { priority: 'high' } );
+    }
   }
 
   _cleanRoot(writer, rootTemplate) {
@@ -82,13 +109,6 @@ export default class Templates extends Plugin {
 
       if (root.rootName === '$graveyard' ) {
         continue
-      }
-
-      for (let child of root.getChildren()) {
-        if (child.name !== rootTemplate) {
-          writer.remove(child);
-          return true;
-        }
       }
 
       if (root.isEmpty) {
@@ -142,6 +162,7 @@ export default class Templates extends Plugin {
     this.editor.model.schema.register(element.name, Object.assign({
       allowAttributes: attributes,
     }, element.schema));
+
     this.editor.conversion.for('upcast').add(element.upcast);
     this.editor.conversion.for('dataDowncast').add(element.dataDowncast);
     this.editor.conversion.for('editingDowncast').add(element.editingDowncast);
@@ -152,6 +173,7 @@ export default class Templates extends Plugin {
       }
     }
 
+    // TODO: turn into one postfixer that iterates through templates
     this.editor.model.document.registerPostFixer((writer) => {
       for (const entry of this.editor.model.document.differ.getChanges()) {
         if (entry.type === 'insert' && element.name === entry.name) {
@@ -163,21 +185,17 @@ export default class Templates extends Plugin {
       }
     });
 
-    this.editor.model.schema.addChildCheck((context, def) => {
-      if (context.endsWith(element.name)) {
-        return element.childCheck(def);
-      }
-    });
-
     return element;
   }
 
   _recursiveElementPostFix(element, writer, item) {
     let changed = false;
     if (item instanceof Element) {
-      const children = item.getChildren();
-      for (let child of children) {
-        changed = this._recursiveElementPostFix(this.elements[child.name], writer, child) || changed;
+      if (element.postfixChildren) {
+        const children = item.getChildren();
+        for (let child of children) {
+          changed = this._recursiveElementPostFix(this.elements[child.name], writer, child) || changed;
+        }
       }
       changed = element.postfix(writer, item) || changed;
     }
@@ -205,4 +223,11 @@ export function modelToViewAttributeConverter( attributeKey, element ) {
       viewWriter.removeAttribute( data.attributeKey, entity );
     }
   }
+}
+
+
+function isWidgetSelected( selection ) {
+  const viewElement = selection.getSelectedElement();
+
+  return !!( viewElement && isWidget( viewElement ) );
 }

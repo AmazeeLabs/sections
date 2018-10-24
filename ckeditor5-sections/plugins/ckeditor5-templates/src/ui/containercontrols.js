@@ -164,13 +164,14 @@ export default class ContainerControls extends Plugin {
         label: editor.t('Move element up'),
         icon: iconUp,
         class: 'element-up',
-        position: 'left top 1',
+        position: 'bottom right 2',
         command: editor.commands.get('elementUp')
       },
       elementDown: {
         label: editor.t('Move element down'),
         icon: iconDown,
-        position: 'left top 2',
+        class: 'element-down',
+        position: 'bottom right 1',
         command: editor.commands.get('elementDown')
       },
       elementRemove: {
@@ -515,10 +516,10 @@ export default class ContainerControls extends Plugin {
         ( contentRect, buttonRect ) => {
           const [primary, secondary, offset] = buttonView.position.split(' ');
 
-          if (primary === 'left' && secondary === 'top') {
+          if (primary === 'bottom' && secondary === 'right') {
             return {
-              top: contentRect.top + contentPaddingTop + ( ( contentLineHeight - buttonRect.height ) / 2 ) + (buttonRect.height) * parseInt(offset - 1),
-              left: editableRect.left - buttonRect.width,
+              top: contentRect.top + contentRect.height + (buttonRect.height / 3) - (buttonRect.height) * parseInt(offset),
+              left: contentRect.left + contentRect.width,
             };
           }
 
@@ -531,8 +532,8 @@ export default class ContainerControls extends Plugin {
 
           if (primary === 'top' && secondary === 'right') {
             return {
-              top: contentRect.top - buttonRect.height,
-              left: contentRect.left + contentRect.width - buttonRect.width - (buttonRect.height) * parseInt(offset - 1),
+              top: contentRect.top - buttonRect.height + (buttonRect.height) * parseInt(offset),
+              left: contentRect.left + contentRect.width,
             };
           }
 
@@ -578,12 +579,11 @@ export default class ContainerControls extends Plugin {
   }
 
   getSelectedElement() {
-    let element = this.editor.model.document.selection.getSelectedElement();
-    if (element) {
-      return element;
-    }
+    const modelElement = this.editor.model.document.selection.getSelectedElement()
+      || this.editor.model.document.selection.anchor.parent;
 
-    element = this.editor.editing.mapper.toViewElement(this.editor.model.document.selection.anchor.parent);
+    let element = this.editor.editing.mapper.toViewElement(modelElement);
+
     while (element) {
       if (element.parent && element.parent.getCustomProperty('container')) {
         return this.editor.editing.mapper.toModelElement(element);

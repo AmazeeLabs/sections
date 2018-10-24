@@ -22,6 +22,12 @@ export default class ContainerElement extends TemplateElement {
   }
 
 
+  get schemaExtensions() {
+    return this.allowedElements.map((el) => {
+      return { element: el, info: { allowIn: this.name }};
+    });
+  }
+
   toModelElement(viewElement, modelWriter) {
     const model = super.toModelElement(viewElement, modelWriter);
     modelWriter.setAttribute('ck-container', true, model);
@@ -33,15 +39,6 @@ export default class ContainerElement extends TemplateElement {
      viewWriter.setCustomProperty('container', true, element);
      viewWriter.addClass('ck-container', element);
      return element;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  get childCheck() {
-    return (def) => {
-      return this.allowedElements.includes(def.name);
-    };
   }
 
   postfix(writer, item) {
