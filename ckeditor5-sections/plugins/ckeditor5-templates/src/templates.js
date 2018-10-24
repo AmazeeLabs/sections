@@ -7,6 +7,7 @@ import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import Element from '@ckeditor/ckeditor5-engine/src/model/element'
 import TemplateElement from './templateelement';
 import MediaSelectCommand from "./commands/mediaselectcommand";
+import InsertElementCommand from "./commands/insertelementcommand";
 
 import "../theme/css/media.css";
 import ContainerControls from "./ui/containercontrols";
@@ -71,6 +72,7 @@ export default class Templates extends Plugin {
     }
 
     this.editor.commands.add('mediaSelect', new MediaSelectCommand(this.editor));
+    this.editor.commands.add('addNewSection', new InsertElementCommand(this.editor));
   }
 
   _cleanRoot(writer, rootTemplate) {

@@ -56,6 +56,81 @@ class ContainerButtonView extends ButtonView {
   isConfigureButton() {
     return false;
   }
+
+  isLastItemVisible() {
+    return false;
+  }
+}
+
+class NewSectionButtonView extends ButtonView {
+  constructor (locale) {
+    super(locale);
+    const bind = this.bindTemplate;
+    this.set('top', 0);
+    this.set('left', 0);
+    this.set('width', 0);
+    this.set('isVisible', false);
+    this.set('class', '');
+    this.set('isEnabled', true);
+    this.set('panel', null);
+    this.set('command', null);
+
+    const containerButton = new ContainerButtonView(locale);
+    containerButton.set('isVisible', true);
+    containerButton.set('isEnabled', true);
+    containerButton.bind('label').to(this, 'label');
+    containerButton.bind('icon').to(this, 'icon');
+    containerButton.bind('class').to(this, 'class');
+    containerButton.bind('panel').to(this, 'panel');
+
+    this.containerButton = containerButton;
+
+    this.setTemplate({
+      tag: 'div',
+      children: [
+        containerButton,
+      ],
+      attributes: {
+        class: [
+          'new-section',
+          bind.if( 'isEnabled', 'ck-disabled', value => !value ),
+          bind.if( 'isVisible', 'ck-hidden', value => !value ),
+          bind.to( 'isOn', value => value ? 'ck-on' : 'ck-off' )
+        ],
+        style: {
+          position: 'absolute',
+          top: bind.to('top', val => toPx(val)),
+          left: bind.to('left', val => toPx(val)),
+          width: bind.to('width', val => toPx(val)),
+        }
+      },
+      on: {
+        mousedown: bind.to(evt => {
+          evt.preventDefault();
+        }),
+
+        click: bind.to( evt => {
+          // We can't make the button disabled using the disabled attribute, because it won't be focusable.
+          // Though, shouldn't this condition be moved to the button controller?
+          if ( this.isEnabled ) {
+            this.fire( 'execute' );
+          } else {
+            // Prevent the default when button is disabled, to block e.g.
+            // automatic form submitting. See ckeditor/ckeditor5-link#74.
+            evt.preventDefault();
+          }
+        })
+      }
+    });
+  }
+
+  isConfigureButton() {
+    return false;
+  }
+
+  isLastItemVisible() {
+    return true;
+  }
 }
 
 class ConfigureButtonView extends ContainerButtonView {
@@ -379,10 +454,31 @@ export default class ContainerControls extends Plugin {
    */
   afterInit() {
     const editor = this.editor;
+    const view = editor.editing.view;
+    const modelTarget = this.getLastElement();
+
+    // console.log(this.editor);
+    // const domTarget = view.domConverter.mapViewToDom( editor.editing.mapper.toViewElement( modelTarget ) );
 
     // Add buttons to the toolbar.
     this.insertBeforeToolbarView.fillFromConfig( ['elements:before'], editor.ui.componentFactory );
     this.insertAfterToolbarView.fillFromConfig( ['elements:after'], editor.ui.componentFactory );
+
+    // for (const buttonView of this.buttonViews) {
+    //
+    //    if (buttonView.isLastItemVisible()) {
+    //
+    //      console.log('here');
+    //      console.log(buttonView);
+    //
+    //      if (buttonView.panel) {
+    //        this._attachButtonToElement(modelTarget, buttonView);
+    //      }
+    //
+    //      // this._showPanel(buttonView, buttonView.panel);
+    //      buttonView.isVisible = true;
+    //   }
+    // }
   }
 
   _updateButtons() {
@@ -518,6 +614,29 @@ export default class ContainerControls extends Plugin {
       element = element.parent;
     }
     return false;
+  }
+
+  getLastElement() {
+    const element = this.editor.sourceElement;
+    console.log(element);
+    const container = element.getElementsByClassName('ck-widget');
+    for (var i = 0; i < container.length; i++) {
+      container[container].style.color = "red";
+    }
+    console.log(container);
+    // console.log(element.getElementsByClassName('ck-widget'));
+    if (container) {
+      return container;
+    }
+    //
+    // element = this.editor.editing.mapper.toViewElement(this.editor.model.document.selection.anchor.parent);
+    // while (element) {
+    //   if (element.parent && element.parent.getCustomProperty('container')) {
+    //     return this.editor.editing.mapper.toModelElement(element);
+    //   }
+    //   element = element.parent;
+    // }
+    // return false;
   }
 
 }
