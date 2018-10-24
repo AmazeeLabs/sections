@@ -22,7 +22,7 @@
   background: none !important;
 }
 
-.ck-reset_all .element-up:hover,
-.ck-reset_all .element-down:hover {
+.ck-reset_all .element-up:not(.ck-disabled):hover,
+.ck-reset_all .element-down:not(.ck-disabled):hover {
   color: var(--ck-color-button-default-hover);
 }
