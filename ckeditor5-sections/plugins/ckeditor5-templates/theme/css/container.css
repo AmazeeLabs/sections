@@ -26,3 +26,15 @@
 .ck-reset_all .element-down:not(.ck-disabled):hover {
   color: var(--ck-color-button-default-hover);
 }
+
+.ck.ck-editor__editable:not(.ck-editor__nested-editable).ck-focused {
+  border-color: transparent;
+}
+
+.ck .ck-widget:hover {
+  outline-color: transparent;
+}
+
+.ck .ck-widget.hovered {
+  outline-color: var(--ck-color-widget-hover-border);
+}

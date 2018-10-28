@@ -10,6 +10,7 @@ import MediaSelectCommand from "./commands/mediaselectcommand";
 
 import "../theme/css/media.css";
 import ContainerControls from "./ui/containercontrols";
+import HoveredWidget from "./ui/hoveredwidget";
 import {isWidget} from "@ckeditor/ckeditor5-widget/src/utils";
 import Paragraph from "@ckeditor/ckeditor5-paragraph/src/paragraph";
 
@@ -36,7 +37,7 @@ export default class Templates extends Plugin {
    * @inheritDoc
    */
   static get requires() {
-    return [Widget, ContainerControls, Paragraph];
+    return [Widget, ContainerControls, Paragraph, HoveredWidget];
   }
 
   /**
