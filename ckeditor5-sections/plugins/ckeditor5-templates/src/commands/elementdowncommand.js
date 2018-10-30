@@ -10,28 +10,26 @@ export default class ElementDownCommand extends ElementCommand {
   execute() {
     const model = this.editor.model;
     const currentElement = this.getSelectedElement();
+    const view = this.editor.editing.view;
+    const editing = this.editor.editing;
+    const nextElement = view.domConverter.mapViewToDom(editing.mapper.toViewElement(currentElement.nextSibling));
+    const currentPosition = window.scrollY;
+
+    // If the next element is the last element, scroll down to the bottom of the page.
+    let diff = nextElement.offsetHeight;
+
+    // Else calculate the scroll distance  by using the next and the next-next offset top value.
+    if (currentElement.nextSibling.nextSibling) {
+      const nextNextElement = view.domConverter.mapViewToDom(editing.mapper.toViewElement(currentElement.nextSibling.nextSibling));
+      diff = nextNextElement.offsetTop - nextElement.offsetTop;
+    }
+
     model.change(writer => {
       writer.insert(currentElement, currentElement.nextSibling, 'after');
     });
 
-    const view = this.editor.editing.view;
-    const nextElement = view.domConverter.mapViewToDom(editor.editing.mapper.toViewElement(currentElement.nextSibling));
-
-    if (nextElement) {
-      console.log(nextElement.offsetHeight);
-      window.window.scrollBy({
-        top: nextElement.offsetHeight,
-        behavior: "smooth"
-      });
-    }
-    else {
-      window.scrollTo({
-        bottom: 0,
-        behavior: "smooth"
-      });
-    }
-
-    const currentDOMElement = view.domConverter.mapViewToDom(editor.editing.mapper.toViewElement(currentElement));
-    currentDOMElement.focus();
+    window.setTimeout(() => {
+      window.scrollTo(0, currentPosition + diff);
+    }, 0);
   }
 }

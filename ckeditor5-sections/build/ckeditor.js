@@ -97246,7 +97246,7 @@ module.exports = ".ck .ck-widget.ck-widget_selectable{position:relative}.ck .ck-
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ":root{--ck-icon-size:25px;--ck-color-button-default:#555;--ck-color-button-default-hover:#000;--ck-color-button-configure-hover:#f6ba35;--ck-color-button-remove-hover:#c81c27}.ck-reset_all .ck-button{color:var(--ck-color-button-default)}.ck-reset_all .element-configure:hover{color:var(--ck-color-button-configure-hover)}.ck-reset_all .element-remove:hover{color:var(--ck-color-button-remove-hover)}.ck-reset_all .ck-button:hover{background:none!important}.ck-reset_all .element-down:hover,.ck-reset_all .element-up:hover{color:var(--ck-color-button-default-hover)}"
+module.exports = "html{overflow:auto}body,html{height:100%}.ck-widget :first-child{margin-top:0}.ck-widget :last-child{margin-bottom:0}:root{--ck-icon-size:25px;--ck-color-button-default:#555;--ck-color-button-default-hover:#000;--ck-color-button-configure-hover:#f6ba35;--ck-color-button-remove-hover:#c81c27}.ck-reset_all .ck-button{color:var(--ck-color-button-default)}.ck-reset_all .element-configure:hover{color:var(--ck-color-button-configure-hover)}.ck-reset_all .element-remove:hover{color:var(--ck-color-button-remove-hover)}.ck-reset_all .ck-button:hover{background:none!important}.ck-reset_all .element-down:not(.ck-disabled):hover,.ck-reset_all .element-up:not(.ck-disabled):hover{color:var(--ck-color-button-default-hover)}.ck.ck-editor__editable:not(.ck-editor__nested-editable).ck-focused{border-color:transparent}.ck .ck-widget:hover{outline-color:transparent}.ck .ck-widget.hovered{outline-color:var(--ck-color-widget-hover-border)}"
 
 /***/ }),
 
@@ -97877,9 +97877,27 @@ class ElementDownCommand extends _elementcommand__WEBPACK_IMPORTED_MODULE_0__["d
   execute() {
     const model = this.editor.model;
     const currentElement = this.getSelectedElement();
+    const view = this.editor.editing.view;
+    const editing = this.editor.editing;
+    const nextElement = view.domConverter.mapViewToDom(editing.mapper.toViewElement(currentElement.nextSibling));
+    const currentPosition = window.scrollY;
+
+    // If the next element is the last element, scroll down to the bottom of the page.
+    let diff = nextElement.offsetHeight;
+
+    // Else calculate the scroll distance  by using the next and the next-next offset top value.
+    if (currentElement.nextSibling.nextSibling) {
+      const nextNextElement = view.domConverter.mapViewToDom(editing.mapper.toViewElement(currentElement.nextSibling.nextSibling));
+      diff = nextNextElement.offsetTop - nextElement.offsetTop;
+    }
+
     model.change(writer => {
       writer.insert(currentElement, currentElement.nextSibling, 'after');
     });
+
+    window.setTimeout(() => {
+      window.scrollTo(0, currentPosition + diff);
+    }, 0);
   }
 }
 
@@ -97939,9 +97957,21 @@ class ElementUpCommand extends _elementcommand__WEBPACK_IMPORTED_MODULE_0__["def
 
   execute() {
     const currentElement = this.getSelectedElement();
-    this.editor.model.change(writer => {
+    const model = this.editor.model;
+    const view = this.editor.editing.view;
+    const editing = this.editor.editing;
+    const previousElement = view.domConverter.mapViewToDom(editing.mapper.toViewElement(currentElement.previousSibling));
+    const currentDOMElement = view.domConverter.mapViewToDom(editing.mapper.toViewElement(currentElement));
+    const currentPosition = window.scrollY;
+    const diff = previousElement.offsetTop - currentDOMElement.offsetTop;
+
+    model.change(writer => {
       writer.insert(currentElement, currentElement.previousSibling, 'before');
     });
+
+    window.setTimeout(() => {
+      window.scrollTo(0, currentPosition + diff);
+    }, 0);
   }
 }
 
@@ -98801,11 +98831,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _theme_css_media_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../theme/css/media.css */ "./plugins/ckeditor5-templates/theme/css/media.css");
 /* harmony import */ var _theme_css_media_css__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_theme_css_media_css__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var _ui_containercontrols__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ui/containercontrols */ "./plugins/ckeditor5-templates/src/ui/containercontrols.js");
-/* harmony import */ var _ckeditor_ckeditor5_widget_src_utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @ckeditor/ckeditor5-widget/src/utils */ "./node_modules/@ckeditor/ckeditor5-widget/src/utils.js");
-/* harmony import */ var _ckeditor_ckeditor5_paragraph_src_paragraph__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @ckeditor/ckeditor5-paragraph/src/paragraph */ "./node_modules/@ckeditor/ckeditor5-paragraph/src/paragraph.js");
+/* harmony import */ var _ui_hoveredwidget__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./ui/hoveredwidget */ "./plugins/ckeditor5-templates/src/ui/hoveredwidget.js");
+/* harmony import */ var _ckeditor_ckeditor5_widget_src_utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @ckeditor/ckeditor5-widget/src/utils */ "./node_modules/@ckeditor/ckeditor5-widget/src/utils.js");
+/* harmony import */ var _ckeditor_ckeditor5_paragraph_src_paragraph__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @ckeditor/ckeditor5-paragraph/src/paragraph */ "./node_modules/@ckeditor/ckeditor5-paragraph/src/paragraph.js");
 /**
  * @module templates/templates
  */
+
 
 
 
@@ -98841,7 +98873,7 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
    * @inheritDoc
    */
   static get requires() {
-    return [_ckeditor_ckeditor5_widget_src_widget__WEBPACK_IMPORTED_MODULE_1__["default"], _ui_containercontrols__WEBPACK_IMPORTED_MODULE_6__["default"], _ckeditor_ckeditor5_paragraph_src_paragraph__WEBPACK_IMPORTED_MODULE_8__["default"]];
+    return [_ckeditor_ckeditor5_widget_src_widget__WEBPACK_IMPORTED_MODULE_1__["default"], _ui_containercontrols__WEBPACK_IMPORTED_MODULE_6__["default"], _ckeditor_ckeditor5_paragraph_src_paragraph__WEBPACK_IMPORTED_MODULE_9__["default"], _ui_hoveredwidget__WEBPACK_IMPORTED_MODULE_7__["default"]];
   }
 
   /**
@@ -99034,7 +99066,7 @@ function modelToViewAttributeConverter( attributeKey, element ) {
 function isWidgetSelected( selection ) {
   const viewElement = selection.getSelectedElement();
 
-  return !!( viewElement && Object(_ckeditor_ckeditor5_widget_src_utils__WEBPACK_IMPORTED_MODULE_7__["isWidget"])( viewElement ) );
+  return !!( viewElement && Object(_ckeditor_ckeditor5_widget_src_utils__WEBPACK_IMPORTED_MODULE_8__["isWidget"])( viewElement ) );
 }
 
 
@@ -99600,6 +99632,50 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
     return false;
   }
 
+}
+
+
+/***/ }),
+
+/***/ "./plugins/ckeditor5-templates/src/ui/hoveredwidget.js":
+/*!*************************************************************!*\
+  !*** ./plugins/ckeditor5-templates/src/ui/hoveredwidget.js ***!
+  \*************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return HoveredWidget; });
+/* harmony import */ var _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @ckeditor/ckeditor5-core/src/plugin */ "./node_modules/@ckeditor/ckeditor5-core/src/plugin.js");
+
+
+class HoveredWidget extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MODULE_0__["default"] {
+
+  static get pluginName() {
+    return 'HoveredWidget';
+  }
+
+  constructor( editor ) {
+    super( editor );
+
+    editor.ui.view.listenTo( document, 'mouseover', ( evt, data ) => {
+      // @todo: improve this to not query the the document all the time, but
+      // have maybe some statically cached list.
+      for (let node of document.querySelectorAll('.ck-widget')) {
+        node.classList.remove('hovered');
+      }
+
+      let element = data.target;
+      while (element && element.classList) {
+        if (element.classList.contains('ck-widget')) {
+          element.classList.add('hovered');
+          break;
+        }
+        element = element.parentNode;
+      }
+    } );
+  }
 }
 
 

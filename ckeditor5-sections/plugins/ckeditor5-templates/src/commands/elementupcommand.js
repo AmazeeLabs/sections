@@ -10,28 +10,19 @@ export default class ElementUpCommand extends ElementCommand {
   execute() {
     const currentElement = this.getSelectedElement();
     const model = this.editor.model;
+    const view = this.editor.editing.view;
+    const editing = this.editor.editing;
+    const previousElement = view.domConverter.mapViewToDom(editing.mapper.toViewElement(currentElement.previousSibling));
+    const currentDOMElement = view.domConverter.mapViewToDom(editing.mapper.toViewElement(currentElement));
+    const currentPosition = window.scrollY;
+    const diff = previousElement.offsetTop - currentDOMElement.offsetTop;
+
     model.change(writer => {
       writer.insert(currentElement, currentElement.previousSibling, 'before');
     });
 
-    const view = this.editor.editing.view;
-    const previousElement = view.domConverter.mapViewToDom(editor.editing.mapper.toViewElement(currentElement.previousSibling));
-
-    if (previousElement) {
-      console.log(previousElement.offsetHeight);
-      window.scrollBy({
-        top: previousElement.offsetHeight,
-        behavior: "smooth"
-      });
-    }
-    else {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-    }
-
-    const currentDOMElement = view.domConverter.mapViewToDom(editor.editing.mapper.toViewElement(currentElement));
-    currentDOMElement.focus();
+    window.setTimeout(() => {
+      window.scrollTo(0, currentPosition + diff);
+    }, 0);
   }
 }
