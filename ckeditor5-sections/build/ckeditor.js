@@ -97246,7 +97246,7 @@ module.exports = ".ck .ck-widget.ck-widget_selectable{position:relative}.ck .ck-
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "html{overflow:auto}body,html{height:100%}.ck .ck-container>*{padding:.1px}:root{--ck-icon-size:25px;--ck-color-button-default:#555;--ck-color-button-default-hover:#000;--ck-color-button-configure-hover:#f6ba35;--ck-color-button-remove-hover:#c81c27}.ck-reset_all .ck-button{color:var(--ck-color-button-default)}.ck-reset_all .element-configure:hover{color:var(--ck-color-button-configure-hover)}.ck-reset_all .element-remove:hover{color:var(--ck-color-button-remove-hover)}.ck-reset_all .ck-button:hover{background:none!important}.ck-reset_all .element-down:not(.ck-disabled):hover,.ck-reset_all .element-up:not(.ck-disabled):hover{color:var(--ck-color-button-default-hover)}.ck.ck-editor__editable:not(.ck-editor__nested-editable).ck-focused{border-color:transparent}.ck .ck-widget:hover{outline-color:transparent}.ck .ck-widget.hovered{outline-color:var(--ck-color-widget-hover-border)}"
+module.exports = "html{overflow:auto}body,html{height:100%}.ck .ck-container>*{padding:.1px}:root{--ck-icon-size:25px;--ck-color-button-default:#555;--ck-color-button-default-hover:#000;--ck-color-button-configure-hover:#f6ba35;--ck-color-button-remove-hover:#c81c27}.ck-reset_all .ck-button{color:var(--ck-color-button-default)}.ck-reset_all .element-configure:hover{color:var(--ck-color-button-configure-hover)}.ck-reset_all .element-remove:hover{color:var(--ck-color-button-remove-hover)}.ck-reset_all .ck-button:hover{background:none!important}.ck-reset_all .element-down:not(.ck-disabled):hover,.ck-reset_all .element-up:not(.ck-disabled):hover{color:var(--ck-color-button-default-hover)}.ck.ck-editor__editable:not(.ck-editor__nested-editable).ck-focused{border-color:transparent}.ck .ck-widget:hover{outline-color:transparent}.ck .ck-widget.hovered{outline-color:var(--ck-color-widget-hover-border)}.ck .root .ck-widget{margin:40px 0}.new-section{height:5px!important;background:#555!important}.new-section .ck-icon{margin-left:5px}.element-insert-after,.element-insert-before{top:-12px!important;left:100%!important;border:none!important}.element-insert-after:before,.element-insert-before:before{content:\"\";width:100%;position:absolute;left:0;top:50%;z-index:1}.element-insert-after:hover,.element-insert-before:hover{background:none!important;cursor:pointer}.element-insert-after:active,.element-insert-before:active{background:none!important}.element-insert-after .ck-button__label,.element-insert-before .ck-button__label{display:block!important;padding:0 20px;margin-left:10px;background:var(--ck-color-button-default);color:#fff!important;position:relative}.element-insert-after .ck-button__label:before,.element-insert-before .ck-button__label:before{right:100%;top:50%;border:solid transparent;content:\" \";height:0;width:0;position:absolute;pointer-events:none;border-color:transparent;border-right-color:var(--ck-color-button-default);border-width:5px;margin-top:-5px}"
 
 /***/ }),
 
@@ -99143,11 +99143,11 @@ __webpack_require__.r(__webpack_exports__);
 const toPx = Object(_ckeditor_ckeditor5_utils_src_dom_tounit__WEBPACK_IMPORTED_MODULE_14__["default"])( 'px' );
 
 class ContainerButtonView extends _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_2__["default"] {
-  constructor ( locale ) {
-    super( locale );
+  constructor (locale) {
+    super(locale);
     const bind = this.bindTemplate;
-    this.set( 'top', 0 );
-    this.set( 'left', 0);
+    this.set('top', 0);
+    this.set('left', 0);
     this.set('isVisible', false);
     this.set('position', 'top left 1');
 
@@ -99161,6 +99161,73 @@ class ContainerButtonView extends _ckeditor_ckeditor5_ui_src_button_buttonview__
           top: bind.to('top', val => toPx(val)),
           left: bind.to('left', val => toPx(val)),
         }
+      }
+    });
+  }
+
+  isConfigureButton() {
+    return false;
+  }
+}
+
+class NewSectionButtonView extends _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_2__["default"] {
+  constructor (locale) {
+    super(locale);
+    const bind = this.bindTemplate;
+    this.set('top', 0);
+    this.set('left', 0);
+    this.set('width', 0);
+    this.set('isVisible', false);
+    this.set('class', '');
+    this.set('isEnabled', true);
+    this.set('panel', null);
+    this.set('command', null);
+
+    const containerButton = new ContainerButtonView(locale);
+    containerButton.set('isVisible', true);
+    containerButton.set('isEnabled', true);
+    containerButton.bind('label').to(this, 'label');
+    containerButton.bind('icon').to(this, 'icon');
+    containerButton.bind('class').to(this, 'class');
+    containerButton.bind('panel').to(this, 'panel');
+
+    this.containerButton = containerButton;
+
+    this.setTemplate({
+      tag: 'div',
+      children: [
+        containerButton,
+      ],
+      attributes: {
+        class: [
+          'new-section',
+          bind.if( 'isEnabled', 'ck-disabled', value => !value ),
+          bind.if( 'isVisible', 'ck-hidden', value => !value ),
+          bind.to( 'isOn', value => value ? 'ck-on' : 'ck-off' )
+        ],
+        style: {
+          position: 'absolute',
+          top: bind.to('top', val => toPx(val)),
+          left: bind.to('left', val => toPx(val)),
+          width: bind.to('width', val => toPx(val)),
+        }
+      },
+      on: {
+        mousedown: bind.to(evt => {
+          evt.preventDefault();
+        }),
+
+        click: bind.to( evt => {
+          // We can't make the button disabled using the disabled attribute, because it won't be focusable.
+          // Though, shouldn't this condition be moved to the button controller?
+          if ( this.isEnabled ) {
+            this.fire( 'execute' );
+          } else {
+            // Prevent the default when button is disabled, to block e.g.
+            // automatic form submitting. See ckeditor/ckeditor5-link#74.
+            evt.preventDefault();
+          }
+        })
       }
     });
   }
@@ -99235,25 +99302,28 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
         panel: this.configurationPanelView
       },
       insertBefore: {
+        buttonClass: NewSectionButtonView,
         label: editor.t('Insert element above'),
         icon: _theme_icons_add_svg__WEBPACK_IMPORTED_MODULE_9___default.a,
         class: 'element-insert-before',
-        position: 'top center',
+        position: 'top new-section',
         panel: this.insertBeforePanelView,
       },
       insertAfter: {
+        buttonClass: NewSectionButtonView,
         label: editor.t('Insert element below'),
         icon: _theme_icons_add_svg__WEBPACK_IMPORTED_MODULE_9___default.a,
         class: 'element-insert-after',
-        position: 'bottom center',
+        position: 'bottom new-section',
         panel: this.insertAfterPanelView,
       },
     };
 
     this.buttonViews = Object.keys(this.buttons).map((key) => {
-      const ButtonConstructor = this.buttons[key].buttonClass || ContainerButtonView;
+      const ButtonConstructor = this.buttons[key].buttonClass ? this.buttons[key].buttonClass : ContainerButtonView;
       const buttonView = new ButtonConstructor(editor.locale);
       buttonView.set(this.buttons[key]);
+      buttonView.render();
 
       if (this.buttons[key].command) {
         const command = this.buttons[key].command;
@@ -99267,15 +99337,15 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
         const panel = this.buttons[key].panel;
         panel.button = buttonView;
         buttonView.bind( 'isOn' ).to( panel, 'isVisible' );
+
         // Toggle the panelView upon buttonView#execute.
         this.listenTo( buttonView, 'execute', () => {
           if ( !panel.isVisible ) {
-            this._showPanel(buttonView, panel);
+            this._showPanel(buttonView.containerButton || buttonView, panel);
           } else {
             this._hidePanel(panel);
           }
         });
-        buttonView.render();
 
         // Close the #panelView upon clicking outside of the plugin UI.
         Object(_ckeditor_ckeditor5_ui_src_bindings_clickoutsidehandler__WEBPACK_IMPORTED_MODULE_19__["default"])( {
@@ -99578,24 +99648,27 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
               left: contentRect.left + contentRect.width,
             };
           }
-          if (primary === 'top' && secondary === 'center') {
+
+          if (primary === 'top' && secondary === 'new-section') {
             return {
-              top: contentRect.top - buttonRect.height,
+              top: contentRect.top - buttonRect.height - 20,
               left: contentRect.left + (contentRect.width - buttonRect.width)/2,
             };
           }
-          if (primary === 'bottom' && secondary === 'center') {
+
+          if (primary === 'bottom' && secondary === 'new-section') {
             return {
-              top: contentRect.top + contentRect.height,
+              top: contentRect.top + contentRect.height + 20,
               left: contentRect.left + (contentRect.width - buttonRect.width)/2,
             };
           }
         }
       ]
-    } );
+    });
 
     buttonView.top = buttonPosition.top;
     buttonView.left = buttonPosition.left;
+    buttonView.width = editableRect.width;
   }
 
   _showPanel(button, panel) {
@@ -99748,7 +99821,7 @@ if(false) {}
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"48\" height=\"48\" viewBox=\"0 0 48 48\">\n    <path d=\"M26 14h-4v8h-8v4h8v8h4v-8h8v-4h-8v-8zM24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20S35.05 4 24 4zm0 36c-8.82 0-16-7.18-16-16S15.18 8 24 8s16 7.18 16 16-7.18 16-16 16z\"/>\n</svg>\n"
+module.exports = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->\n<svg version=\"1.1\" id=\"Layer_1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\"\n     viewBox=\"0 0 24 24\" style=\"enable-background:new 0 0 24 24;\" xml:space=\"preserve\">\n<style type=\"text/css\">\n\t.st0{fill:none !important;}\n</style>\n  <path class=\"st0\" d=\"M0,0h24v24H0V0z\"/>\n  <path d=\"M24,13.7H13.7V24h-3.4V13.7H0v-3.4h10.3V0h3.4v10.3H24V13.7z\"/>\n</svg>\n"
 
 /***/ }),
 
@@ -99759,7 +99832,7 @@ module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"48\" height=
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"48\" height=\"48\" viewBox=\"0 0 48 48\">\n    <path fill=\"#010101\" d=\"M40 24l-2.82-2.82L26 32.34V8h-4v24.34L10.84 21.16 8 24l16 16 16-16z\"/>\n</svg>\n"
+module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\">\n    <polygon points=\"24 12 21.9 9.9 13.5 18.3 13.5 0 10.5 0 10.5 18.3 2.1 9.9 0 12 12 24\"/>\n</svg>\n"
 
 /***/ }),
 
@@ -99770,7 +99843,7 @@ module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"48\" height=
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"48\" height=\"48\" viewBox=\"0 0 48 48\">\n    <path d=\"M8 24l2.83 2.83L22 15.66V40h4V15.66l11.17 11.17L40 24 24 8 8 24z\"/>\n</svg>\n"
+module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\">\n    <polygon points=\"0 12 2.1 14.1 10.5 5.7 10.5 24 13.5 24 13.5 5.7 21.9 14.1 24 12 12 0\"/>\n</svg>\n"
 
 /***/ }),
 
@@ -99803,7 +99876,7 @@ module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"48\" height=\"48\" viewBox=\"0 0 48 48\">\n    <path d=\"M12 38c0 2.2 1.8 4 4 4h16c2.2 0 4-1.8 4-4V14H12v24zm4.93-14.24l2.83-2.83L24 25.17l4.24-4.24 2.83 2.83L26.83 28l4.24 4.24-2.83 2.83L24 30.83l-4.24 4.24-2.83-2.83L21.17 28l-4.24-4.24zM31 8l-2-2H19l-2 2h-7v4h28V8z\"/>\n</svg>\n"
+module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"24\" viewBox=\"0 0 20 24\">\n    <path d=\"M15.3,8 L15.3,21.3 L4.7,21.3 L4.7,8 L15.3,8 Z M13.3,0 L6.7,0 L5.3,1.3 L0.7,1.3 L0.7,4 L19.4,4 L19.4,1.3 L14.7,1.3 L13.3,0 Z M18,5.3 L2,5.3 L2,21.3 C2,22.8 3.2,24 4.7,24 L15.4,24 C16.9,24 18.1,22.8 18.1,21.3 L18.1,5.3 L18,5.3 Z\"/>\n</svg>\n"
 
 /***/ }),
 
