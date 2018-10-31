@@ -8,12 +8,8 @@ body {
 }
 
 /* temporary solution. container up/down viewport positioning gets confused by collapsing margins */
-.ck-widget *:first-child {
-  margin-top: 0;
-}
-
-.ck-widget *:last-child {
-  margin-bottom: 0;
+.ck .ck-container > * {
+  padding: 0.1px;
 }
 
 :root {
