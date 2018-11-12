@@ -17,6 +17,7 @@ import iconConfigure from '../../theme/icons/configure.svg';
 import ElementRemoveCommand from "../commands/elementremovecommand";
 import ElementUpCommand from "../commands/elementupcommand";
 import ElementDownCommand from "../commands/elementdowncommand";
+import InsertPlaceholderCommand from "../commands/insertplaceholdercommand";
 
 import toUnit from '@ckeditor/ckeditor5-utils/src/dom/tounit';
 import InsertElementCommand from "../commands/insertelementcommand";
@@ -159,6 +160,11 @@ export default class ContainerControls extends Plugin {
     editor.commands.add('elementDown', new ElementDownCommand(editor));
     editor.commands.add('elementRemove', new ElementRemoveCommand(editor));
 
+    editor.commands.add('insertElement', new InsertElementCommand(editor));
+
+    editor.commands.add('insertBefore', new InsertPlaceholderCommand(editor, 'before'));
+    editor.commands.add('insertAfter', new InsertPlaceholderCommand(editor, 'after'));
+
     this.buttons = {
       elementUp: {
         label: editor.t('Move element up'),
@@ -195,7 +201,7 @@ export default class ContainerControls extends Plugin {
         icon: iconAdd,
         class: 'element-insert-before',
         position: 'top new-section',
-        panel: this.insertBeforePanelView,
+        command: editor.commands.get('insertBefore')
       },
       insertAfter: {
         buttonClass: NewSectionButtonView,
@@ -203,7 +209,7 @@ export default class ContainerControls extends Plugin {
         icon: iconAdd,
         class: 'element-insert-after',
         position: 'bottom new-section',
-        panel: this.insertAfterPanelView,
+        command: editor.commands.get('insertBefore')
       },
     };
 
@@ -263,7 +269,7 @@ export default class ContainerControls extends Plugin {
       editor.commands.add(`insertElement:${name}`, new InsertElementCommand(editor, name));
     });
 
-    for (const position of ['before', 'after']) {
+    /*for (const position of ['before', 'after']) {
       editor.ui.componentFactory.add(`elements:${position}`, locale => {
         const dropdownItems = new Collection();
 
@@ -285,6 +291,8 @@ export default class ContainerControls extends Plugin {
           itemModel.bind('isVisible').to(command, 'isEnabled');
           dropdownItems.add({ type: 'button', model: itemModel });
         }
+
+        return "";
 
         const dropdownView = createDropdown(locale);
         addListToDropdown(dropdownView, dropdownItems);
@@ -308,7 +316,7 @@ export default class ContainerControls extends Plugin {
 
         return dropdownView;
       });
-    }
+    }*/
 
     for (const attr of Object.keys(this.templateAttributes)) {
       editor.commands.add(`setTemplateAttribute:${attr}`, new TemplateAttributeCommand(editor, attr));
@@ -450,10 +458,6 @@ export default class ContainerControls extends Plugin {
    */
   afterInit() {
     const editor = this.editor;
-
-    // Add buttons to the toolbar.
-    this.insertBeforeToolbarView.fillFromConfig( ['elements:before'], editor.ui.componentFactory );
-    this.insertAfterToolbarView.fillFromConfig( ['elements:after'], editor.ui.componentFactory );
   }
 
   _updateButtons() {

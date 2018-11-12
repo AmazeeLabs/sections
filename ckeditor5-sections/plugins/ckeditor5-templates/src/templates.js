@@ -6,6 +6,7 @@ import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import Element from '@ckeditor/ckeditor5-engine/src/model/element'
 import TemplateElement from './templateelement';
+import PlaceholderElement from "./elements/placeholderelement";
 import MediaSelectCommand from "./commands/mediaselectcommand";
 
 import "../theme/css/media.css";
@@ -50,6 +51,17 @@ export default class Templates extends Plugin {
    * @inheritDoc
    */
   init() {
+    // Register placeholder element.
+    const placeholderelement = new PlaceholderElement();
+
+    const attributes = ['class', 'allowed'];
+
+    this.editor.model.schema.register(placeholderelement.name, Object.assign({
+      allowAttributes: attributes,
+    }, placeholderelement.schema));
+
+    this.editor.conversion.for('dataDowncast').add(placeholderelement.dataDowncast);
+    this.editor.conversion.for('editingDowncast').add(placeholderelement.editingDowncast);
 
     this.elements = {};
     const templates = this.editor.config.get('templates');

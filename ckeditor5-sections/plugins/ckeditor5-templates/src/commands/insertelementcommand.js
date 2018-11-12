@@ -8,21 +8,14 @@ export default class InsertElementCommand extends ElementCommand {
   }
 
   refresh() {
-    this.isEnabled = false;
-    const current = this.getSelectedElement();
-    if (current && current.parent) {
-      const allowed = (current.parent.getAttribute('ck-allowed-elements') || '').split(' ');
-      if(allowed.includes(this.element)) {
-        this.isEnabled = true;
-      }
-    }
+    this.isEnabled = true;
   }
 
   execute(values) {
     const current = this.getSelectedElement();
     this.editor.model.change(writer => {
       const element = writer.createElement('ck-templates__' + this.element);
-      writer.insert(element, current, values.position);
+      writer.insert(element, values.model, 'before');
     });
   }
 }
