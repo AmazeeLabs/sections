@@ -54,7 +54,7 @@ export default class Templates extends Plugin {
     // Register placeholder element.
     const placeholderelement = new PlaceholderElement();
 
-    const attributes = ['class', 'allowed'];
+    const attributes = ['class', 'ck-allowed'];
 
     this.editor.model.schema.register(placeholderelement.name, Object.assign({
       allowAttributes: attributes,

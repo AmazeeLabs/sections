@@ -209,7 +209,7 @@ export default class ContainerControls extends Plugin {
         icon: iconAdd,
         class: 'element-insert-after',
         position: 'bottom new-section',
-        command: editor.commands.get('insertBefore')
+        command: editor.commands.get('insertAfter')
       },
     };
 

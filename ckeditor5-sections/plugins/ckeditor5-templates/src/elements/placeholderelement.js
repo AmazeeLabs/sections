@@ -12,17 +12,18 @@ class PlaceholderView extends View {
   constructor(modelElement, editor, allowed) {
     super();
     const buttons = [];
-    var view = {};
+    let view;
+    const elements = editor.config.get('templates');
     for (const template of allowed) {
       view = new ButtonView();
       view.set( {
-          label: template,
+          label: elements[template].label,
           withText: true
       } );
 
       view.render();
       view.on('execute', (e) => {
-        editor.execute(`insertElement:${template}`,  {model: modelElement});
+        editor.execute(`insertElement:${template}`, {model: modelElement});
       });
       buttons.push(view);
     }
@@ -82,10 +83,9 @@ export default class PlaceholderElement {
     return downcastElementToElement({
       model: this.name,
       view: (modelElement, writer) => {
-
         return writer.createUIElement('div', modelElement.getAttributes(), function (domDocument) {
           const domElement = this.toDomElement(domDocument);
-          const view = new PlaceholderView(modelElement, editor, modelElement.getAttribute('allowed'))
+          const view = new PlaceholderView(modelElement, editor, modelElement.getAttribute('ck-allowed'))
           view.render();
           domElement.appendChild(view.element);
           return domElement;

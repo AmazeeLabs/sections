@@ -20,7 +20,7 @@ export default class InsertPlaceholderCommand extends ElementCommand {
     const current = this.getSelectedElement();
     this.editor.model.change(writer => {
       const element = writer.createElement('template-placeholder');
-      writer.setAttribute('allowed', this.allowed, element);
+      writer.setAttribute('ck-allowed', this.allowed, element);
       writer.insert(element, current, this.position);
     });
   }
