@@ -5,6 +5,7 @@ import { upcastElementToElement } from '@ckeditor/ckeditor5-engine/src/conversio
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import View from "@ckeditor/ckeditor5-ui/src/view";
 import ViewPosition from '@ckeditor/ckeditor5-engine/src/view/position';
+import TemplateElement from "../templateelement";
 
 /**
  * Entity view element.
@@ -55,49 +56,33 @@ class PlaceholderView extends View {
 /**
  * Element class for text input elements.
  */
-export default class PlaceholderElement {
-
-  /**
-   * @private
-   */
-  get _name() {
-    return 'template-placeholder';
-  }
-
-  /**
-   * Returns the calculated name for this element.
-   *
-   * @returns {String}
-   */
-  get name() {
-    return 'template-placeholder';
-  }
+export default class PlaceholderElement extends TemplateElement {
 
   /**
    * @inheritDoc
    */
-  get schema() {
-    return {
-      allowIn: "ck-templates__root",
-    };
+  static applies(node) {
+    return node.getAttribute('ck-editable-type') === 'placeholder';
   }
 
   get dataDowncast() {
     return downcastElementToElement({
       model: this.name,
       view: (modelElement, viewWriter) => {
-        return viewWriter.createUIElement('div', this.getModelAttributes(modelElement));
+        return viewWriter.createText('');
       }
     });
   }
 
   get editingDowncast() {
+    const editor = this.editor;
+    const node = this.node;
     return downcastElementToElement({
       model: this.name,
       view: (modelElement, writer) => {
         const element = writer.createUIElement('div', this.getModelAttributes(modelElement), function (domDocument) {
           const domElement = this.toDomElement(domDocument);
-          const view = new PlaceholderView(modelElement, editor, modelElement.getAttribute('ck-allowed'))
+          const view = new PlaceholderView(modelElement, editor, node.getAttribute('ck-allowed-elements').split(' '));
           view.render();
           domElement.appendChild(view.element);
           return domElement;
@@ -110,11 +95,4 @@ export default class PlaceholderElement {
     });
   }
 
-
-  getModelAttributes(modelElement) {
-    return Array.from(modelElement.getAttributeKeys())
-      .filter(attr => attr.substr(0, 3) !== 'ck-' && modelElement.getAttribute(attr))
-      .map(attr => ({[attr]: modelElement.getAttribute(attr)}))
-      .reduce((acc, val) => Object.assign(acc, val), {});
-  }
 }

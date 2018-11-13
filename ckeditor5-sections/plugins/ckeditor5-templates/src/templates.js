@@ -14,6 +14,7 @@ import ContainerControls from "./ui/containercontrols";
 import HoveredWidget from "./ui/hoveredwidget";
 import {isWidget} from "@ckeditor/ckeditor5-widget/src/utils";
 import Paragraph from "@ckeditor/ckeditor5-paragraph/src/paragraph";
+import ContainerElement from "./elements/containerelement";
 
 /**
  * @extends module:core/plugin~Plugin
@@ -51,18 +52,6 @@ export default class Templates extends Plugin {
    * @inheritDoc
    */
   init() {
-    // Register placeholder element.
-    const placeholderelement = new PlaceholderElement();
-
-    const attributes = ['class', 'ck-allowed'];
-
-    this.editor.model.schema.register(placeholderelement.name, Object.assign({
-      allowAttributes: attributes,
-    }, placeholderelement.schema));
-
-    this.editor.conversion.for('dataDowncast').add(placeholderelement.dataDowncast);
-    this.editor.conversion.for('editingDowncast').add(placeholderelement.editingDowncast);
-
     this.elements = {};
     const templates = this.editor.config.get('templates');
 
@@ -95,10 +84,6 @@ export default class Templates extends Plugin {
     }
 
     this.editor.commands.add('mediaSelect', new MediaSelectCommand(this.editor));
-
-    this.editor.model.schema.extend('paragraph', {
-      allowIn: 'ck-templates__text__child1',
-    });
 
     const balloonToolbar = this.editor.plugins.get( 'BalloonToolbar' );
     // If the `BalloonToolbar` plugin is loaded, it should be disabled for images
@@ -158,6 +143,15 @@ export default class Templates extends Plugin {
 
     /** @type {TemplateElement} */
     const element = new ElementConstructor(this.editor, template, parent, index);
+
+    if (element instanceof ContainerElement) {
+      const el = document.createElement('div');
+      el.setAttribute('ck-editable-type', 'placeholder');
+      el.setAttribute('ck-allowed-elements', template.getAttribute('ck-allowed-elements'));
+      el.setAttribute('ck-name', 'placeholder');
+      this._registerElement(el, element);
+    }
+
     this.elements[element.name] = element;
 
     /** @type {TemplateElement[]} */
