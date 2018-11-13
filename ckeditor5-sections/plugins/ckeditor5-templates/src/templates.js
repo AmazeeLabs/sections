@@ -46,6 +46,7 @@ export default class Templates extends Plugin {
   static get pluginName() {
     return 'Templates';
   }
+
   /**
    * @inheritDoc
    */
@@ -101,13 +102,24 @@ export default class Templates extends Plugin {
     }
   }
 
+  /**
+   * Adds the root template into each empty root element.
+   *
+   * @param {Writer} writer - The element's writer.
+   * @param {String} rootTemplate - The root template's id.
+   *
+   * @return {Bool} - True if any changes were made.
+   *
+   * @private
+   */
   _cleanRoot(writer, rootTemplate) {
-
     const model = this.editor.model;
 
     for ( const rootName of model.document.getRootNames() ) {
       const root = model.document.getRoot( rootName );
 
+      // According to https://ckeditor.com/docs/ckeditor5/latest/api/module_engine_model_document-Document.html#function-getRootNames
+      // getRootNames doesn't return the graveyard.
       if (root.rootName === '$graveyard' ) {
         continue
       }
@@ -130,7 +142,7 @@ export default class Templates extends Plugin {
    *
    * @private
    */
-  _registerElement(template, parent = null, index = 0)  {
+  _registerElement(template, parent = null, index = 0) {
     const applicableElements = this.editor.config.get('templateElements')
         .filter((element) => {
           return element.applies(template);
@@ -189,6 +201,17 @@ export default class Templates extends Plugin {
     return element;
   }
 
+  /**
+   * Applies the postfix method of the element and its children.
+   *
+   * @param {Element} - The parent element.
+   * @param {Writer} writer - The element's writer.
+   * @param {Node} item - The next node after the change.
+   *
+   * @return {Bool} - True if any changes were made.
+   *
+   * @private
+   */
   _recursiveElementPostFix(element, writer, item) {
     let changed = false;
     if (item instanceof Element) {
@@ -205,6 +228,12 @@ export default class Templates extends Plugin {
 
 }
 
+/**
+ * Returns a function that takes a dispatcher and binds a converter to an element.
+ *
+ * @param {String} attributeKey - The name of the attribute.
+ * @param {String} element - The name of the element.
+ */
 export function modelToViewAttributeConverter( attributeKey, element ) {
   return dispatcher => {
     dispatcher.on( `attribute:${ attributeKey }:${ element }`, converter );
@@ -226,7 +255,13 @@ export function modelToViewAttributeConverter( attributeKey, element ) {
   }
 }
 
-
+/**
+ * Tells if the selected element is a widget.
+ *
+ * @param {Selection} selection - The editor's selection object.
+ *
+ * @return {Bool} - True if the currently selected element is a widget.
+ */
 function isWidgetSelected( selection ) {
   const viewElement = selection.getSelectedElement();
 
