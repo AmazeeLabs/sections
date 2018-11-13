@@ -98007,8 +98007,10 @@ class InsertElementCommand extends _elementcommand__WEBPACK_IMPORTED_MODULE_0__[
   execute(values) {
     this.editor.model.change(writer => {
       const element = writer.createElement('ck-templates__' + this.element);
-      writer.insert(element, values.model, 'after');
-      writer.remove(values.model);
+      writer.insert(element, values.model, 'before');
+      if (values.model.nextSibling) {
+        writer.remove(values.model);
+      }
     });
   }
 }
@@ -98237,9 +98239,16 @@ class ContainerElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["de
 
   postfix(writer, item) {
     super.postfix(writer, item);
+
     if (item.childCount === 0) {
        writer.appendElement(this.defaultElement, item);
+       writer.appendElement(this.name + '__placeholder', item);
        return true;
+    }
+
+    if (item.getChild(item.childCount - 1).name !== this.name + '__placeholder') {
+      writer.appendElement(this.name + '__placeholder', item);
+      return true;
     }
   }
 
