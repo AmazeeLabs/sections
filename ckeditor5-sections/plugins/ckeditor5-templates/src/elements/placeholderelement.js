@@ -4,6 +4,7 @@ import { upcastElementToElement } from '@ckeditor/ckeditor5-engine/src/conversio
 
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import View from "@ckeditor/ckeditor5-ui/src/view";
+import ViewPosition from '@ckeditor/ckeditor5-engine/src/view/position';
 
 /**
  * Entity view element.
@@ -16,17 +17,28 @@ class PlaceholderView extends View {
     const elements = editor.config.get('templates');
     for (const template of allowed) {
       view = new ButtonView();
-      view.set( {
-          label: elements[template].label,
-          withText: true
-      } );
+      view.set({
+        label: elements[template].label,
+        withText: true
+      });
 
       view.render();
-      view.on('execute', (e) => {
+      view.on('execute', () => {
         editor.execute(`insertElement:${template}`, {model: modelElement});
       });
       buttons.push(view);
     }
+    const removeButton = new ButtonView();
+    removeButton.set({
+      label: 'Close',
+      withText: true,
+      class: 'close-button'
+    });
+    removeButton.render();
+    removeButton.on('execute', () => {
+      editor.execute('removePlaceholder', {model: modelElement});
+    });
+    buttons.push(removeButton);
 
     const template = {
       tag: 'div',
@@ -74,7 +86,7 @@ export default class PlaceholderElement {
     return downcastElementToElement({
       model: this.name,
       view: (modelElement, viewWriter) => {
-        return viewWriter.createUIElement('div', modelElement.getAttributes());
+        return viewWriter.createUIElement('div', this.getModelAttributes(modelElement));
       }
     });
   }
@@ -83,15 +95,26 @@ export default class PlaceholderElement {
     return downcastElementToElement({
       model: this.name,
       view: (modelElement, writer) => {
-        return writer.createUIElement('div', modelElement.getAttributes(), function (domDocument) {
+        const element = writer.createUIElement('div', this.getModelAttributes(modelElement), function (domDocument) {
           const domElement = this.toDomElement(domDocument);
           const view = new PlaceholderView(modelElement, editor, modelElement.getAttribute('ck-allowed'))
           view.render();
           domElement.appendChild(view.element);
           return domElement;
         });
+        const cont = writer.createContainerElement('div', { class: 'placeholder-container-element'});
+        writer.insert( ViewPosition.createAt( cont , 0), element );
+
+        return cont;
       }
     });
   }
 
+
+  getModelAttributes(modelElement) {
+    return Array.from(modelElement.getAttributeKeys())
+      .filter(attr => attr.substr(0, 3) !== 'ck-' && modelElement.getAttribute(attr))
+      .map(attr => ({[attr]: modelElement.getAttribute(attr)}))
+      .reduce((acc, val) => Object.assign(acc, val), {});
+  }
 }

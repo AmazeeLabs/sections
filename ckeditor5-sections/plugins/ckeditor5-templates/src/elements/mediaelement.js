@@ -143,15 +143,17 @@ export default class MediaElement extends TemplateElement {
           const preview = domElement.querySelector('.ck-media-content');
 
           editor.model.document.on('change:data', (evt, batch) => {
-            for (const op of batch.operations) {
-              if (op instanceof AttributeOperation && op.key === 'ck-media-rendered') {
-                if (modelElement === op.range.start.nodeAfter) {
-                  preview.innerHTML = op.newValue;
+            if (batch.operations) {
+              for (const op of batch.operations) {
+                if (op instanceof AttributeOperation && op.key === 'ck-media-rendered') {
+                  if (modelElement === op.range.start.nodeAfter) {
+                    preview.innerHTML = op.newValue;
+                  }
                 }
-              }
-              if (op instanceof AttributeOperation && op.key === 'ck-media-loading' && op.newValue) {
-                if (modelElement === op.range.start.nodeAfter) {
-                  preview.innerHTML = '<div class="ck-media-placeholder"><div class="ck-media-loader"/></div>';
+                if (op instanceof AttributeOperation && op.key === 'ck-media-loading' && op.newValue) {
+                  if (modelElement === op.range.start.nodeAfter) {
+                    preview.innerHTML = '<div class="ck-media-placeholder"><div class="ck-media-loader"/></div>';
+                  }
                 }
               }
             }

@@ -18,6 +18,7 @@ import ElementRemoveCommand from "../commands/elementremovecommand";
 import ElementUpCommand from "../commands/elementupcommand";
 import ElementDownCommand from "../commands/elementdowncommand";
 import InsertPlaceholderCommand from "../commands/insertplaceholdercommand";
+import RemovePlaceholderCommand from "../commands/removeplaceholdercommand";
 
 import toUnit from '@ckeditor/ckeditor5-utils/src/dom/tounit';
 import InsertElementCommand from "../commands/insertelementcommand";
@@ -164,6 +165,7 @@ export default class ContainerControls extends Plugin {
 
     editor.commands.add('insertBefore', new InsertPlaceholderCommand(editor, 'before'));
     editor.commands.add('insertAfter', new InsertPlaceholderCommand(editor, 'after'));
+    editor.commands.add('removePlaceholder', new RemovePlaceholderCommand(editor));
 
     this.buttons = {
       elementUp: {
@@ -268,55 +270,6 @@ export default class ContainerControls extends Plugin {
     Object.keys(elements).forEach((name) => {
       editor.commands.add(`insertElement:${name}`, new InsertElementCommand(editor, name));
     });
-
-    /*for (const position of ['before', 'after']) {
-      editor.ui.componentFactory.add(`elements:${position}`, locale => {
-        const dropdownItems = new Collection();
-
-        for (const key of Object.keys(elements)) {
-          const commandName = `insertElement:${key}`;
-
-          const element = elements[key];
-          const command = editor.commands.get(commandName);
-
-          const itemModel = new Model({
-            label: element.label,
-            withText: true,
-          });
-
-          itemModel.set({
-            commandName: commandName,
-          });
-
-          itemModel.bind('isVisible').to(command, 'isEnabled');
-          dropdownItems.add({ type: 'button', model: itemModel });
-        }
-
-        return "";
-
-        const dropdownView = createDropdown(locale);
-        addListToDropdown(dropdownView, dropdownItems);
-
-        dropdownView.buttonView.set({
-          isOn: false,
-          withText: true,
-          tooltip: 'Insert new element.',
-        });
-
-        dropdownView.buttonView.bind( 'label' ).to(() => {
-          return 'Insert ...'
-        });
-
-        // Execute command when an item from the dropdown is selected.
-        this.listenTo( dropdownView, 'execute', evt => {
-          this._hidePanels();
-          editor.execute( evt.source.commandName, {position: position});
-          editor.editing.view.focus();
-        });
-
-        return dropdownView;
-      });
-    }*/
 
     for (const attr of Object.keys(this.templateAttributes)) {
       editor.commands.add(`setTemplateAttribute:${attr}`, new TemplateAttributeCommand(editor, attr));
