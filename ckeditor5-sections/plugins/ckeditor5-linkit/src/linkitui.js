@@ -9,22 +9,6 @@
 
 import LinkUI from '@ckeditor/ckeditor5-link/src/linkui';
 
-
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import ClickObserver from '@ckeditor/ckeditor5-engine/src/view/observer/clickobserver';
-import Range from '@ckeditor/ckeditor5-engine/src/view/range';
-import ContextualBalloon from '@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon';
-
-import clickOutsideHandler from '@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler';
-
-import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
-import LinkFormView from '@ckeditor/ckeditor5-link/src/ui/linkformview';
-import LinkActionsView from '@ckeditor/ckeditor5-link/src/ui/linkactionsview';
-
-import linkIcon from '@ckeditor/ckeditor5-link//theme/icons/link.svg';
-
-const linkKeystroke = 'Ctrl+K';
-
 /**
  * The linkit UI plugin. It introduces the Link and Unlink buttons and the <kbd>Ctrl+K</kbd> keystroke.
  *
@@ -34,12 +18,6 @@ const linkKeystroke = 'Ctrl+K';
  * @extends module:core/plugin~Plugin
  */
 export default class LinkitUI extends LinkUI {
-    /**
-   * @inheritDoc
-   */
-  static get requires() {
-    return [ ContextualBalloon ];
-  }
 
   /**
    * Makes the UI react to the {@link module:core/editor/editorui~EditorUI#event:update} event to
@@ -81,6 +59,8 @@ export default class LinkitUI extends LinkUI {
         // If still in a link element, simply update the position of the balloon.
         // If there was no link (e.g. inserting one), the balloon must be moved
         // to the new position in the editing view (a new native DOM range).
+
+        // TODO: Check if we can remove it.
         //this._balloon.updatePosition( this._getBalloonPositionData() );
       }
 
@@ -111,6 +91,7 @@ export default class LinkitUI extends LinkUI {
 
     // When there's no link under the selection, go straight to the editing UI.
     if ( !this._getSelectedLinkElement() ) {
+      // TODO: check if we can remove it.
       //this._addActionsView();
       this._addFormView();
     }
@@ -131,85 +112,6 @@ export default class LinkitUI extends LinkUI {
   }
 
   /**
-   * Creates the {@link module:link/ui/linkactionsview~LinkActionsView} instance.
-   *
-   * @private
-   * @returns {module:link/ui/linkactionsview~LinkActionsView} The link actions view instance.
-   */
-  _createActionsView() {
-    const editor = this.editor;
-    const actionsView = new LinkActionsView( editor.locale );
-    const linkCommand = editor.commands.get( 'link' );
-    const unlinkCommand = editor.commands.get( 'unlink' );
-
-    actionsView.bind( 'href' ).to( linkCommand, 'value' );
-    actionsView.editButtonView.bind( 'isEnabled' ).to( linkCommand );
-    actionsView.unlinkButtonView.bind( 'isEnabled' ).to( unlinkCommand );
-
-    // Execute unlink command after clicking on the "Edit" button.
-    this.listenTo( actionsView, 'edit', () => {
-      this._addFormView();
-    } );
-
-    // Execute unlink command after clicking on the "Unlink" button.
-    this.listenTo( actionsView, 'unlink', () => {
-      editor.execute( 'unlink' );
-      this._hideUI();
-    } );
-
-    // Close the panel on esc key press when the **actions have focus**.
-    actionsView.keystrokes.set( 'Esc', ( data, cancel ) => {
-      this._hideUI();
-      cancel();
-    } );
-
-    // Open the form view on Ctrl+K when the **actions have focus**..
-    actionsView.keystrokes.set( linkKeystroke, ( data, cancel ) => {
-      this._addFormView();
-      cancel();
-    } );
-
-    return actionsView;
-  }
-
-  /**
-   * Creates the {@link module:link/ui/linkformview~LinkFormView} instance.
-   *
-   * @private
-   * @returns {module:link/ui/linkformview~LinkFormView} The link form instance.
-   */
-  _createFormView() {
-    const editor = this.editor;
-    const formView = new LinkFormView( editor.locale );
-    const linkCommand = editor.commands.get( 'link' );
-
-    formView.urlInputView.bind( 'value' ).to( linkCommand, 'value' );
-
-    // Form elements should be read-only when corresponding commands are disabled.
-    formView.urlInputView.bind( 'isReadOnly' ).to( linkCommand, 'isEnabled', value => !value );
-    formView.saveButtonView.bind( 'isEnabled' ).to( linkCommand );
-
-    // Execute link command after clicking the "Save" button.
-    this.listenTo( formView, 'submit', () => {
-      editor.execute( 'link', formView.urlInputView.inputView.element.value );
-      this._removeFormView();
-    } );
-
-    // Hide the panel after clicking the "Cancel" button.
-    this.listenTo( formView, 'cancel', () => {
-      this._removeFormView();
-    } );
-
-    // Close the panel on esc key press when the **form has focus**.
-    formView.keystrokes.set( 'Esc', ( data, cancel ) => {
-      this._removeFormView();
-      cancel();
-    } );
-
-    return formView;
-  }
-
-    /**
    * Adds the {@link #formView} to the {@link #_balloon}.
    *
    * @protected

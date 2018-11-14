@@ -62,6 +62,7 @@ export default class LinkitCommand extends Command {
     model.change( writer => {
       // If selection is collapsed then update selected link or insert new one at the place of caret.
       if ( selection.isCollapsed ) {
+        // TODO: check this case.
         const position = selection.getFirstPosition();
 
         // When selection is inside text with `linkHref` attribute.
@@ -92,7 +93,6 @@ export default class LinkitCommand extends Command {
         // If selection has non-collapsed ranges, we change attribute on nodes inside those ranges
         // omitting nodes where `linkHref` attribute is disallowed.
         const ranges = model.schema.getValidRanges( selection.getRanges(), 'linkHref' );
-
         for ( const range of ranges ) {
           writer.setAttribute( 'linkHref', attrs.href, range );
           writer.setAttribute( 'linkitAttrs', attrs, range);

@@ -14,6 +14,8 @@ import {
 import { upcastElementToAttribute } from '@ckeditor/ckeditor5-engine/src/conversion/upcast-converters';
 import LinkitCommand from './linkitcommand';
 import UnlinkLinkitCommand from './unlinklinkitcommand';
+import LinkCommand from '@ckeditor/ckeditor5-link/src/linkcommand';
+import UnlinkCommand from '@ckeditor/ckeditor5-link/src/unlinkcommand';
 import { ensureSafeUrl, createLinkElement } from '@ckeditor/ckeditor5-link/src/utils';
 import { createLinkAttributeElement } from './utils';
 import bindTwoStepCaretToAttribute from '@ckeditor/ckeditor5-engine/src/utils/bindtwostepcarettoattribute';
@@ -35,6 +37,7 @@ export default class LinkitEditing extends LinkEditing {
    */
   init() {
     const editor = this.editor;
+    this._linkSelector = editor.config.get('linkSelector');
 
     // Allow link attribute on all inline nodes.
     editor.model.schema.extend( '$text', { allowAttributes: ['linkHref', 'linkitAttrs']});
@@ -76,8 +79,13 @@ export default class LinkitEditing extends LinkEditing {
       } ) );
 
     // Create linking commands.
-    editor.commands.add( 'link', new LinkitCommand( editor ) );
-    editor.commands.add( 'unlink', new UnlinkLinkitCommand( editor ) );
+    if (this._linkSelector) {
+      editor.commands.add( 'link', new LinkitCommand( editor ) );
+      editor.commands.add( 'unlink', new UnlinkLinkitCommand( editor ) );
+    } else {
+      editor.commands.add( 'link', new LinkCommand( editor ) );
+      editor.commands.add( 'unlink', new UnlinkCommand( editor ) );
+    }
 
     // Enable two-step caret movement for `linkHref` attribute.
     bindTwoStepCaretToAttribute( editor.editing.view, editor.model, this, 'linkHref' );
