@@ -1,41 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<title>CKEditor 5 – sections editor build – development sample</title>
-	<style>
+  <meta charset="utf-8">
+  <title>CKEditor 5 – sections editor build – development sample</title>
+  <style>
     /*
      * Basic test page setup
      */
-		body {
+    body {
       padding: 1em;
-		}
+    }
 
-		*, *:before, *:after {
-			box-sizing: border-box;
-		}
+    *, *:before, *:after {
+      box-sizing: border-box;
+    }
 
-		.split-pane {
-			display: flex;
-			justify-content: stretch;
-		}
+    .split-pane {
+      display: flex;
+      justify-content: stretch;
+    }
 
     #editor, #preview, .pane {
-			width: 100%;
-		}
+      width: 100%;
+    }
 
-		.pane {
-			border: 1px dashed gray;
-			padding: 0.5em;
+    .pane {
+      border: 1px dashed gray;
+      padding: 0.5em;
       margin: 0.5em;
-		}
+    }
 
-		img {
-			display: block;
-			width: 100%;
-		}
+    img {
+      display: block;
+      width: 100%;
+    }
 
-	</style>
+  </style>
 </head>
 <body>
 
@@ -44,13 +44,13 @@
 <div class="split-pane">
   <div class="pane">
     <h2>Editor</h2>
-		<div id="editor"></div>
-	</div>
+    <div id="editor"></div>
+  </div>
 
-	<div class="pane">
-		<h2>Preview</h2>
-		<div id="preview"></div>
-	</div>
+  <div class="pane">
+    <h2>Preview</h2>
+    <div id="preview"></div>
+  </div>
 </div>
 
 <script src="../build/ckeditor.js"></script>
@@ -73,7 +73,7 @@
         text: {
           label: 'Text',
           template: `
-            <div class="text" first="a" second="">
+            <div class="text" first="a" second="" third="">
               <h2 ck-editable-type="text">Enter a headline ...</h2>
               <div ck-editable-type="formatted">Enter your text ...</div>
             </div>
@@ -99,22 +99,28 @@
           `,
         },
       },
-			templateAttributes: {
+      templateAttributes: {
         first: {
+          type: 'dropdown',
           label: 'Setting 1',
-					options: {
+          options: {
             a: 'Option A',
-						b: 'Option B',
-					}
-				},
+            b: 'Option B',
+          }
+        },
         second: {
+          type: 'dropdown',
           label: 'Setting 2',
           options: {
             c: 'Option C',
             d: 'Option D',
           }
         },
-			},
+        third: {
+          type: 'textfield',
+          placeholder: 'Enter some text...',
+        },
+      },
       mediaSelector: function (type, operation, callback) {
         if (type !== 'image') {
           throw "Unknown media type " + type;
@@ -145,11 +151,11 @@
     .catch( err => {
       console.error( err.stack );
     });
-	}
+  }
 
   if (window.location.hash !== '#cypress') {
     window.initEditor();
-	}
+  }
 </script>
 
 </body>

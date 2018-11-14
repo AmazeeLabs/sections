@@ -6,7 +6,7 @@ import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import { getOptimalPosition } from '@ckeditor/ckeditor5-utils/src/dom/position';
 import Rect from '@ckeditor/ckeditor5-utils/src/dom/rect';
 import Collection from '@ckeditor/ckeditor5-utils/src/collection';
-
+import InputTextView from '@ckeditor/ckeditor5-ui/src/inputtext/inputtextview';
 
 import iconUp from '../../theme/icons/arrow-up.svg';
 import iconDown from '../../theme/icons/arrow-down.svg';
@@ -27,6 +27,7 @@ import clickOutsideHandler from "@ckeditor/ckeditor5-ui/src/bindings/clickoutsid
 
 import '../../theme/css/container.css';
 import TemplateAttributeCommand from "../commands/templateattributecommand";
+import Logger from '../util/logger';
 
 const toPx = toUnit( 'px' );
 
@@ -311,58 +312,113 @@ export default class ContainerControls extends Plugin {
     }
 
     for (const attr of Object.keys(this.templateAttributes)) {
-      editor.commands.add(`setTemplateAttribute:${attr}`, new TemplateAttributeCommand(editor, attr));
-      editor.ui.componentFactory.add(`templateAttribute:${attr}`, locale => {
-        const dropdownItems = new Collection();
+      const templateAttribute = this.templateAttributes[attr];
+      const type = templateAttribute.type;
+      const commandName = `setTemplateAttribute:${attr}`;
+      const componentName = `templateAttribute:${attr}`;
+      editor.commands.add(commandName, new TemplateAttributeCommand(editor, attr));
 
-        const templateAttribute = this.templateAttributes[attr];
-        const commandName = `setTemplateAttribute:${attr}`;
-        const command = editor.commands.get(commandName);
-        const titles = {};
+      // We could create the method names dynamically but this is more explicit.
+      const factories = {
+        dropdown: this._createDropdownView,
+        textfield: this._createTextfieldView,
+      };
 
-        for (const key of Object.keys(templateAttribute.options)) {
-          const option = templateAttribute.options[key];
-          const itemModel = new Model({
-            label: option,
-            withText: true,
-          });
+      if (!factories.hasOwnProperty(type)) {
+        Logger.error(`Unrecognized template attribute type: ${type}`);
+        continue;
+      }
 
-          itemModel.bind('isActive').to(command, 'value', value => value === key);
-          itemModel.set({
-            commandName: commandName,
-            commandValue: key,
-          });
-          titles[key] = option;
-
-          dropdownItems.add({ type: 'button', model: itemModel });
-        }
-
-        const dropdownView = createDropdown(locale);
-        addListToDropdown(dropdownView, dropdownItems);
-
-        dropdownView.buttonView.set({
-          isOn: false,
-          withText: true,
-          label: templateAttribute.label,
-          tooltip: `Configure the ${templateAttribute.label} option.`,
-        });
-
-        dropdownView.buttonView.bind( 'label' ).to( command, 'value', ( value ) => {
-          return titles[ value ] || templateAttribute.label;
-        } );
-
-        dropdownView.bind('isEnabled').to(command, 'isEnabled', (value) => {
-          return value;
-        });
-
-        // Execute command when an item from the dropdown is selected.
-        this.listenTo( dropdownView, 'execute', evt => {
-          editor.execute( evt.source.commandName, {value: evt.source.commandValue});
-        });
-
-        return dropdownView;
-      });
+      const factoryMethod = factories[type];
+      const args = [templateAttribute, commandName, editor];
+      const callback = factoryMethod.apply(this, args);
+      editor.ui.componentFactory.add(componentName, callback);
     }
+  }
+
+  /**
+   * Creates a dropdown component based on given template attribute.
+   *
+   * @param {Object} templateAttribute - The configuration object.
+   * @param {String} commandName - The command associated with the attribute.
+   * @param {Editor} editor - The editor object.
+   *
+   * @return {Function} - A callback for editor.ui.componentFactory.add.
+   */
+  _createDropdownView(templateAttribute, commandName, editor) {
+    return locale => {
+      const command = editor.commands.get(commandName);
+      const dropdownItems = new Collection();
+      const titles = {};
+
+      for (const key of Object.keys(templateAttribute.options)) {
+        const option = templateAttribute.options[key];
+        const itemModel = new Model({
+          label: option,
+          withText: true,
+        });
+
+        itemModel.bind('isActive').to(command, 'value', value => value === key);
+        itemModel.set({
+          commandName: commandName,
+          commandValue: key,
+        });
+        titles[key] = option;
+
+        dropdownItems.add({ type: 'button', model: itemModel });
+      }
+
+      const dropdownView = createDropdown(locale);
+      addListToDropdown(dropdownView, dropdownItems);
+
+      dropdownView.buttonView.set({
+        isOn: false,
+        withText: true,
+        label: templateAttribute.label,
+        tooltip: `Configure the ${templateAttribute.label} option.`,
+      });
+
+      dropdownView.buttonView.bind( 'label' ).to( command, 'value', ( value ) => {
+        return titles[ value ] || templateAttribute.label;
+      } );
+
+      dropdownView.bind('isEnabled').to(command, 'isEnabled', (value) => {
+        return value;
+      });
+
+      // Execute command when an item from the dropdown is selected.
+      this.listenTo( dropdownView, 'execute', evt => {
+        editor.execute( evt.source.commandName, {value: evt.source.commandValue});
+      });
+
+      return dropdownView;
+    };
+  }
+
+  /**
+   * Creates a dropdown component based on given template attribute.
+   *
+   * @param {Object} templateAttribute - The configuration object.
+   * @param {String} commandName - The command associated with the attribute.
+   * @param {Editor} editor - The editor object.
+   *
+   * @return {Function} - A callback for editor.ui.componentFactory.add.
+   */
+  _createTextfieldView(templateAttribute, commandName, editor) {
+    return locale => {
+      const command = editor.commands.get(commandName);
+      const { label = '', placeholder = '' } = templateAttribute;
+      const inputView = new InputTextView(locale);
+
+      inputView.placeholder = placeholder;
+      inputView.bind('value').to(command, 'value');
+
+      this.listenTo(inputView, 'input', evt => {
+        editor.execute( commandName, { value: evt.source.element.value });
+      });
+
+      return inputView;
+    };
   }
 
   /**
@@ -379,14 +435,7 @@ export default class ContainerControls extends Plugin {
         // https://github.com/ckeditor/ckeditor5-editor-inline/issues/11
         class: [ 'ck-toolbar_floating' ]
       }
-    } );
-
-    // When toolbar lost focus then panel should hide.
-    toolbarView.focusTracker.on( 'change:isFocused', ( evt, name, is ) => {
-      if ( !is ) {
-        this._hidePanels();
-      }
-    } );
+    });
 
     return toolbarView;
   }
@@ -430,8 +479,6 @@ export default class ContainerControls extends Plugin {
 
     this.listenTo( editor.ui, 'update', () => this._updateButtons() );
     this.listenTo( editor, 'change:isReadOnly', () => this._updateButtons(), { priority: 'low' } );
-    this.listenTo( editor.ui.focusTracker, 'change:isFocused', () => this._updateButtons() );
-    this.listenTo( editor.ui.focusTracker, 'change:isFocused', () => this._hidePanels() );
 
     // Reposition button on resize.
     this.listenTo( this.buttonViews[0], 'change:isVisible', ( evt, name, isVisible ) => {
@@ -461,7 +508,7 @@ export default class ContainerControls extends Plugin {
     const view = editor.editing.view;
 
     const modelTarget = this.getSelectedElement();
-    if (!modelTarget || !editor.ui.focusTracker.isFocused || editor.isReadOnly ) {
+    if (!modelTarget || editor.isReadOnly ) {
       for (const buttonView of this.buttonViews) {
         buttonView.isVisible = false;
       }
@@ -478,7 +525,6 @@ export default class ContainerControls extends Plugin {
     for (const buttonView of this.buttonViews) {
       this._attachButtonToElement(domTarget, buttonView);
 
-
       if (buttonView.panel && buttonView.panel.isVisible) {
         this._showPanel(buttonView, buttonView.panel);
       }
@@ -492,7 +538,6 @@ export default class ContainerControls extends Plugin {
         buttonView.isVisible = true;
       }
     }
-
   }
 
   /**

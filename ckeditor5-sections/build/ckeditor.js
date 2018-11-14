@@ -22699,9 +22699,6 @@ class Schema {
 			return false;
 		}
 
-		// if (!this._checkContextMatch( def, context )) {
-    //   debugger;
-    // }
 		return this._checkContextMatch( def, context );
 	}
 
@@ -63804,10 +63801,10 @@ if(false) {}
 /*!*********************************************!*\
   !*** ./node_modules/ckeditor5/package.json ***!
   \*********************************************/
-/*! exports provided: _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _shasum, _spec, _where, author, bugs, bundleDependencies, deprecated, description, engines, homepage, keywords, license, name, repository, version, default */
+/*! exports provided: name, version, description, keywords, engines, author, license, homepage, bugs, repository, default */
 /***/ (function(module) {
 
-module.exports = {"_from":"ckeditor5@^11.1.0","_id":"ckeditor5@11.1.1","_inBundle":false,"_integrity":"sha512-xif/R/KaNFkW+EH9+X9J3H7jvz8BOzMWmDxIBO32UoQBfIsKorpG/VvulD+KxkUMEw5wO2XWfZ+8kbf3Aa8MUg==","_location":"/ckeditor5","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"ckeditor5@^11.1.0","name":"ckeditor5","escapedName":"ckeditor5","rawSpec":"^11.1.0","saveSpec":null,"fetchSpec":"^11.1.0"},"_requiredBy":["/@ckeditor/ckeditor5-image/@ckeditor/ckeditor5-utils","/@ckeditor/ckeditor5-utils"],"_resolved":"https://registry.npmjs.org/ckeditor5/-/ckeditor5-11.1.1.tgz","_shasum":"f2da24b01a659e848ef6a4dd125ff5cc9e1cb06f","_spec":"ckeditor5@^11.1.0","_where":"/Users/philippmelab/Projects/sections/ckeditor5-sections/node_modules/@ckeditor/ckeditor5-utils","author":{"name":"CKSource","url":"http://cksource.com/"},"bugs":{"url":"https://github.com/ckeditor/ckeditor5/issues"},"bundleDependencies":false,"deprecated":false,"description":"A set of ready-to-use rich text editors created with a powerful framework. Made with real-time collaborative editing in mind.","engines":{"node":">=6.9.0","npm":">=3.0.0"},"homepage":"http://ckeditor.com","keywords":["ckeditor","ckeditor5","ckeditor 5","wysiwyg","rich text","editor","html","contentEditable","editing","operational transformation","ot","collaboration","collaborative","real-time","framework"],"license":"GPL-2.0-or-later","name":"ckeditor5","repository":{"type":"git","url":"git+https://github.com/ckeditor/ckeditor5.git"},"version":"11.1.1"};
+module.exports = {"name":"ckeditor5","version":"11.1.1","description":"A set of ready-to-use rich text editors created with a powerful framework. Made with real-time collaborative editing in mind.","keywords":["ckeditor","ckeditor5","ckeditor 5","wysiwyg","rich text","editor","html","contentEditable","editing","operational transformation","ot","collaboration","collaborative","real-time","framework"],"engines":{"node":">=6.9.0","npm":">=3.0.0"},"author":"CKSource (http://cksource.com/)","license":"GPL-2.0-or-later","homepage":"http://ckeditor.com","bugs":"https://github.com/ckeditor/ckeditor5/issues","repository":{"type":"git","url":"https://github.com/ckeditor/ckeditor5.git"}};
 
 /***/ }),
 
@@ -98576,10 +98573,20 @@ __webpack_require__.r(__webpack_exports__);
  */
 class TemplateElement {
 
+  /**
+   * Sets the template manager.
+   *
+   * @param {Templates} manager - The template manager.
+   */
   setTemplateManager(manager) {
     this.templateManager = manager;
   }
 
+  /**
+   * Returns the template manager.
+   *
+   * @return {Templates} manager - The template manager.
+   */
   getTemplateElement(name) {
     return this.templateManager.getTemplate(name);
   }
@@ -98656,12 +98663,15 @@ class TemplateElement {
   }
 
   /**
+   * Returns the name of the current node, prefixed by the parent's name.
+   *
    * @private
    */
   get _name() {
     const name = (this.node.getAttribute('ck-name') || 'child' + this.index);
     return this.parent ? this.parent._name + '__' + name : name;
   }
+
   /**
    * Returns the calculated name for this element.
    *
@@ -98686,6 +98696,11 @@ class TemplateElement {
     };
   }
 
+  /**
+   * Returns an array of extensions to the model's schema.
+   *
+   * @return {Object[]} - An array of objects with 'element' and 'info' properties.
+   */
   get schemaExtensions() {
     return [];
   }
@@ -98693,15 +98708,18 @@ class TemplateElement {
   /**
    * Attributes that are allowed by default, without being added to the template.
    *
-   * @returns *
+   * @return *
    */
   get defaultAttributes() {
     return {};
   }
 
   /**
+   * Tells if the given view element matches the template's node.
+   *
    * @param {module:engine/view/element~Element} viewElement
-   * @returns {Object}
+   *
+   * @return {Object}
    */
   matchesViewElement(viewElement) {
     const templateClasses = Array.from(this.node.classList);
@@ -98710,6 +98728,9 @@ class TemplateElement {
       && (!this.parent || this.parent.matchesViewElement(viewElement.parent))
   }
 
+  /**
+   * Creates an element
+   */
   toModelElement(viewElement, modelWriter) {
     const attributes = Object.assign(
         // By default set all attributes defined in the template.
@@ -98882,6 +98903,7 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
   static get pluginName() {
     return 'Templates';
   }
+
   /**
    * @inheritDoc
    */
@@ -98937,13 +98959,24 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
     }
   }
 
+  /**
+   * Adds the root template into each empty root element.
+   *
+   * @param {Writer} writer - The element's writer.
+   * @param {String} rootTemplate - The root template's id.
+   *
+   * @return {Bool} - True if any changes were made.
+   *
+   * @private
+   */
   _cleanRoot(writer, rootTemplate) {
-
     const model = this.editor.model;
 
     for ( const rootName of model.document.getRootNames() ) {
       const root = model.document.getRoot( rootName );
 
+      // According to https://ckeditor.com/docs/ckeditor5/latest/api/module_engine_model_document-Document.html#function-getRootNames
+      // getRootNames doesn't return the graveyard.
       if (root.rootName === '$graveyard' ) {
         continue
       }
@@ -98966,7 +98999,7 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
    *
    * @private
    */
-  _registerElement(template, parent = null, index = 0)  {
+  _registerElement(template, parent = null, index = 0) {
     const applicableElements = this.editor.config.get('templateElements')
         .filter((element) => {
           return element.applies(template);
@@ -99025,6 +99058,17 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
     return element;
   }
 
+  /**
+   * Applies the postfix method of the element and its children.
+   *
+   * @param {Element} - The parent element.
+   * @param {Writer} writer - The element's writer.
+   * @param {Node} item - The next node after the change.
+   *
+   * @return {Bool} - True if any changes were made.
+   *
+   * @private
+   */
   _recursiveElementPostFix(element, writer, item) {
     let changed = false;
     if (item instanceof _ckeditor_ckeditor5_engine_src_model_element__WEBPACK_IMPORTED_MODULE_2__["default"]) {
@@ -99041,6 +99085,12 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
 
 }
 
+/**
+ * Returns a function that takes a dispatcher and binds a converter to an element.
+ *
+ * @param {String} attributeKey - The name of the attribute.
+ * @param {String} element - The name of the element.
+ */
 function modelToViewAttributeConverter( attributeKey, element ) {
   return dispatcher => {
     dispatcher.on( `attribute:${ attributeKey }:${ element }`, converter );
@@ -99062,7 +99112,13 @@ function modelToViewAttributeConverter( attributeKey, element ) {
   }
 }
 
-
+/**
+ * Tells if the selected element is a widget.
+ *
+ * @param {Selection} selection - The editor's selection object.
+ *
+ * @return {Bool} - True if the currently selected element is a widget.
+ */
 function isWidgetSelected( selection ) {
   const viewElement = selection.getSelectedElement();
 
@@ -99088,28 +99144,30 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ckeditor_ckeditor5_utils_src_dom_position__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @ckeditor/ckeditor5-utils/src/dom/position */ "./node_modules/@ckeditor/ckeditor5-utils/src/dom/position.js");
 /* harmony import */ var _ckeditor_ckeditor5_utils_src_dom_rect__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @ckeditor/ckeditor5-utils/src/dom/rect */ "./node_modules/@ckeditor/ckeditor5-utils/src/dom/rect.js");
 /* harmony import */ var _ckeditor_ckeditor5_utils_src_collection__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @ckeditor/ckeditor5-utils/src/collection */ "./node_modules/@ckeditor/ckeditor5-utils/src/collection.js");
-/* harmony import */ var _theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../theme/icons/arrow-up.svg */ "./plugins/ckeditor5-templates/theme/icons/arrow-up.svg");
-/* harmony import */ var _theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../theme/icons/arrow-down.svg */ "./plugins/ckeditor5-templates/theme/icons/arrow-down.svg");
-/* harmony import */ var _theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var _theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../theme/icons/trash.svg */ "./plugins/ckeditor5-templates/theme/icons/trash.svg");
-/* harmony import */ var _theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_8__);
-/* harmony import */ var _theme_icons_add_svg__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../theme/icons/add.svg */ "./plugins/ckeditor5-templates/theme/icons/add.svg");
-/* harmony import */ var _theme_icons_add_svg__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_add_svg__WEBPACK_IMPORTED_MODULE_9__);
-/* harmony import */ var _theme_icons_configure_svg__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../theme/icons/configure.svg */ "./plugins/ckeditor5-templates/theme/icons/configure.svg");
-/* harmony import */ var _theme_icons_configure_svg__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_configure_svg__WEBPACK_IMPORTED_MODULE_10__);
-/* harmony import */ var _commands_elementremovecommand__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../commands/elementremovecommand */ "./plugins/ckeditor5-templates/src/commands/elementremovecommand.js");
-/* harmony import */ var _commands_elementupcommand__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../commands/elementupcommand */ "./plugins/ckeditor5-templates/src/commands/elementupcommand.js");
-/* harmony import */ var _commands_elementdowncommand__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../commands/elementdowncommand */ "./plugins/ckeditor5-templates/src/commands/elementdowncommand.js");
-/* harmony import */ var _ckeditor_ckeditor5_utils_src_dom_tounit__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @ckeditor/ckeditor5-utils/src/dom/tounit */ "./node_modules/@ckeditor/ckeditor5-utils/src/dom/tounit.js");
-/* harmony import */ var _commands_insertelementcommand__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../commands/insertelementcommand */ "./plugins/ckeditor5-templates/src/commands/insertelementcommand.js");
-/* harmony import */ var _ckeditor_ckeditor5_ui_src_model__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/model */ "./node_modules/@ckeditor/ckeditor5-ui/src/model.js");
-/* harmony import */ var _ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/dropdown/utils */ "./node_modules/@ckeditor/ckeditor5-ui/src/dropdown/utils.js");
-/* harmony import */ var _ckeditor_ckeditor5_ui_src_panel_balloon_balloonpanelview__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/panel/balloon/balloonpanelview */ "./node_modules/@ckeditor/ckeditor5-ui/src/panel/balloon/balloonpanelview.js");
-/* harmony import */ var _ckeditor_ckeditor5_ui_src_bindings_clickoutsidehandler__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler */ "./node_modules/@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler.js");
-/* harmony import */ var _theme_css_container_css__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../../theme/css/container.css */ "./plugins/ckeditor5-templates/theme/css/container.css");
-/* harmony import */ var _theme_css_container_css__WEBPACK_IMPORTED_MODULE_20___default = /*#__PURE__*/__webpack_require__.n(_theme_css_container_css__WEBPACK_IMPORTED_MODULE_20__);
-/* harmony import */ var _commands_templateattributecommand__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../commands/templateattributecommand */ "./plugins/ckeditor5-templates/src/commands/templateattributecommand.js");
+/* harmony import */ var _ckeditor_ckeditor5_ui_src_inputtext_inputtextview__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/inputtext/inputtextview */ "./node_modules/@ckeditor/ckeditor5-ui/src/inputtext/inputtextview.js");
+/* harmony import */ var _theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../theme/icons/arrow-up.svg */ "./plugins/ckeditor5-templates/theme/icons/arrow-up.svg");
+/* harmony import */ var _theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../theme/icons/arrow-down.svg */ "./plugins/ckeditor5-templates/theme/icons/arrow-down.svg");
+/* harmony import */ var _theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var _theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../theme/icons/trash.svg */ "./plugins/ckeditor5-templates/theme/icons/trash.svg");
+/* harmony import */ var _theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var _theme_icons_add_svg__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../theme/icons/add.svg */ "./plugins/ckeditor5-templates/theme/icons/add.svg");
+/* harmony import */ var _theme_icons_add_svg__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_add_svg__WEBPACK_IMPORTED_MODULE_10__);
+/* harmony import */ var _theme_icons_configure_svg__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../theme/icons/configure.svg */ "./plugins/ckeditor5-templates/theme/icons/configure.svg");
+/* harmony import */ var _theme_icons_configure_svg__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_configure_svg__WEBPACK_IMPORTED_MODULE_11__);
+/* harmony import */ var _commands_elementremovecommand__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../commands/elementremovecommand */ "./plugins/ckeditor5-templates/src/commands/elementremovecommand.js");
+/* harmony import */ var _commands_elementupcommand__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../commands/elementupcommand */ "./plugins/ckeditor5-templates/src/commands/elementupcommand.js");
+/* harmony import */ var _commands_elementdowncommand__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../commands/elementdowncommand */ "./plugins/ckeditor5-templates/src/commands/elementdowncommand.js");
+/* harmony import */ var _ckeditor_ckeditor5_utils_src_dom_tounit__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @ckeditor/ckeditor5-utils/src/dom/tounit */ "./node_modules/@ckeditor/ckeditor5-utils/src/dom/tounit.js");
+/* harmony import */ var _commands_insertelementcommand__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../commands/insertelementcommand */ "./plugins/ckeditor5-templates/src/commands/insertelementcommand.js");
+/* harmony import */ var _ckeditor_ckeditor5_ui_src_model__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/model */ "./node_modules/@ckeditor/ckeditor5-ui/src/model.js");
+/* harmony import */ var _ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/dropdown/utils */ "./node_modules/@ckeditor/ckeditor5-ui/src/dropdown/utils.js");
+/* harmony import */ var _ckeditor_ckeditor5_ui_src_panel_balloon_balloonpanelview__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/panel/balloon/balloonpanelview */ "./node_modules/@ckeditor/ckeditor5-ui/src/panel/balloon/balloonpanelview.js");
+/* harmony import */ var _ckeditor_ckeditor5_ui_src_bindings_clickoutsidehandler__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler */ "./node_modules/@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler.js");
+/* harmony import */ var _theme_css_container_css__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../../theme/css/container.css */ "./plugins/ckeditor5-templates/theme/css/container.css");
+/* harmony import */ var _theme_css_container_css__WEBPACK_IMPORTED_MODULE_21___default = /*#__PURE__*/__webpack_require__.n(_theme_css_container_css__WEBPACK_IMPORTED_MODULE_21__);
+/* harmony import */ var _commands_templateattributecommand__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../commands/templateattributecommand */ "./plugins/ckeditor5-templates/src/commands/templateattributecommand.js");
+/* harmony import */ var _util_logger__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../util/logger */ "./plugins/ckeditor5-templates/src/util/logger.js");
 /* global window */
 
 
@@ -99140,7 +99198,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const toPx = Object(_ckeditor_ckeditor5_utils_src_dom_tounit__WEBPACK_IMPORTED_MODULE_14__["default"])( 'px' );
+
+const toPx = Object(_ckeditor_ckeditor5_utils_src_dom_tounit__WEBPACK_IMPORTED_MODULE_15__["default"])( 'px' );
 
 class ContainerButtonView extends _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_2__["default"] {
   constructor (locale) {
@@ -99267,28 +99326,28 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
     this.configurationToolbarView = this._createToolbarView();
     this.configurationPanelView = this._createPanelView(this.configurationToolbarView);
 
-    editor.commands.add('elementUp', new _commands_elementupcommand__WEBPACK_IMPORTED_MODULE_12__["default"](editor));
-    editor.commands.add('elementDown', new _commands_elementdowncommand__WEBPACK_IMPORTED_MODULE_13__["default"](editor));
-    editor.commands.add('elementRemove', new _commands_elementremovecommand__WEBPACK_IMPORTED_MODULE_11__["default"](editor));
+    editor.commands.add('elementUp', new _commands_elementupcommand__WEBPACK_IMPORTED_MODULE_13__["default"](editor));
+    editor.commands.add('elementDown', new _commands_elementdowncommand__WEBPACK_IMPORTED_MODULE_14__["default"](editor));
+    editor.commands.add('elementRemove', new _commands_elementremovecommand__WEBPACK_IMPORTED_MODULE_12__["default"](editor));
 
     this.buttons = {
       elementUp: {
         label: editor.t('Move element up'),
-        icon: _theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_6___default.a,
+        icon: _theme_icons_arrow_up_svg__WEBPACK_IMPORTED_MODULE_7___default.a,
         class: 'element-up',
         position: 'bottom right 2',
         command: editor.commands.get('elementUp')
       },
       elementDown: {
         label: editor.t('Move element down'),
-        icon: _theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_7___default.a,
+        icon: _theme_icons_arrow_down_svg__WEBPACK_IMPORTED_MODULE_8___default.a,
         class: 'element-down',
         position: 'bottom right 1',
         command: editor.commands.get('elementDown')
       },
       elementRemove: {
         label: editor.t('Remove element'),
-        icon: _theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_8___default.a,
+        icon: _theme_icons_trash_svg__WEBPACK_IMPORTED_MODULE_9___default.a,
         class: 'element-remove',
         position: 'top right 1',
         command: editor.commands.get('elementRemove')
@@ -99296,7 +99355,7 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
       elementConfigure: {
         buttonClass: ConfigureButtonView,
         label: editor.t('Configure element'),
-        icon: _theme_icons_configure_svg__WEBPACK_IMPORTED_MODULE_10___default.a,
+        icon: _theme_icons_configure_svg__WEBPACK_IMPORTED_MODULE_11___default.a,
         class: 'element-configure',
         position: 'top right 2',
         panel: this.configurationPanelView
@@ -99304,7 +99363,7 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
       insertBefore: {
         buttonClass: NewSectionButtonView,
         label: editor.t('Insert element above'),
-        icon: _theme_icons_add_svg__WEBPACK_IMPORTED_MODULE_9___default.a,
+        icon: _theme_icons_add_svg__WEBPACK_IMPORTED_MODULE_10___default.a,
         class: 'element-insert-before',
         position: 'top new-section',
         panel: this.insertBeforePanelView,
@@ -99312,7 +99371,7 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
       insertAfter: {
         buttonClass: NewSectionButtonView,
         label: editor.t('Insert element below'),
-        icon: _theme_icons_add_svg__WEBPACK_IMPORTED_MODULE_9___default.a,
+        icon: _theme_icons_add_svg__WEBPACK_IMPORTED_MODULE_10___default.a,
         class: 'element-insert-after',
         position: 'bottom new-section',
         panel: this.insertAfterPanelView,
@@ -99348,7 +99407,7 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
         });
 
         // Close the #panelView upon clicking outside of the plugin UI.
-        Object(_ckeditor_ckeditor5_ui_src_bindings_clickoutsidehandler__WEBPACK_IMPORTED_MODULE_19__["default"])( {
+        Object(_ckeditor_ckeditor5_ui_src_bindings_clickoutsidehandler__WEBPACK_IMPORTED_MODULE_20__["default"])( {
           emitter: panel,
           contextElements: [ panel.element , buttonView.element],
           activator: () => panel.isVisible,
@@ -99372,7 +99431,7 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
     const elements = editor.config.get('templates');
 
     Object.keys(elements).forEach((name) => {
-      editor.commands.add(`insertElement:${name}`, new _commands_insertelementcommand__WEBPACK_IMPORTED_MODULE_15__["default"](editor, name));
+      editor.commands.add(`insertElement:${name}`, new _commands_insertelementcommand__WEBPACK_IMPORTED_MODULE_16__["default"](editor, name));
     });
 
     for (const position of ['before', 'after']) {
@@ -99385,7 +99444,7 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
           const element = elements[key];
           const command = editor.commands.get(commandName);
 
-          const itemModel = new _ckeditor_ckeditor5_ui_src_model__WEBPACK_IMPORTED_MODULE_16__["default"]({
+          const itemModel = new _ckeditor_ckeditor5_ui_src_model__WEBPACK_IMPORTED_MODULE_17__["default"]({
             label: element.label,
             withText: true,
           });
@@ -99398,8 +99457,8 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
           dropdownItems.add({ type: 'button', model: itemModel });
         }
 
-        const dropdownView = Object(_ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_17__["createDropdown"])(locale);
-        Object(_ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_17__["addListToDropdown"])(dropdownView, dropdownItems);
+        const dropdownView = Object(_ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_18__["createDropdown"])(locale);
+        Object(_ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_18__["addListToDropdown"])(dropdownView, dropdownItems);
 
         dropdownView.buttonView.set({
           isOn: false,
@@ -99423,58 +99482,113 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
     }
 
     for (const attr of Object.keys(this.templateAttributes)) {
-      editor.commands.add(`setTemplateAttribute:${attr}`, new _commands_templateattributecommand__WEBPACK_IMPORTED_MODULE_21__["default"](editor, attr));
-      editor.ui.componentFactory.add(`templateAttribute:${attr}`, locale => {
-        const dropdownItems = new _ckeditor_ckeditor5_utils_src_collection__WEBPACK_IMPORTED_MODULE_5__["default"]();
+      const templateAttribute = this.templateAttributes[attr];
+      const type = templateAttribute.type;
+      const commandName = `setTemplateAttribute:${attr}`;
+      const componentName = `templateAttribute:${attr}`;
+      editor.commands.add(commandName, new _commands_templateattributecommand__WEBPACK_IMPORTED_MODULE_22__["default"](editor, attr));
 
-        const templateAttribute = this.templateAttributes[attr];
-        const commandName = `setTemplateAttribute:${attr}`;
-        const command = editor.commands.get(commandName);
-        const titles = {};
+      // We could create the method names dynamically but this is more explicit.
+      const factories = {
+        dropdown: this._createDropdownView,
+        textfield: this._createTextfieldView,
+      };
 
-        for (const key of Object.keys(templateAttribute.options)) {
-          const option = templateAttribute.options[key];
-          const itemModel = new _ckeditor_ckeditor5_ui_src_model__WEBPACK_IMPORTED_MODULE_16__["default"]({
-            label: option,
-            withText: true,
-          });
+      if (!factories.hasOwnProperty(type)) {
+        _util_logger__WEBPACK_IMPORTED_MODULE_23__["default"].error(`Unrecognized template attribute type: ${type}`);
+        continue;
+      }
 
-          itemModel.bind('isActive').to(command, 'value', value => value === key);
-          itemModel.set({
-            commandName: commandName,
-            commandValue: key,
-          });
-          titles[key] = option;
-
-          dropdownItems.add({ type: 'button', model: itemModel });
-        }
-
-        const dropdownView = Object(_ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_17__["createDropdown"])(locale);
-        Object(_ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_17__["addListToDropdown"])(dropdownView, dropdownItems);
-
-        dropdownView.buttonView.set({
-          isOn: false,
-          withText: true,
-          label: templateAttribute.label,
-          tooltip: `Configure the ${templateAttribute.label} option.`,
-        });
-
-        dropdownView.buttonView.bind( 'label' ).to( command, 'value', ( value ) => {
-          return titles[ value ] || templateAttribute.label;
-        } );
-
-        dropdownView.bind('isEnabled').to(command, 'isEnabled', (value) => {
-          return value;
-        });
-
-        // Execute command when an item from the dropdown is selected.
-        this.listenTo( dropdownView, 'execute', evt => {
-          editor.execute( evt.source.commandName, {value: evt.source.commandValue});
-        });
-
-        return dropdownView;
-      });
+      const factoryMethod = factories[type];
+      const args = [templateAttribute, commandName, editor];
+      const callback = factoryMethod.apply(this, args);
+      editor.ui.componentFactory.add(componentName, callback);
     }
+  }
+
+  /**
+   * Creates a dropdown component based on given template attribute.
+   *
+   * @param {Object} templateAttribute - The configuration object.
+   * @param {String} commandName - The command associated with the attribute.
+   * @param {Editor} editor - The editor object.
+   *
+   * @return {Function} - A callback for editor.ui.componentFactory.add.
+   */
+  _createDropdownView(templateAttribute, commandName, editor) {
+    return locale => {
+      const command = editor.commands.get(commandName);
+      const dropdownItems = new _ckeditor_ckeditor5_utils_src_collection__WEBPACK_IMPORTED_MODULE_5__["default"]();
+      const titles = {};
+
+      for (const key of Object.keys(templateAttribute.options)) {
+        const option = templateAttribute.options[key];
+        const itemModel = new _ckeditor_ckeditor5_ui_src_model__WEBPACK_IMPORTED_MODULE_17__["default"]({
+          label: option,
+          withText: true,
+        });
+
+        itemModel.bind('isActive').to(command, 'value', value => value === key);
+        itemModel.set({
+          commandName: commandName,
+          commandValue: key,
+        });
+        titles[key] = option;
+
+        dropdownItems.add({ type: 'button', model: itemModel });
+      }
+
+      const dropdownView = Object(_ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_18__["createDropdown"])(locale);
+      Object(_ckeditor_ckeditor5_ui_src_dropdown_utils__WEBPACK_IMPORTED_MODULE_18__["addListToDropdown"])(dropdownView, dropdownItems);
+
+      dropdownView.buttonView.set({
+        isOn: false,
+        withText: true,
+        label: templateAttribute.label,
+        tooltip: `Configure the ${templateAttribute.label} option.`,
+      });
+
+      dropdownView.buttonView.bind( 'label' ).to( command, 'value', ( value ) => {
+        return titles[ value ] || templateAttribute.label;
+      } );
+
+      dropdownView.bind('isEnabled').to(command, 'isEnabled', (value) => {
+        return value;
+      });
+
+      // Execute command when an item from the dropdown is selected.
+      this.listenTo( dropdownView, 'execute', evt => {
+        editor.execute( evt.source.commandName, {value: evt.source.commandValue});
+      });
+
+      return dropdownView;
+    };
+  }
+
+  /**
+   * Creates a dropdown component based on given template attribute.
+   *
+   * @param {Object} templateAttribute - The configuration object.
+   * @param {String} commandName - The command associated with the attribute.
+   * @param {Editor} editor - The editor object.
+   *
+   * @return {Function} - A callback for editor.ui.componentFactory.add.
+   */
+  _createTextfieldView(templateAttribute, commandName, editor) {
+    return locale => {
+      const command = editor.commands.get(commandName);
+      const { label = '', placeholder = '' } = templateAttribute;
+      const inputView = new _ckeditor_ckeditor5_ui_src_inputtext_inputtextview__WEBPACK_IMPORTED_MODULE_6__["default"](locale);
+
+      inputView.placeholder = placeholder;
+      inputView.bind('value').to(command, 'value');
+
+      this.listenTo(inputView, 'input', evt => {
+        editor.execute( commandName, { value: evt.source.element.value });
+      });
+
+      return inputView;
+    };
   }
 
   /**
@@ -99491,14 +99605,7 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
         // https://github.com/ckeditor/ckeditor5-editor-inline/issues/11
         class: [ 'ck-toolbar_floating' ]
       }
-    } );
-
-    // When toolbar lost focus then panel should hide.
-    toolbarView.focusTracker.on( 'change:isFocused', ( evt, name, is ) => {
-      if ( !is ) {
-        this._hidePanels();
-      }
-    } );
+    });
 
     return toolbarView;
   }
@@ -99511,7 +99618,7 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
    */
   _createPanelView(toolbar) {
     const editor = this.editor;
-    const panelView = new _ckeditor_ckeditor5_ui_src_panel_balloon_balloonpanelview__WEBPACK_IMPORTED_MODULE_18__["default"]( editor.locale );
+    const panelView = new _ckeditor_ckeditor5_ui_src_panel_balloon_balloonpanelview__WEBPACK_IMPORTED_MODULE_19__["default"]( editor.locale );
 
     panelView.content.add( toolbar );
     panelView.className = 'ck-toolbar-container';
@@ -99542,8 +99649,6 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
 
     this.listenTo( editor.ui, 'update', () => this._updateButtons() );
     this.listenTo( editor, 'change:isReadOnly', () => this._updateButtons(), { priority: 'low' } );
-    this.listenTo( editor.ui.focusTracker, 'change:isFocused', () => this._updateButtons() );
-    this.listenTo( editor.ui.focusTracker, 'change:isFocused', () => this._hidePanels() );
 
     // Reposition button on resize.
     this.listenTo( this.buttonViews[0], 'change:isVisible', ( evt, name, isVisible ) => {
@@ -99573,7 +99678,7 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
     const view = editor.editing.view;
 
     const modelTarget = this.getSelectedElement();
-    if (!modelTarget || !editor.ui.focusTracker.isFocused || editor.isReadOnly ) {
+    if (!modelTarget || editor.isReadOnly ) {
       for (const buttonView of this.buttonViews) {
         buttonView.isVisible = false;
       }
@@ -99590,7 +99695,6 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
     for (const buttonView of this.buttonViews) {
       this._attachButtonToElement(domTarget, buttonView);
 
-
       if (buttonView.panel && buttonView.panel.isVisible) {
         this._showPanel(buttonView, buttonView.panel);
       }
@@ -99604,7 +99708,6 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
         buttonView.isVisible = true;
       }
     }
-
   }
 
   /**
@@ -99750,6 +99853,21 @@ class HoveredWidget extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTE
     } );
   }
 }
+
+
+/***/ }),
+
+/***/ "./plugins/ckeditor5-templates/src/util/logger.js":
+/*!********************************************************!*\
+  !*** ./plugins/ckeditor5-templates/src/util/logger.js ***!
+  \********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// Use the console as logger for now.
+/* harmony default export */ __webpack_exports__["default"] = (console);
 
 
 /***/ }),
