@@ -44,7 +44,29 @@
 <div class="split-pane">
   <div class="pane">
     <h2>Editor</h2>
-		<div id="editor"></div>
+		<div id="editor">
+      <div class="root">
+				<div class="root-container">
+					<div class="gallery">
+						<h2>My Gallery</h2>
+						<div class="gallery__images">
+							<figure class="image">
+								<div data-media-type="image" data-media-display="hero" data-media-uuid="123"/>
+								<figcaption>Picture A</figcaption>
+							</figure>
+							<figure class="image">
+								<div data-media-type="image" data-media-display="hero" data-media-uuid="123"/>
+								<figcaption>Picture B</figcaption>
+							</figure>
+							<figure class="image">
+								<div data-media-type="image" data-media-display="hero" data-media-uuid="123"/>
+								<figcaption>Picture C</figcaption>
+							</figure>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<div class="pane">
@@ -92,9 +114,9 @@
         gallery: {
           label: 'Gallery',
           template: `
-            <div class="gallery" second="">
+            <div class="gallery" second="" layout="horizontal">
               <h2 ck-editable-type="text">Gallery title ...</h2>
-              <div class="gallery__images" ck-editable-type="container" ck-allowed-elements="image" ck-default-element="image"></div>
+              <div class="gallery__images" ck-editable-type="container" ck-container-layout="slider" ck-allowed-elements="image" ck-default-element="image"></div>
             </div>
           `,
         },
@@ -114,6 +136,14 @@
             d: 'Option D',
           }
         },
+        layout: {
+          label: 'Layout',
+					options: {
+            horizontal: 'Horizontal',
+            vertical: 'Vertical',
+            grid: 'Grid',
+					}
+				}
 			},
       mediaSelector: function (type, operation, callback) {
         if (type !== 'image') {

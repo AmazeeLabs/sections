@@ -98190,9 +98190,13 @@ class TemplateAttributeCommand extends _elementcommand__WEBPACK_IMPORTED_MODULE_
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ContainerElement; });
 /* harmony import */ var _templateelement__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../templateelement */ "./plugins/ckeditor5-templates/src/templateelement.js");
+/* harmony import */ var _ckeditor_ckeditor5_engine_src_view_position__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ckeditor/ckeditor5-engine/src/view/position */ "./node_modules/@ckeditor/ckeditor5-engine/src/view/position.js");
+/* harmony import */ var _ckeditor_ckeditor5_engine_src_conversion_downcast_converters__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @ckeditor/ckeditor5-engine/src/conversion/downcast-converters */ "./node_modules/@ckeditor/ckeditor5-engine/src/conversion/downcast-converters.js");
 /**
  * @module templates/elements/textelement
  */
+
+
 
 
 /**
@@ -98230,7 +98234,23 @@ class ContainerElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["de
      const element = super.toEditorElement(modelElement, viewWriter);
      viewWriter.setCustomProperty('container', true, element);
      viewWriter.addClass('ck-container', element);
+     const container = viewWriter.createContainerElement('div', {
+       class: `ck-container-wrapper ck-container-layout-${this.node.getAttribute('ck-container-layout') || 'vertical'}`
+     });
+     viewWriter.insert( _ckeditor_ckeditor5_engine_src_view_position__WEBPACK_IMPORTED_MODULE_1__["default"].createAt( element , 0), container );
      return element;
+  }
+
+  get editingDowncast() {
+    return (dispatcher) => {
+      const insertContainer = Object(_ckeditor_ckeditor5_engine_src_conversion_downcast_converters__WEBPACK_IMPORTED_MODULE_2__["insertElement"])((modelElement, viewWriter) => this.toEditorElement(modelElement, viewWriter));
+      dispatcher.on(`insert:${this.name}`, (evt, data, conversionApi) => {
+        insertContainer(evt, data, conversionApi);
+        const wrapper = conversionApi.mapper.toViewElement(data.item);
+        const slot = wrapper.getChild(0);
+        conversionApi.mapper.bindElements(data.item, slot);
+      });
+    };
   }
 
   postfix(writer, item) {
@@ -98783,10 +98803,20 @@ __webpack_require__.r(__webpack_exports__);
  */
 class TemplateElement {
 
+  /**
+   * Sets the template manager.
+   *
+   * @param {Templates} manager - The template manager.
+   */
   setTemplateManager(manager) {
     this.templateManager = manager;
   }
 
+  /**
+   * Returns the template manager.
+   *
+   * @return {Templates} manager - The template manager.
+   */
   getTemplateElement(name) {
     return this.templateManager.getTemplate(name);
   }
@@ -98863,12 +98893,15 @@ class TemplateElement {
   }
 
   /**
+   * Returns the name of the current node, prefixed by the parent's name.
+   *
    * @private
    */
   get _name() {
     const name = (this.node.getAttribute('ck-name') || 'child' + this.index);
     return this.parent ? this.parent._name + '__' + name : name;
   }
+
   /**
    * Returns the calculated name for this element.
    *
@@ -98893,6 +98926,11 @@ class TemplateElement {
     };
   }
 
+  /**
+   * Returns an array of extensions to the model's schema.
+   *
+   * @return {Object[]} - An array of objects with 'element' and 'info' properties.
+   */
   get schemaExtensions() {
     return [];
   }
@@ -98900,15 +98938,18 @@ class TemplateElement {
   /**
    * Attributes that are allowed by default, without being added to the template.
    *
-   * @returns *
+   * @return *
    */
   get defaultAttributes() {
     return {};
   }
 
   /**
+   * Tells if the given view element matches the template's node.
+   *
    * @param {module:engine/view/element~Element} viewElement
-   * @returns {Object}
+   *
+   * @return {Object}
    */
   matchesViewElement(viewElement) {
     const templateClasses = Array.from(this.node.classList);
@@ -98917,6 +98958,9 @@ class TemplateElement {
       && (!this.parent || this.parent.matchesViewElement(viewElement.parent))
   }
 
+  /**
+   * Creates an element
+   */
   toModelElement(viewElement, modelWriter) {
     const attributes = Object.assign(
         // By default set all attributes defined in the template.
@@ -99105,6 +99149,7 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
   static get pluginName() {
     return 'Templates';
   }
+
   /**
    * @inheritDoc
    */
@@ -99155,13 +99200,24 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
     }
   }
 
+  /**
+   * Adds the root template into each empty root element.
+   *
+   * @param {Writer} writer - The element's writer.
+   * @param {String} rootTemplate - The root template's id.
+   *
+   * @return {Bool} - True if any changes were made.
+   *
+   * @private
+   */
   _cleanRoot(writer, rootTemplate) {
-
     const model = this.editor.model;
 
     for ( const rootName of model.document.getRootNames() ) {
       const root = model.document.getRoot( rootName );
 
+      // According to https://ckeditor.com/docs/ckeditor5/latest/api/module_engine_model_document-Document.html#function-getRootNames
+      // getRootNames doesn't return the graveyard.
       if (root.rootName === '$graveyard' ) {
         continue
       }
@@ -99184,7 +99240,7 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
    *
    * @private
    */
-  _registerElement(template, parent = null, index = 0)  {
+  _registerElement(template, parent = null, index = 0) {
     const applicableElements = this.editor.config.get('templateElements')
         .filter((element) => {
           return element.applies(template);
@@ -99259,6 +99315,17 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
     return element;
   }
 
+  /**
+   * Applies the postfix method of the element and its children.
+   *
+   * @param {Element} - The parent element.
+   * @param {Writer} writer - The element's writer.
+   * @param {Node} item - The next node after the change.
+   *
+   * @return {Bool} - True if any changes were made.
+   *
+   * @private
+   */
   _recursiveElementPostFix(element, writer, item) {
     let changed = false;
     if (item instanceof _ckeditor_ckeditor5_engine_src_model_element__WEBPACK_IMPORTED_MODULE_2__["default"]) {
@@ -99275,6 +99342,12 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
 
 }
 
+/**
+ * Returns a function that takes a dispatcher and binds a converter to an element.
+ *
+ * @param {String} attributeKey - The name of the attribute.
+ * @param {String} element - The name of the element.
+ */
 function modelToViewAttributeConverter( attributeKey, element ) {
   return dispatcher => {
     dispatcher.on( `attribute:${ attributeKey }:${ element }`, converter );
@@ -99296,7 +99369,13 @@ function modelToViewAttributeConverter( attributeKey, element ) {
   }
 }
 
-
+/**
+ * Tells if the selected element is a widget.
+ *
+ * @param {Selection} selection - The editor's selection object.
+ *
+ * @return {Bool} - True if the currently selected element is a widget.
+ */
 function isWidgetSelected( selection ) {
   const viewElement = selection.getSelectedElement();
 

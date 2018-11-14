@@ -2,6 +2,8 @@
  * @module templates/elements/textelement
  */
 import TemplateElement from "../templateelement";
+import ViewPosition from "@ckeditor/ckeditor5-engine/src/view/position";
+import { insertElement } from '@ckeditor/ckeditor5-engine/src/conversion/downcast-converters';
 
 /**
  * Element class for text input elements.
@@ -38,7 +40,23 @@ export default class ContainerElement extends TemplateElement {
      const element = super.toEditorElement(modelElement, viewWriter);
      viewWriter.setCustomProperty('container', true, element);
      viewWriter.addClass('ck-container', element);
+     const container = viewWriter.createContainerElement('div', {
+       class: `ck-container-wrapper ck-container-layout-${this.node.getAttribute('ck-container-layout') || 'vertical'}`
+     });
+     viewWriter.insert( ViewPosition.createAt( element , 0), container );
      return element;
+  }
+
+  get editingDowncast() {
+    return (dispatcher) => {
+      const insertContainer = insertElement((modelElement, viewWriter) => this.toEditorElement(modelElement, viewWriter));
+      dispatcher.on(`insert:${this.name}`, (evt, data, conversionApi) => {
+        insertContainer(evt, data, conversionApi);
+        const wrapper = conversionApi.mapper.toViewElement(data.item);
+        const slot = wrapper.getChild(0);
+        conversionApi.mapper.bindElements(data.item, slot);
+      });
+    };
   }
 
   postfix(writer, item) {
