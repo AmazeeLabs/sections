@@ -72,8 +72,23 @@ export default class LinkitEditing extends LinkEditing {
         },
         model: {
           key: 'linkHref',
+          value: viewElement => viewElement.getAttribute('href')
+        }
+      } ) );
+
+    editor.conversion.for( 'upcast' )
+      .add( upcastElementToAttribute( {
+        view: {
+          name: 'a'
+        },
+        model: {
+          key: 'linkitAttrs',
           value: viewElement => {
-            return viewElement.getAttributes();
+            const attrs = {};
+            for (const [key, value] of viewElement.getAttributes()) {
+              attrs[key] = value;
+            }
+            return attrs;
           }
         }
       } ) );
