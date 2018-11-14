@@ -98190,13 +98190,9 @@ class TemplateAttributeCommand extends _elementcommand__WEBPACK_IMPORTED_MODULE_
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ContainerElement; });
 /* harmony import */ var _templateelement__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../templateelement */ "./plugins/ckeditor5-templates/src/templateelement.js");
-/* harmony import */ var _ckeditor_ckeditor5_engine_src_view_position__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ckeditor/ckeditor5-engine/src/view/position */ "./node_modules/@ckeditor/ckeditor5-engine/src/view/position.js");
-/* harmony import */ var _ckeditor_ckeditor5_engine_src_conversion_downcast_converters__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @ckeditor/ckeditor5-engine/src/conversion/downcast-converters */ "./node_modules/@ckeditor/ckeditor5-engine/src/conversion/downcast-converters.js");
 /**
  * @module templates/elements/textelement
  */
-
-
 
 
 /**
@@ -98234,23 +98230,7 @@ class ContainerElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["de
      const element = super.toEditorElement(modelElement, viewWriter);
      viewWriter.setCustomProperty('container', true, element);
      viewWriter.addClass('ck-container', element);
-     const container = viewWriter.createContainerElement('div', {
-       class: `ck-container-wrapper ck-container-layout-${this.node.getAttribute('ck-container-layout') || 'vertical'}`
-     });
-     viewWriter.insert( _ckeditor_ckeditor5_engine_src_view_position__WEBPACK_IMPORTED_MODULE_1__["default"].createAt( element , 0), container );
      return element;
-  }
-
-  get editingDowncast() {
-    return (dispatcher) => {
-      const insertContainer = Object(_ckeditor_ckeditor5_engine_src_conversion_downcast_converters__WEBPACK_IMPORTED_MODULE_2__["insertElement"])((modelElement, viewWriter) => this.toEditorElement(modelElement, viewWriter));
-      dispatcher.on(`insert:${this.name}`, (evt, data, conversionApi) => {
-        insertContainer(evt, data, conversionApi);
-        const wrapper = conversionApi.mapper.toViewElement(data.item);
-        const slot = wrapper.getChild(0);
-        conversionApi.mapper.bindElements(data.item, slot);
-      });
-    };
   }
 
   postfix(writer, item) {
