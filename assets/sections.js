@@ -81,7 +81,7 @@
               dialog: dialogSettings,
               dialogType: 'modal',
               selector: '.ckeditor-dialog-loading-link',
-              url:  Drupal.url('editor/dialog/link/' + 'full_html'),
+              url:  Drupal.url('editor/dialog/link/sections'),
               progress: { type: 'throbber' },
               submit: {
                 editor_object: existingValues
