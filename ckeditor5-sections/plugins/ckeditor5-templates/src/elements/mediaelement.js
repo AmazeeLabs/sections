@@ -173,7 +173,7 @@ export default class MediaElement extends TemplateElement {
         });
         const container = writer.createContainerElement('div', {class: 'ck-media-wrapper'});
         writer.insert( ViewPosition.createAt( container , 0), element );
-        return toWidget(container, writer);
+        return container;
       }
     });
   }

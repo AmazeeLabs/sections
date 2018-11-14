@@ -68,6 +68,8 @@ export default class Templates extends Plugin {
       });
     });
 
+    this.editor.model.schema.extend('$text', {allowIn: Object.keys(this.elements)});
+
     const rootTemplate = this.editor.config.get('rootTemplate');
     if (rootTemplate) {
       const templateId = 'ck-templates__' + rootTemplate;

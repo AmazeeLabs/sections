@@ -63374,6 +63374,37 @@ class Widget extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MODUL
 		return 'Widget';
 	}
 
+  /**
+   * @private
+   * @param {module:utils/eventinfo~EventInfo} eventInfo
+   * @param {Object} data Additional information about the change.
+   * @param {Object} conversionApi Conversion interface.
+   */
+  _dispatchDowncastSelection( eventInfo, data, conversionApi ) {
+    // Remove selected class from previously selected widgets.
+    this._clearPreviouslySelectedWidgets( conversionApi.writer );
+    const viewWriter = conversionApi.writer;
+    const viewSelection = viewWriter.document.selection;
+    const selectedElement = viewSelection.getSelectedElement();
+    let lastMarked;
+    for ( const range of viewSelection.getRanges() ) {
+      for ( const value of range ) {
+        const node = value.item;
+        if ( node.is( 'element' ) && Object(_utils__WEBPACK_IMPORTED_MODULE_7__["isWidget"])( node ) ) {
+          if ( !lastMarked || !Array.from( node.getAncestors() ).includes( lastMarked ) ) {
+            viewWriter.addClass( _utils__WEBPACK_IMPORTED_MODULE_7__["WIDGET_SELECTED_CLASS_NAME"], node );
+            this._previouslySelected.add( node );
+            lastMarked = node;
+            // Check if widget is a single element selected.
+            if ( node == selectedElement ) {
+              viewWriter.setSelection( viewSelection.getRanges(), { fake: true, label: Object(_utils__WEBPACK_IMPORTED_MODULE_7__["getLabel"])( selectedElement ) } );
+            }
+          }
+        }
+      }
+    }
+  }
+
 	/**
 	 * @inheritDoc
 	 */
@@ -63391,29 +63422,8 @@ class Widget extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MODUL
 
 		// Model to view selection converter.
 		// Converts selection placed over widget element to fake selection
-		this.editor.editing.downcastDispatcher.on( 'selection', ( evt, data, conversionApi ) => {
-			// Remove selected class from previously selected widgets.
-			this._clearPreviouslySelectedWidgets( conversionApi.writer );
-
-			const viewWriter = conversionApi.writer;
-			const viewSelection = viewWriter.document.selection;
-			const selectedElement = viewSelection.getSelectedElement();
-
-			for ( const range of viewSelection.getRanges() ) {
-				for ( const value of range ) {
-					const node = value.item;
-
-					if ( node.is( 'element' ) && Object(_utils__WEBPACK_IMPORTED_MODULE_7__["isWidget"])( node ) ) {
-						viewWriter.addClass( _utils__WEBPACK_IMPORTED_MODULE_7__["WIDGET_SELECTED_CLASS_NAME"], node );
-						this._previouslySelected.add( node );
-
-						// Check if widget is a single element selected.
-						if ( node == selectedElement ) {
-							viewWriter.setSelection( viewSelection.getRanges(), { fake: true, label: Object(_utils__WEBPACK_IMPORTED_MODULE_7__["getLabel"])( selectedElement ) } );
-						}
-					}
-				}
-			}
+		this.editor.editing.downcastDispatcher.on( 'selection', ( ...args ) => {
+      return this._dispatchDowncastSelection( ...args );
 		}, { priority: 'low' } );
 
 		// If mouse down is pressed on widget - create selection over whole widget.
@@ -98548,7 +98558,7 @@ class MediaElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["defaul
         });
         const container = writer.createContainerElement('div', {class: 'ck-media-wrapper'});
         writer.insert( _ckeditor_ckeditor5_engine_src_view_position__WEBPACK_IMPORTED_MODULE_8__["default"].createAt( container , 0), element );
-        return Object(_ckeditor_ckeditor5_widget_src_utils__WEBPACK_IMPORTED_MODULE_3__["toWidget"])(container, writer);
+        return container;
       }
     });
   }
@@ -99148,6 +99158,8 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
         this.editor.model.schema.extend(ext.element, ext.info);
       });
     });
+
+    this.editor.model.schema.extend('$text', {allowIn: Object.keys(this.elements)});
 
     const rootTemplate = this.editor.config.get('rootTemplate');
     if (rootTemplate) {
