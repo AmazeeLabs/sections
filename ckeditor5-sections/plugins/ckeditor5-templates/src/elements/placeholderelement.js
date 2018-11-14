@@ -74,6 +74,17 @@ export default class PlaceholderElement extends TemplateElement {
     });
   }
 
+  get schemaExtensions() {
+    return this.node.getAttribute('ck-allowed-elements').split(' ').map((name) => {
+      return { element: 'ck-templates__' + name, info: { allowWhere: this.name }};
+    });
+  }
+
+  get fittingElements() {
+    return super.fittingElements.concat(this.node.getAttribute('ck-allowed-elements').split(' ').map((el) => `ck-templates__${el}`));
+  }
+
+
   get editingDowncast() {
     const editor = this.editor;
     const node = this.node;

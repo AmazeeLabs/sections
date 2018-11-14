@@ -204,6 +204,10 @@ export default class TemplateElement {
     });
   }
 
+  get fittingElements() {
+    return [this.name];
+  }
+
   postfix(writer, item) {
 
     // Template attributes that are not part of the model are copied into the model initially.
@@ -216,9 +220,17 @@ export default class TemplateElement {
     const childSeats = this.children.map((child) => ({[child.name]: false}))
         .reduce((acc, val) => Object.assign(acc, val), {});
 
+    const childOptions = this.children.map((child) => ({[child.name]: child.fittingElements}))
+        .reduce((acc, val) => Object.assign(acc, val), {});
+
     for (let child of item.getChildren()) {
       if (childSeats.hasOwnProperty(child.name) && !childSeats[child.name]) {
         childSeats[child.name] = child;
+      }
+      for (const name in childSeats) {
+        if (childOptions[name].includes(child.name)) {
+          childSeats[name] = child;
+        }
       }
     }
 

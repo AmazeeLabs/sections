@@ -97246,7 +97246,7 @@ module.exports = ".ck .ck-widget.ck-widget_selectable{position:relative}.ck .ck-
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "html{overflow:auto}body,html{height:100%}.ck .ck-container>*{padding:.1px}:root{--ck-icon-size:25px;--ck-color-button-default:#555;--ck-color-button-default-hover:#000;--ck-color-button-configure-hover:#f6ba35;--ck-color-button-remove-hover:#c81c27}.ck-reset_all .ck-button{color:var(--ck-color-button-default)}.ck-reset_all .element-configure:hover{color:var(--ck-color-button-configure-hover)}.ck-reset_all .element-remove:hover{color:var(--ck-color-button-remove-hover)}.ck-reset_all .ck-button:hover{background:none!important}.ck-reset_all .element-down:not(.ck-disabled):hover,.ck-reset_all .element-up:not(.ck-disabled):hover{color:var(--ck-color-button-default-hover)}.ck.ck-editor__editable:not(.ck-editor__nested-editable).ck-focused{border-color:transparent}.ck .ck-widget:hover{outline-color:transparent}.ck .ck-widget.hovered{outline-color:var(--ck-color-widget-hover-border)}.ck .root .ck-widget{margin:40px 0}.new-section{height:5px!important;background:#555!important}.new-section .ck-icon{margin-left:5px}.element-insert-after,.element-insert-before{top:-12px!important;left:100%!important;border:none!important}.element-insert-after:before,.element-insert-before:before{content:\"\";width:100%;position:absolute;left:0;top:50%;z-index:1}.element-insert-after:hover,.element-insert-before:hover{background:none!important;cursor:pointer}.element-insert-after:active,.element-insert-before:active{background:none!important}.element-insert-after .ck-button__label,.element-insert-before .ck-button__label{display:block!important;padding:0 20px;margin-left:10px;background:var(--ck-color-button-default);color:#fff!important;position:relative}.element-insert-after .ck-button__label:before,.element-insert-before .ck-button__label:before{right:100%;top:50%;border:solid transparent;content:\" \";height:0;width:0;position:absolute;pointer-events:none;border-color:transparent;border-right-color:var(--ck-color-button-default);border-width:5px;margin-top:-5px}.ck-placeholder-widget .close-button{float:right}"
+module.exports = "html{overflow:auto}body,html{height:100%}.ck .ck-container>*{padding:.1px}:root{--ck-icon-size:25px;--ck-color-button-default:#555;--ck-color-button-default-hover:#000;--ck-color-button-configure-hover:#f6ba35;--ck-color-button-remove-hover:#c81c27}.ck-reset_all .ck-button{color:var(--ck-color-button-default)}.ck-reset_all .element-configure:hover{color:var(--ck-color-button-configure-hover)}.ck-reset_all .element-remove:hover{color:var(--ck-color-button-remove-hover)}.ck-reset_all .ck-button:hover{background:none!important}.ck-reset_all .element-down:not(.ck-disabled):hover,.ck-reset_all .element-up:not(.ck-disabled):hover{color:var(--ck-color-button-default-hover)}.ck.ck-editor__editable:not(.ck-editor__nested-editable).ck-focused{border-color:transparent}.ck .ck-widget:hover{outline-color:transparent}.ck .ck-widget.hovered{outline-color:var(--ck-color-widget-hover-border)}.ck .root .ck-widget{margin:40px 0}.new-section{height:5px!important;background:#555!important}.new-section .ck-icon{margin-left:5px}.element-insert-after,.element-insert-before{top:-12px!important;left:100%!important;border:none!important}.element-insert-after:before,.element-insert-before:before{content:\"\";width:100%;position:absolute;left:0;top:50%;z-index:1}.element-insert-after:hover,.element-insert-before:hover{background:none!important;cursor:pointer}.element-insert-after:active,.element-insert-before:active{background:none!important}.element-insert-after .ck-button__label,.element-insert-before .ck-button__label{display:block!important;padding:0 20px;margin-left:10px;background:var(--ck-color-button-default);color:#fff!important;position:relative}.element-insert-after .ck-button__label:before,.element-insert-before .ck-button__label:before{right:100%;top:50%;border:solid transparent;content:\" \";height:0;width:0;position:absolute;pointer-events:none;border-color:transparent;border-right-color:var(--ck-color-button-default);border-width:5px;margin-top:-5px}.ck-placeholder-widget{padding:.5em;border:2px dashed #ccc;margin:0 .5em}.ck-placeholder-widget .close-button{float:right}"
 
 /***/ }),
 
@@ -98007,10 +98007,8 @@ class InsertElementCommand extends _elementcommand__WEBPACK_IMPORTED_MODULE_0__[
   execute(values) {
     this.editor.model.change(writer => {
       const element = writer.createElement('ck-templates__' + this.element);
-      writer.insert(element, values.model, 'before');
-      if (values.model.nextSibling) {
-        writer.remove(values.model);
-      }
+      writer.insert(element, values.model, 'after');
+      writer.remove(values.model);
     });
   }
 }
@@ -98036,7 +98034,6 @@ class InsertPlaceholderCommand extends _elementcommand__WEBPACK_IMPORTED_MODULE_
   constructor(editor, position) {
     super(editor);
     this.position = position;
-    this.allowed = [];
   }
 
   refresh() {
@@ -98047,7 +98044,6 @@ class InsertPlaceholderCommand extends _elementcommand__WEBPACK_IMPORTED_MODULE_
     const current = this.getSelectedElement();
     this.editor.model.change(writer => {
       const element = writer.createElement(current.parent.name + '__placeholder');
-      writer.setAttribute('ck-allowed-elements', this.allowed, element);
       writer.insert(element, current, this.position);
     });
   }
@@ -98376,9 +98372,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _theme_icons_upload_svg__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_theme_icons_upload_svg__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var _ckeditor_ckeditor5_ui_src_button_buttonview__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @ckeditor/ckeditor5-ui/src/button/buttonview */ "./node_modules/@ckeditor/ckeditor5-ui/src/button/buttonview.js");
 /* harmony import */ var _ckeditor_ckeditor5_engine_src_model_operation_attributeoperation__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @ckeditor/ckeditor5-engine/src/model/operation/attributeoperation */ "./node_modules/@ckeditor/ckeditor5-engine/src/model/operation/attributeoperation.js");
+/* harmony import */ var _ckeditor_ckeditor5_engine_src_view_position__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @ckeditor/ckeditor5-engine/src/view/position */ "./node_modules/@ckeditor/ckeditor5-engine/src/view/position.js");
 /**
  * @module templates/elements/textelement
  */
+
 
 
 
@@ -98512,7 +98510,7 @@ class MediaElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["defaul
         const editor = this.editor;
 
         // Create an editable textfield of the given type and attach the content as placeholder.
-        return Object(_ckeditor_ckeditor5_widget_src_utils__WEBPACK_IMPORTED_MODULE_3__["toWidget"])(writer.createUIElement(this.node.tagName, this.getModelAttributes(modelElement), function (domDocument) {
+        const element = writer.createUIElement(this.node.tagName, this.getModelAttributes(modelElement), function (domDocument) {
           const domElement = this.toDomElement(domDocument);
           const view = new MediaView(modelElement, editor);
           view.render();
@@ -98547,7 +98545,10 @@ class MediaElement extends _templateelement__WEBPACK_IMPORTED_MODULE_0__["defaul
             preview.innerHTML = '<div class="ck-media-placeholder"/>';
           }
           return domElement;
-        }), writer);
+        });
+        const container = writer.createContainerElement('div', {class: 'ck-media-wrapper'});
+        writer.insert( _ckeditor_ckeditor5_engine_src_view_position__WEBPACK_IMPORTED_MODULE_8__["default"].createAt( container , 0), element );
+        return Object(_ckeditor_ckeditor5_widget_src_utils__WEBPACK_IMPORTED_MODULE_3__["toWidget"])(container, writer);
       }
     });
   }
@@ -98647,6 +98648,17 @@ class PlaceholderElement extends _templateelement__WEBPACK_IMPORTED_MODULE_5__["
       }
     });
   }
+
+  get schemaExtensions() {
+    return this.node.getAttribute('ck-allowed-elements').split(' ').map((name) => {
+      return { element: 'ck-templates__' + name, info: { allowWhere: this.name }};
+    });
+  }
+
+  get fittingElements() {
+    return super.fittingElements.concat(this.node.getAttribute('ck-allowed-elements').split(' ').map((el) => `ck-templates__${el}`));
+  }
+
 
   get editingDowncast() {
     const editor = this.editor;
@@ -98961,6 +98973,10 @@ class TemplateElement {
     });
   }
 
+  get fittingElements() {
+    return [this.name];
+  }
+
   postfix(writer, item) {
 
     // Template attributes that are not part of the model are copied into the model initially.
@@ -98973,9 +98989,17 @@ class TemplateElement {
     const childSeats = this.children.map((child) => ({[child.name]: false}))
         .reduce((acc, val) => Object.assign(acc, val), {});
 
+    const childOptions = this.children.map((child) => ({[child.name]: child.fittingElements}))
+        .reduce((acc, val) => Object.assign(acc, val), {});
+
     for (let child of item.getChildren()) {
       if (childSeats.hasOwnProperty(child.name) && !childSeats[child.name]) {
         childSeats[child.name] = child;
+      }
+      for (const name in childSeats) {
+        if (childOptions[name].includes(child.name)) {
+          childSeats[name] = child;
+        }
       }
     }
 
@@ -99219,6 +99243,13 @@ class Templates extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMPORTED_MO
         if (entry.type === 'insert' && element.name === entry.name) {
           const item = entry.position.nodeAfter;
           if (this._recursiveElementPostFix(element, writer, item)) {
+            return true;
+          }
+        }
+
+        if (entry.type === 'remove') {
+          const item = entry.position.getAncestors().pop();
+          if (item.name === element.name && this._recursiveElementPostFix(element, writer, item)) {
             return true;
           }
         }

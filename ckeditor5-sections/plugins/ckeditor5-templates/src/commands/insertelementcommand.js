@@ -15,10 +15,8 @@ export default class InsertElementCommand extends ElementCommand {
   execute(values) {
     this.editor.model.change(writer => {
       const element = writer.createElement('ck-templates__' + this.element);
-      writer.insert(element, values.model, 'before');
-      if (values.model.nextSibling) {
-        writer.remove(values.model);
-      }
+      writer.insert(element, values.model, 'after');
+      writer.remove(values.model);
     });
   }
 }

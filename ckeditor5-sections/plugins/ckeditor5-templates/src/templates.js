@@ -189,6 +189,13 @@ export default class Templates extends Plugin {
             return true;
           }
         }
+
+        if (entry.type === 'remove') {
+          const item = entry.position.getAncestors().pop();
+          if (item.name === element.name && this._recursiveElementPostFix(element, writer, item)) {
+            return true;
+          }
+        }
       }
     });
 
