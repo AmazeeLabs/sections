@@ -68,7 +68,7 @@
           },
           linkSelector: function (existingValues) {
             var dialogSettings = {
-              title: 'Edit link',
+              title: existingValues ? Drupal.t('Edit link') : Drupal.t('Add link'),
               dialogClass: 'editor-link-dialog'
             };
 
@@ -77,7 +77,7 @@
             dialogSettings.autoResize = window.matchMedia('(min-width: 600px)').matches;
             dialogSettings.width = 'auto';
 
-            var ckeditorAjaxDialog = Drupal.ajax({
+            var AjaxDialog = Drupal.ajax({
               dialog: dialogSettings,
               dialogType: 'modal',
               selector: '.ckeditor-dialog-loading-link',
@@ -87,7 +87,7 @@
                 editor_object: existingValues
               }
             });
-            ckeditorAjaxDialog.execute();
+            AjaxDialog.execute();
 
           },
         })

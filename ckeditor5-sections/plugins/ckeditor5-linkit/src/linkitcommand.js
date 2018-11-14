@@ -95,7 +95,7 @@ export default class LinkitCommand extends Command {
 
         for ( const range of ranges ) {
           writer.setAttribute( 'linkHref', attrs.href, range );
-          writer.setAttribute( 'data-entity-type', attrs['data-entity-type'], range );
+          writer.setAttribute( 'linkitAttrs', attrs, range);
         }
       }
     } );

@@ -7,16 +7,16 @@
  * @module linkit/linkediting
  */
 
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import LinkEditing from '@ckeditor/ckeditor5-link/src/linkediting';
 import {
   downcastAttributeToElement
 } from '@ckeditor/ckeditor5-engine/src/conversion/downcast-converters';
 import { upcastElementToAttribute } from '@ckeditor/ckeditor5-engine/src/conversion/upcast-converters';
 import LinkitCommand from './linkitcommand';
-import UnlinkCommand from '@ckeditor/ckeditor5-link/src/unlinkcommand';
-import { createLinkElement, ensureSafeUrl } from '@ckeditor/ckeditor5-link/src/utils';
+import UnlinkLinkitCommand from './unlinklinkitcommand';
+import { ensureSafeUrl, createLinkElement } from '@ckeditor/ckeditor5-link/src/utils';
+import { createLinkAttributeElement } from './utils';
 import bindTwoStepCaretToAttribute from '@ckeditor/ckeditor5-engine/src/utils/bindtwostepcarettoattribute';
-import findLinkRange from '@ckeditor/ckeditor5-link/src/findlinkrange';
 import '@ckeditor/ckeditor5-link/theme/link.css';
 
 const HIGHLIGHT_CLASS = 'ck-link_selected';
@@ -28,7 +28,8 @@ const HIGHLIGHT_CLASS = 'ck-link_selected';
  *
  * @extends module:core/plugin~Plugin
  */
-export default class LinkitEditing extends Plugin {
+export default class LinkitEditing extends LinkEditing {
+
   /**
    * @inheritDoc
    */
@@ -36,14 +37,26 @@ export default class LinkitEditing extends Plugin {
     const editor = this.editor;
 
     // Allow link attribute on all inline nodes.
-    editor.model.schema.extend( '$text', { allowAttributes: ['linkHref']});
+    editor.model.schema.extend( '$text', { allowAttributes: ['linkHref', 'linkitAttrs']});
 
     editor.conversion.for( 'dataDowncast' )
-      .add( downcastAttributeToElement( { model: 'linkHref', view: createLinkElement } ) );
+      .add( downcastAttributeToElement( { model: 'linkHref', view: (href, writer) => {
+        return createLinkElement( href, writer);
+      } } ) );
 
     editor.conversion.for( 'editingDowncast' )
       .add( downcastAttributeToElement( { model: 'linkHref', view: ( href, writer ) => {
-        return createLinkElement( ensureSafeUrl( href ), writer );
+        return createLinkElement( ensureSafeUrl(href), writer );
+      } } ) );
+
+    editor.conversion.for( 'dataDowncast' )
+      .add( downcastAttributeToElement( { model: 'linkitAttrs', view: (attributes, writer) => {
+        return createLinkAttributeElement(attributes, writer);
+      } } ) );
+
+    editor.conversion.for( 'editingDowncast' )
+      .add( downcastAttributeToElement( { model: 'linkitAttrs', view: ( attributes, writer ) => {
+        return createLinkAttributeElement(attributes, writer);
       } } ) );
 
     editor.conversion.for( 'upcast' )
@@ -56,13 +69,15 @@ export default class LinkitEditing extends Plugin {
         },
         model: {
           key: 'linkHref',
-          value: viewElement => viewElement.getAttribute( 'href' )
+          value: viewElement => {
+            return viewElement.getAttributes();
+          }
         }
       } ) );
 
     // Create linking commands.
     editor.commands.add( 'link', new LinkitCommand( editor ) );
-    editor.commands.add( 'unlink', new UnlinkCommand( editor ) );
+    editor.commands.add( 'unlink', new UnlinkLinkitCommand( editor ) );
 
     // Enable two-step caret movement for `linkHref` attribute.
     bindTwoStepCaretToAttribute( editor.editing.view, editor.model, this, 'linkHref' );
@@ -71,60 +86,4 @@ export default class LinkitEditing extends Plugin {
     this._setupLinkHighlight();
   }
 
-  /**
-   * Adds a visual highlight style to a link in which the selection is anchored.
-   * Together with two-step caret movement, they indicate that the user is typing inside the link.
-   *
-   * Highlight is turned on by adding `.ck-link_selected` class to the link in the view:
-   *
-   * * the class is removed before conversion has started, as callbacks added with `'highest'` priority
-   * to {@link module:engine/conversion/downcastdispatcher~DowncastDispatcher} events,
-   * * the class is added in the view post fixer, after other changes in the model tree were converted to the view.
-   *
-   * This way, adding and removing highlight does not interfere with conversion.
-   *
-   * @private
-   */
-  _setupLinkHighlight() {
-    const editor = this.editor;
-    const view = editor.editing.view;
-    const highlightedLinks = new Set();
-
-    // Adding the class.
-    view.document.registerPostFixer( writer => {
-      const selection = editor.model.document.selection;
-
-      if ( selection.hasAttribute( 'linkHref' ) ) {
-        const modelRange = findLinkRange( selection.getFirstPosition(), selection.getAttribute( 'linkHref' ) );
-        const viewRange = editor.editing.mapper.toViewRange( modelRange );
-
-        // There might be multiple `a` elements in the `viewRange`, for example, when the `a` element is
-        // broken by a UIElement.
-        for ( const item of viewRange.getItems() ) {
-          if ( item.is( 'a' ) ) {
-            writer.addClass( HIGHLIGHT_CLASS, item );
-            highlightedLinks.add( item );
-          }
-        }
-      }
-    } );
-
-    // Removing the class.
-    editor.conversion.for( 'editingDowncast' ).add( dispatcher => {
-      // Make sure the highlight is removed on every possible event, before conversion is started.
-      dispatcher.on( 'insert', removeHighlight, { priority: 'highest' } );
-      dispatcher.on( 'remove', removeHighlight, { priority: 'highest' } );
-      dispatcher.on( 'attribute', removeHighlight, { priority: 'highest' } );
-      dispatcher.on( 'selection', removeHighlight, { priority: 'highest' } );
-
-      function removeHighlight() {
-        view.change( writer => {
-          for ( const item of highlightedLinks.values() ) {
-            writer.removeClass( HIGHLIGHT_CLASS, item );
-            highlightedLinks.delete( item );
-          }
-        } );
-      }
-    } );
-  }
 }

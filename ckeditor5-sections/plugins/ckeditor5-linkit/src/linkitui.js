@@ -13,7 +13,6 @@ import LinkUI from '@ckeditor/ckeditor5-link/src/linkui';
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ClickObserver from '@ckeditor/ckeditor5-engine/src/view/observer/clickobserver';
 import Range from '@ckeditor/ckeditor5-engine/src/view/range';
-import { isLinkElement } from '@ckeditor/ckeditor5-link/src/utils';
 import ContextualBalloon from '@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon';
 
 import clickOutsideHandler from '@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler';
@@ -225,7 +224,13 @@ export default class LinkitUI extends LinkUI {
 
     this._linkSelector = editor.config.get('linkSelector');
     if (this._linkSelector) {
-      this._linkSelector({href: linkCommand.attributes.linkHref});
+      const attrs = {};
+      if (linkCommand.attributes) {
+        for (const [key, value] of linkCommand.attributes) {
+          attrs[key] = value;
+        }
+      }
+      this._linkSelector(attrs.linkitAttrs);
     } else {
       this._balloon.add( {
         view: this.formView,

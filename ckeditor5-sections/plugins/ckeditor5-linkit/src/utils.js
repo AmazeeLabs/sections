@@ -2,16 +2,19 @@
  * @module linkit/utils
  */
 
-/**
- * Creates link {@link module:engine/view/attributeelement~AttributeElement} with provided `href` attribute.
- *
- * @param {String} href
- * @returns {module:engine/view/attributeelement~AttributeElement}
- */
-export function createLinkElement( attributes, writer ) {
-  // Priority 5 - https://github.com/ckeditor/ckeditor5-link/issues/121.
-  const linkElement = writer.createAttributeElement( 'a', attributes, { priority: 5 } );
-  writer.setCustomProperty( linkElementSymbol, true, linkElement );
+const linkitElementSymbol = Symbol( 'linkitElement' );
 
-  return linkElement;
+export function createLinkAttributeElement( attributes, writer) {
+  if (attributes) {
+    const attrs = {};
+    for (const key of Object.keys(attributes)) {
+      if (key == 'href') {
+        continue;
+      }
+      attrs[key] = attributes[key];
+    }
+    const linkElement = writer.createAttributeElement( 'a', attrs, { priority: 5 } );
+    writer.setCustomProperty( linkitElementSymbol, true, linkElement );
+    return linkElement;
+  }
 }
