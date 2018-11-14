@@ -43,9 +43,16 @@ export default class ContainerElement extends TemplateElement {
 
   postfix(writer, item) {
     super.postfix(writer, item);
+
     if (item.childCount === 0) {
        writer.appendElement(this.defaultElement, item);
+       writer.appendElement(this.name + '__placeholder', item);
        return true;
+    }
+
+    if (item.getChild(item.childCount - 1).name !== this.name + '__placeholder') {
+      writer.appendElement(this.name + '__placeholder', item);
+      return true;
     }
   }
 

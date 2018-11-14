@@ -123,3 +123,13 @@ body {
   border-width: 5px;
   margin-top: -5px;
 }
+
+.ck-placeholder-widget {
+  padding: 0.5em;
+  border: 2px dashed #CCC;
+  margin: 0 0.5em;
+}
+
+.ck-placeholder-widget .close-button {
+  float: right;
+}

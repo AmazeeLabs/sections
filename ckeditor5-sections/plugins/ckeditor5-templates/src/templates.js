@@ -6,6 +6,7 @@ import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import Element from '@ckeditor/ckeditor5-engine/src/model/element'
 import TemplateElement from './templateelement';
+import PlaceholderElement from "./elements/placeholderelement";
 import MediaSelectCommand from "./commands/mediaselectcommand";
 
 import "../theme/css/media.css";
@@ -13,6 +14,7 @@ import ContainerControls from "./ui/containercontrols";
 import HoveredWidget from "./ui/hoveredwidget";
 import {isWidget} from "@ckeditor/ckeditor5-widget/src/utils";
 import Paragraph from "@ckeditor/ckeditor5-paragraph/src/paragraph";
+import ContainerElement from "./elements/containerelement";
 
 /**
  * @extends module:core/plugin~Plugin
@@ -51,7 +53,6 @@ export default class Templates extends Plugin {
    * @inheritDoc
    */
   init() {
-
     this.elements = {};
     const templates = this.editor.config.get('templates');
 
@@ -84,10 +85,6 @@ export default class Templates extends Plugin {
     }
 
     this.editor.commands.add('mediaSelect', new MediaSelectCommand(this.editor));
-
-    this.editor.model.schema.extend('paragraph', {
-      allowIn: 'ck-templates__text__child1',
-    });
 
     const balloonToolbar = this.editor.plugins.get( 'BalloonToolbar' );
     // If the `BalloonToolbar` plugin is loaded, it should be disabled for images
@@ -158,6 +155,15 @@ export default class Templates extends Plugin {
 
     /** @type {TemplateElement} */
     const element = new ElementConstructor(this.editor, template, parent, index);
+
+    if (element instanceof ContainerElement) {
+      const el = document.createElement('div');
+      el.setAttribute('ck-editable-type', 'placeholder');
+      el.setAttribute('ck-allowed-elements', template.getAttribute('ck-allowed-elements'));
+      el.setAttribute('ck-name', 'placeholder');
+      this._registerElement(el, element);
+    }
+
     this.elements[element.name] = element;
 
     /** @type {TemplateElement[]} */
@@ -192,6 +198,13 @@ export default class Templates extends Plugin {
         if (entry.type === 'insert' && element.name === entry.name) {
           const item = entry.position.nodeAfter;
           if (this._recursiveElementPostFix(element, writer, item)) {
+            return true;
+          }
+        }
+
+        if (entry.type === 'remove') {
+          const item = entry.position.getAncestors().pop();
+          if (item.name === element.name && this._recursiveElementPostFix(element, writer, item)) {
             return true;
           }
         }

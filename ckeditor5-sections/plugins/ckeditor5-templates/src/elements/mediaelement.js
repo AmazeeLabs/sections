@@ -10,6 +10,7 @@ import SearchIcon from '../../theme/icons/search.svg';
 import UploadIcon from '../../theme/icons/upload.svg';
 import ButtonView from "@ckeditor/ckeditor5-ui/src/button/buttonview";
 import AttributeOperation from "@ckeditor/ckeditor5-engine/src/model/operation/attributeoperation";
+import ViewPosition from "@ckeditor/ckeditor5-engine/src/view/position";
 
 /**
  * Entity view element.
@@ -134,7 +135,7 @@ export default class MediaElement extends TemplateElement {
         const editor = this.editor;
 
         // Create an editable textfield of the given type and attach the content as placeholder.
-        return toWidget(writer.createUIElement(this.node.tagName, this.getModelAttributes(modelElement), function (domDocument) {
+        const element = writer.createUIElement(this.node.tagName, this.getModelAttributes(modelElement), function (domDocument) {
           const domElement = this.toDomElement(domDocument);
           const view = new MediaView(modelElement, editor);
           view.render();
@@ -143,15 +144,17 @@ export default class MediaElement extends TemplateElement {
           const preview = domElement.querySelector('.ck-media-content');
 
           editor.model.document.on('change:data', (evt, batch) => {
-            for (const op of batch.operations) {
-              if (op instanceof AttributeOperation && op.key === 'ck-media-rendered') {
-                if (modelElement === op.range.start.nodeAfter) {
-                  preview.innerHTML = op.newValue;
+            if (batch.operations) {
+              for (const op of batch.operations) {
+                if (op instanceof AttributeOperation && op.key === 'ck-media-rendered') {
+                  if (modelElement === op.range.start.nodeAfter) {
+                    preview.innerHTML = op.newValue;
+                  }
                 }
-              }
-              if (op instanceof AttributeOperation && op.key === 'ck-media-loading' && op.newValue) {
-                if (modelElement === op.range.start.nodeAfter) {
-                  preview.innerHTML = '<div class="ck-media-placeholder"><div class="ck-media-loader"/></div>';
+                if (op instanceof AttributeOperation && op.key === 'ck-media-loading' && op.newValue) {
+                  if (modelElement === op.range.start.nodeAfter) {
+                    preview.innerHTML = '<div class="ck-media-placeholder"><div class="ck-media-loader"/></div>';
+                  }
                 }
               }
             }
@@ -167,7 +170,10 @@ export default class MediaElement extends TemplateElement {
             preview.innerHTML = '<div class="ck-media-placeholder"/>';
           }
           return domElement;
-        }), writer);
+        });
+        const container = writer.createContainerElement('div', {class: 'ck-media-wrapper'});
+        writer.insert( ViewPosition.createAt( container , 0), element );
+        return toWidget(container, writer);
       }
     });
   }
