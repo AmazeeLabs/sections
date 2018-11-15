@@ -11,7 +11,7 @@ export default class ContainerElement extends TemplateElement {
   constructor(editor, node, parent = parent, index = 0) {
     super(editor, node, parent, index);
     this.allowedElements = node.getAttribute('ck-allowed-elements').split(' ').map(key => 'ck-templates__' + key);
-    this.defaultElement = 'ck-templates__' + node.getAttribute('ck-default-element')
+    this.defaultElement = 'ck-templates__' + node.getAttribute('ck-default-element');
   }
 
   /**

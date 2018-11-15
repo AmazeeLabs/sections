@@ -147,6 +147,20 @@ export default class ContainerControls extends Plugin {
   constructor( editor ) {
     super( editor );
 
+    /**
+     * Stores the toolbars keyed by the template id.
+     *
+     * @member {Object}
+     */
+    this.toolbars = {};
+
+    /**
+     * The type of the last opened toolbar.
+     *
+     * @member {String}
+     */
+    this.lastOpenedToolbar = null;
+
     this.templateAttributes = editor.config.get('templateAttributes');
 
     this.insertBeforeToolbarView = this._createToolbarView();
@@ -426,7 +440,6 @@ export default class ContainerControls extends Plugin {
   }
 
   init() {
-
     const editor = this.editor;
 
     // Hides panel on a direct selection change.
@@ -472,13 +485,44 @@ export default class ContainerControls extends Plugin {
       return;
     }
 
-    this.configurationToolbarView.items.clear();
-    this.configurationToolbarView.fillFromConfig( Object.keys(this.templateAttributes)
-        .filter(attr => modelTarget.hasAttribute(attr))
-        .map(attr => `templateAttribute:${attr}`)
-    , editor.ui.componentFactory );
-    const domTarget = view.domConverter.mapViewToDom( editor.editing.mapper.toViewElement( modelTarget ) );
+    // Each template needs to have it's own toolbar.
+    if (this.toolbars[modelTarget.name] === undefined) {
+      // This is the first time an instance of this template gets selected.
 
+      // Get the ids of all the configuration attributes attached to the
+      // selected element's template.
+      const configurableAttributes = Object.keys(this.templateAttributes)
+        .filter(attr => modelTarget.hasAttribute(attr))
+        .map(attr => `templateAttribute:${attr}`);
+
+      if (configurableAttributes.length > 0) {
+        // At least one template attribute found. Create a toolbar view and fill
+        // it with editable components based on the attribute's definition.
+        this.toolbars[modelTarget.name] = this._createToolbarView();
+        this.toolbars[modelTarget.name].fillFromConfig(
+          configurableAttributes,
+          editor.ui.componentFactory
+        );
+      } else {
+        // The template doesn't have any configurable attributes. Store this
+        // information, so we don't need to check it again.
+        this.toolbars[modelTarget.name] = null;
+      }
+    }
+
+    if (this.toolbars[modelTarget.name]) {
+      // The selected element does have a non-empty toolbar associated with it.
+      if (modelTarget.name !== this.lastOpenedToolbar) {
+        // This toolbar is different than the one that was last opened (or it's
+        // the first one). Clear the configuration panel and add the proper
+        // form.
+        this.configurationPanelView.content.clear();
+        this.configurationPanelView.content.add(this.toolbars[modelTarget.name]);
+        this.lastOpenedToolbar = modelTarget.name;
+      }
+    }
+
+    const domTarget = view.domConverter.mapViewToDom(editor.editing.mapper.toViewElement(modelTarget));
     for (const buttonView of this.buttonViews) {
       this._attachButtonToElement(domTarget, buttonView);
 
