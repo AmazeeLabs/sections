@@ -1,4 +1,21 @@
 /* global Given, When, Then */
+
+export const clickTheNthElement = position => {
+  const selector = {
+    first: ':first-child',
+    second: ':nth(1)',
+    third: ':nth(2)',
+    last: ':last-child'
+  }[position];
+
+  cy.get('@container').children().filter(selector).as('widget').click();
+}
+
+export const clickTheContainerButtonWithText = text => {
+  // target the visible toolbar first.
+  cy.contains(text).not(`.ck-disabled`).click();
+}
+
 Given(`I opened an empty document`, () => {
   cy.initEditor('');
 });
@@ -23,14 +40,7 @@ Given(/^I opened a document with existing content$/, file => {
 });
 
 Given(/^I click the (first|second|third|last) element$/, (position) => {
-  const selector = {
-    first: ':first-child',
-    second: ':nth(1)',
-    third: ':nth(2)',
-    last: ':last-child'
-  }[position];
-
-  cy.get('@container').children().filter(selector).as('widget').click();
+  clickTheNthElement(position);
 });
 
 Given(/^there (is|are) (no|\d+) elements?$/, (_, number, contents) => {
@@ -107,8 +117,7 @@ Then(/^the "([^"]*)" button should be (disabled|enabled|hidden)$/, (text, state)
 });
 
 When(/^I click the "([^"]*)" container button$/, (text) => {
-  // target the visible toolbar first.
-  cy.contains(text).not(`.ck-disabled`).click();
+  clickTheContainerButtonWithText(text);
 });
 
 When(/^I click the "([^"]*)" toolbar button$/, (text) => {
