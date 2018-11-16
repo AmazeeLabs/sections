@@ -2,20 +2,22 @@ import Command from '@ckeditor/ckeditor5-core/src/command';
 
 export default class ElementCommand extends Command {
 
-  // TODO: cache this in containercontrols
-  getSelectedElement() {
-    let element = this.editor.model.document.selection.getSelectedElement();
-    if (element) {
-      return element;
-    }
-    element = this.editor.editing.mapper.toViewElement(this.editor.model.document.selection.anchor.parent);
+  getSelectedTemplate() {
+    let element = this.editor.editing.mapper.toViewElement(this.editor.model.document.selection.getSelectedElement() || this.editor.model.document.selection.anchor.parent);
     while (element) {
-      if (element.parent && element.parent.getCustomProperty('container')) {
+      if (element.getCustomProperty('template') || element.getCustomProperty('placeholder')) {
         return this.editor.editing.mapper.toModelElement(element);
       }
       element = element.parent;
     }
     return false;
+  }
+
+  getSelectedContainerItem() {
+    const element = this.getSelectedTemplate();
+    return (element && element.parent && element.parent.getAttribute('ck-container-layout') === 'paged')
+        ? element
+        : false;
   }
 
 }

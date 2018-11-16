@@ -12,7 +12,7 @@ export default class InsertPlaceholderCommand extends ElementCommand {
   }
 
   execute(values) {
-    const current = this.getSelectedElement();
+    const current = this.getSelectedTemplate();
     this.editor.model.change(writer => {
       const element = writer.createElement(current.parent.name + '__placeholder');
       writer.insert(element, current, this.position);

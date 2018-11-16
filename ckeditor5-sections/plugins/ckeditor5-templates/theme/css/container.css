@@ -53,10 +53,6 @@ body {
   outline-color: var(--ck-color-widget-hover-border);
 }
 
-.ck .root .ck-widget {
-  margin: 40px 0;
-}
-
 .new-section {
   height: 5px !important;
   background: #555 !important;
@@ -132,4 +128,12 @@ body {
 
 .ck-placeholder-widget .close-button {
   float: right;
+}
+
+.ck-container-layout-paged > * {
+  display: none;
+}
+
+.ck-container-layout-paged > .ck-current-page {
+  display: block;
 }

@@ -14,9 +14,15 @@ export default class InsertElementCommand extends ElementCommand {
 
   execute(values) {
     this.editor.model.change(writer => {
-      const element = writer.createElement('ck-templates__' + this.element);
+      const element = writer.createElement('ck-templates__' + this.element, {'ck-current-page': true});
       writer.insert(element, values.model, 'after');
       writer.remove(values.model);
+      window.setTimeout(() => {
+        this.editor.model.change(writer => {
+          writer.setSelection(element, 'on');
+        })
+      });
     });
+
   }
 }

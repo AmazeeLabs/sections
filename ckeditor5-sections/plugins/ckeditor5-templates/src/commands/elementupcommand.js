@@ -3,12 +3,12 @@ import ElementCommand from './elementcommand';
 export default class ElementUpCommand extends ElementCommand {
 
   refresh() {
-    const currentElement = this.getSelectedElement();
+    const currentElement = this.getSelectedTemplate();
     this.isEnabled = currentElement && currentElement.previousSibling;
   }
 
   execute() {
-    const currentElement = this.getSelectedElement();
+    const currentElement = this.getSelectedTemplate();
     const model = this.editor.model;
     const view = this.editor.editing.view;
     const editing = this.editor.editing;

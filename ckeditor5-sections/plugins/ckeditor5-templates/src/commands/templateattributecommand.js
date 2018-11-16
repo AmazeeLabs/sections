@@ -8,16 +8,16 @@ export default class TemplateAttributeCommand extends ElementCommand {
   }
 
   refresh() {
-    const currentElement = this.getSelectedElement();
+    const currentElement = this.getSelectedTemplate();
     this.isEnabled = currentElement && Array.from(currentElement.getAttributeKeys()).includes(this.attribute);
     if (this.isEnabled) {
-      this.value = this.getSelectedElement().getAttribute(this.attribute);
+      this.value = this.getSelectedTemplate().getAttribute(this.attribute);
     }
   }
 
   execute(values) {
     if (this.isEnabled) {
-      const currentElement = this.getSelectedElement();
+      const currentElement = this.getSelectedTemplate();
       this.editor.model.change(writer => {
         writer.setAttribute(this.attribute, values.value, currentElement);
       });

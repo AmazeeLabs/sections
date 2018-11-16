@@ -13,6 +13,8 @@ import iconDown from '../../theme/icons/arrow-down.svg';
 import iconRemove from '../../theme/icons/trash.svg';
 import iconAdd from '../../theme/icons/add.svg';
 import iconConfigure from '../../theme/icons/configure.svg';
+import iconLeft from '../../theme/icons/arrow-left.svg';
+import iconRight from '../../theme/icons/arrow-right.svg';
 
 import ElementRemoveCommand from "../commands/elementremovecommand";
 import ElementUpCommand from "../commands/elementupcommand";
@@ -29,6 +31,8 @@ import clickOutsideHandler from "@ckeditor/ckeditor5-ui/src/bindings/clickoutsid
 
 import '../../theme/css/container.css';
 import TemplateAttributeCommand from "../commands/templateattributecommand";
+import PreviousPageCommand from "../commands/previouspagecommand";
+import NextPageCommand from "../commands/nextpagecommand";
 
 const toPx = toUnit( 'px' );
 
@@ -167,6 +171,9 @@ export default class ContainerControls extends Plugin {
     editor.commands.add('insertAfter', new InsertPlaceholderCommand(editor, 'after'));
     editor.commands.add('removePlaceholder', new RemovePlaceholderCommand(editor));
 
+    editor.commands.add('previousPage', new PreviousPageCommand(editor));
+    editor.commands.add('nextPage', new NextPageCommand(editor));
+
     this.buttons = {
       elementUp: {
         label: editor.t('Move element up'),
@@ -197,22 +204,36 @@ export default class ContainerControls extends Plugin {
         position: 'top right 2',
         panel: this.configurationPanelView
       },
-      insertBefore: {
-        buttonClass: NewSectionButtonView,
-        label: editor.t('Insert element above'),
-        icon: iconAdd,
-        class: 'element-insert-before',
-        position: 'top new-section',
-        command: editor.commands.get('insertBefore')
+      previousPage: {
+        label: editor.t('Previous page'),
+        icon: iconLeft,
+        class: 'previous-page,',
+        position: 'top left 1',
+        command: editor.commands.get('previousPage'),
       },
-      insertAfter: {
-        buttonClass: NewSectionButtonView,
-        label: editor.t('Insert element below'),
-        icon: iconAdd,
-        class: 'element-insert-after',
-        position: 'bottom new-section',
-        command: editor.commands.get('insertAfter')
+      nextPage: {
+        label: editor.t('Next page'),
+        icon: iconRight,
+        class: 'next-page,',
+        position: 'top left 2',
+        command: editor.commands.get('nextPage'),
       },
+      // insertBefore: {
+      //   buttonClass: NewSectionButtonView,
+      //   label: editor.t('Insert element above'),
+      //   icon: iconAdd,
+      //   class: 'element-insert-before',
+      //   position: 'top new-section',
+      //   command: editor.commands.get('insertBefore')
+      // },
+      // insertAfter: {
+      //   buttonClass: NewSectionButtonView,
+      //   label: editor.t('Insert element below'),
+      //   icon: iconAdd,
+      //   class: 'element-insert-after',
+      //   position: 'bottom new-section',
+      //   command: editor.commands.get('insertAfter')
+      // },
     };
 
     this.buttonViews = Object.keys(this.buttons).map((key) => {
@@ -418,6 +439,7 @@ export default class ContainerControls extends Plugin {
     const view = editor.editing.view;
 
     const modelTarget = this.getSelectedElement();
+
     if (!modelTarget || !editor.ui.focusTracker.isFocused || editor.isReadOnly ) {
       for (const buttonView of this.buttonViews) {
         buttonView.isVisible = false;
@@ -477,6 +499,13 @@ export default class ContainerControls extends Plugin {
             return {
               top: contentRect.top + contentRect.height + (buttonRect.height / 3) - (buttonRect.height) * parseInt(offset),
               left: contentRect.left + contentRect.width,
+            };
+          }
+
+          if (primary === 'top' && secondary === 'left') {
+            return {
+              top: contentRect.top - buttonRect.height,
+              left: contentRect.left + (buttonRect.width) * parseInt(offset - 1),
             };
           }
 
