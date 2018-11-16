@@ -20,6 +20,7 @@ body {
   --ck-color-button-remove-hover: #C81C27;
 }
 
+
 .ck-reset_all .ck-button {
   color: var(--ck-color-button-default);
 }
@@ -130,10 +131,19 @@ body {
   float: right;
 }
 
+.ck-container-layout-paged {
+  margin-top: 30px;
+}
+
 .ck-container-layout-paged > * {
   display: none;
 }
 
 .ck-container-layout-paged > .ck-current-page {
   display: block;
+}
+
+button.current-page {
+  font-size: 1.2em;
+  transform: translate(10px, -1px);
 }

@@ -33,6 +33,7 @@ import '../../theme/css/container.css';
 import TemplateAttributeCommand from "../commands/templateattributecommand";
 import PreviousPageCommand from "../commands/previouspagecommand";
 import NextPageCommand from "../commands/nextpagecommand";
+import PagingCommand from "../commands/pagingcommand";
 
 const toPx = toUnit( 'px' );
 
@@ -44,6 +45,7 @@ class ContainerButtonView extends ButtonView {
     this.set('left', 0);
     this.set('isVisible', false);
     this.set('position', 'top left 1');
+    this.set('label', null);
 
     this.set('panel', null);
     this.set('command', null);
@@ -173,6 +175,7 @@ export default class ContainerControls extends Plugin {
 
     editor.commands.add('previousPage', new PreviousPageCommand(editor));
     editor.commands.add('nextPage', new NextPageCommand(editor));
+    editor.commands.add('currentPage', new PagingCommand(editor));
 
     this.buttons = {
       elementUp: {
@@ -207,16 +210,23 @@ export default class ContainerControls extends Plugin {
       previousPage: {
         label: editor.t('Previous page'),
         icon: iconLeft,
-        class: 'previous-page,',
+        class: 'previous-page',
         position: 'top left 1',
         command: editor.commands.get('previousPage'),
       },
       nextPage: {
         label: editor.t('Next page'),
         icon: iconRight,
-        class: 'next-page,',
+        class: 'next-page',
         position: 'top left 2',
         command: editor.commands.get('nextPage'),
+      },
+      currentPage: {
+        class: 'current-page',
+        label: '',
+        position: 'top left 2',
+        withText: true,
+        command: editor.commands.get('currentPage'),
       },
       // insertBefore: {
       //   buttonClass: NewSectionButtonView,
@@ -245,6 +255,8 @@ export default class ContainerControls extends Plugin {
       if (this.buttons[key].command) {
         const command = this.buttons[key].command;
         buttonView.bind('isEnabled').to(command, 'isEnabled');
+        buttonView.bind('isVisible').to(command, 'isVisible');
+        buttonView.bind('label').to(command, 'label');
         this.listenTo( buttonView, 'execute', () => {
           editor.execute(key)
         });

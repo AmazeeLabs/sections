@@ -2,6 +2,12 @@ import Command from '@ckeditor/ckeditor5-core/src/command';
 
 export default class ElementCommand extends Command {
 
+  constructor(editor) {
+    super(editor);
+    this.set('isVisible', true);
+    this.set('label', '');
+  }
+
   getSelectedTemplate() {
     let element = this.editor.editing.mapper.toViewElement(this.editor.model.document.selection.getSelectedElement() || this.editor.model.document.selection.anchor.parent);
     while (element) {

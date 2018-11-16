@@ -4,7 +4,7 @@ export default class ElementDownCommand extends ElementCommand {
 
   refresh() {
     const currentElement = this.getSelectedTemplate();
-    this.isEnabled = currentElement && currentElement.nextSibling;
+    this.isEnabled = currentElement && currentElement.nextSibling && !(currentElement.nextSibling.getAttribute('ck-editable-type') === 'placeholder');
   }
 
   execute() {
