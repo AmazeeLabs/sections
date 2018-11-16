@@ -137,10 +137,6 @@ class SectionsWidget extends WidgetBase implements ContainerFactoryPluginInterfa
 
     $sections = $this->collectSections();
 
-    $summary[] = t('Root Element: @default', [
-      '@default' => $sections[$rootElement]['label']
-    ]);
-
     if ($rootElement == 'default') {
       $summary[] = t('Default section: @default', [
         '@default' => $sections[$defaultSection]['label']
@@ -150,6 +146,11 @@ class SectionsWidget extends WidgetBase implements ContainerFactoryPluginInterfa
       $enabledLabels = implode(', ', array_map(function ($key) use ($sections) { return $sections[$key]['label']; }, $enabledSections));
       $summary[] = t('Enabled sections: @enabled', [
         '@enabled' => $enabledLabels,
+      ]);
+    }
+    elseif (!empty($sections[$rootElement]['label'])) {
+      $summary[] = t('Root Element: @default', [
+        '@default' => $sections[$rootElement]['label']
       ]);
     }
     return $summary;
