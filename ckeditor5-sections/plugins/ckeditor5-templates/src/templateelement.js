@@ -14,10 +14,20 @@ import { toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
  */
 export default class TemplateElement {
 
+  /**
+   * Sets the template manager.
+   *
+   * @param {Templates} manager - The template manager.
+   */
   setTemplateManager(manager) {
     this.templateManager = manager;
   }
 
+  /**
+   * Returns the template manager.
+   *
+   * @return {Templates} manager - The template manager.
+   */
   getTemplateElement(name) {
     return this.templateManager.getTemplate(name);
   }
@@ -94,12 +104,15 @@ export default class TemplateElement {
   }
 
   /**
+   * Returns the name of the current node, prefixed by the parent's name.
+   *
    * @private
    */
   get _name() {
     const name = (this.node.getAttribute('ck-name') || 'child' + this.index);
     return this.parent ? this.parent._name + '__' + name : name;
   }
+
   /**
    * Returns the calculated name for this element.
    *
@@ -124,6 +137,11 @@ export default class TemplateElement {
     };
   }
 
+  /**
+   * Returns an array of extensions to the model's schema.
+   *
+   * @return {Object[]} - An array of objects with 'element' and 'info' properties.
+   */
   get schemaExtensions() {
     return [];
   }
@@ -131,15 +149,18 @@ export default class TemplateElement {
   /**
    * Attributes that are allowed by default, without being added to the template.
    *
-   * @returns *
+   * @return *
    */
   get defaultAttributes() {
     return {};
   }
 
   /**
+   * Tells if the given view element matches the template's node.
+   *
    * @param {module:engine/view/element~Element} viewElement
-   * @returns {Object}
+   *
+   * @return {Object}
    */
   matchesViewElement(viewElement) {
     const templateClasses = Array.from(this.node.classList);
@@ -148,6 +169,9 @@ export default class TemplateElement {
       && (!this.parent || this.parent.matchesViewElement(viewElement.parent))
   }
 
+  /**
+   * Creates an element
+   */
   toModelElement(viewElement, modelWriter) {
     const attributes = Object.assign(
         // By default set all attributes defined in the template.
@@ -204,6 +228,10 @@ export default class TemplateElement {
     });
   }
 
+  get fittingElements() {
+    return [this.name];
+  }
+
   postfix(writer, item) {
 
     // Template attributes that are not part of the model are copied into the model initially.
@@ -216,9 +244,17 @@ export default class TemplateElement {
     const childSeats = this.children.map((child) => ({[child.name]: false}))
         .reduce((acc, val) => Object.assign(acc, val), {});
 
+    const childOptions = this.children.map((child) => ({[child.name]: child.fittingElements}))
+        .reduce((acc, val) => Object.assign(acc, val), {});
+
     for (let child of item.getChildren()) {
       if (childSeats.hasOwnProperty(child.name) && !childSeats[child.name]) {
         childSeats[child.name] = child;
+      }
+      for (const name in childSeats) {
+        if (childOptions[name].includes(child.name)) {
+          childSeats[name] = child;
+        }
       }
     }
 

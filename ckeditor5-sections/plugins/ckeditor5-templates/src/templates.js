@@ -6,6 +6,7 @@ import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import Element from '@ckeditor/ckeditor5-engine/src/model/element'
 import TemplateElement from './templateelement';
+import PlaceholderElement from "./elements/placeholderelement";
 import MediaSelectCommand from "./commands/mediaselectcommand";
 
 import "../theme/css/media.css";
@@ -13,6 +14,7 @@ import ContainerControls from "./ui/containercontrols";
 import HoveredWidget from "./ui/hoveredwidget";
 import {isWidget} from "@ckeditor/ckeditor5-widget/src/utils";
 import Paragraph from "@ckeditor/ckeditor5-paragraph/src/paragraph";
+import ContainerElement from "./elements/containerelement";
 
 /**
  * @extends module:core/plugin~Plugin
@@ -46,11 +48,11 @@ export default class Templates extends Plugin {
   static get pluginName() {
     return 'Templates';
   }
+
   /**
    * @inheritDoc
    */
   init() {
-
     this.elements = {};
     const templates = this.editor.config.get('templates');
 
@@ -65,6 +67,8 @@ export default class Templates extends Plugin {
         this.editor.model.schema.extend(ext.element, ext.info);
       });
     });
+
+    this.editor.model.schema.extend('$text', {allowIn: Object.keys(this.elements)});
 
     const rootTemplate = this.editor.config.get('rootTemplate');
     if (rootTemplate) {
@@ -84,10 +88,6 @@ export default class Templates extends Plugin {
 
     this.editor.commands.add('mediaSelect', new MediaSelectCommand(this.editor));
 
-    this.editor.model.schema.extend('paragraph', {
-      allowIn: 'ck-templates__text__child1',
-    });
-
     const balloonToolbar = this.editor.plugins.get( 'BalloonToolbar' );
     // If the `BalloonToolbar` plugin is loaded, it should be disabled for images
     // which have their own toolbar to avoid duplication.
@@ -101,13 +101,24 @@ export default class Templates extends Plugin {
     }
   }
 
+  /**
+   * Adds the root template into each empty root element.
+   *
+   * @param {Writer} writer - The element's writer.
+   * @param {String} rootTemplate - The root template's id.
+   *
+   * @return {Bool} - True if any changes were made.
+   *
+   * @private
+   */
   _cleanRoot(writer, rootTemplate) {
-
     const model = this.editor.model;
 
     for ( const rootName of model.document.getRootNames() ) {
       const root = model.document.getRoot( rootName );
 
+      // According to https://ckeditor.com/docs/ckeditor5/latest/api/module_engine_model_document-Document.html#function-getRootNames
+      // getRootNames doesn't return the graveyard.
       if (root.rootName === '$graveyard' ) {
         continue
       }
@@ -130,7 +141,7 @@ export default class Templates extends Plugin {
    *
    * @private
    */
-  _registerElement(template, parent = null, index = 0)  {
+  _registerElement(template, parent = null, index = 0) {
     const applicableElements = this.editor.config.get('templateElements')
         .filter((element) => {
           return element.applies(template);
@@ -146,6 +157,15 @@ export default class Templates extends Plugin {
 
     /** @type {TemplateElement} */
     const element = new ElementConstructor(this.editor, template, parent, index);
+
+    if (element instanceof ContainerElement) {
+      const el = document.createElement('div');
+      el.setAttribute('ck-editable-type', 'placeholder');
+      el.setAttribute('ck-allowed-elements', template.getAttribute('ck-allowed-elements'));
+      el.setAttribute('ck-name', 'placeholder');
+      this._registerElement(el, element);
+    }
+
     this.elements[element.name] = element;
 
     /** @type {TemplateElement[]} */
@@ -183,12 +203,30 @@ export default class Templates extends Plugin {
             return true;
           }
         }
+
+        if (entry.type === 'remove') {
+          const item = entry.position.getAncestors().pop();
+          if (item.name === element.name && this._recursiveElementPostFix(element, writer, item)) {
+            return true;
+          }
+        }
       }
     });
 
     return element;
   }
 
+  /**
+   * Applies the postfix method of the element and its children.
+   *
+   * @param {Element} - The parent element.
+   * @param {Writer} writer - The element's writer.
+   * @param {Node} item - The next node after the change.
+   *
+   * @return {Bool} - True if any changes were made.
+   *
+   * @private
+   */
   _recursiveElementPostFix(element, writer, item) {
     let changed = false;
     if (item instanceof Element) {
@@ -205,6 +243,12 @@ export default class Templates extends Plugin {
 
 }
 
+/**
+ * Returns a function that takes a dispatcher and binds a converter to an element.
+ *
+ * @param {String} attributeKey - The name of the attribute.
+ * @param {String} element - The name of the element.
+ */
 export function modelToViewAttributeConverter( attributeKey, element ) {
   return dispatcher => {
     dispatcher.on( `attribute:${ attributeKey }:${ element }`, converter );
@@ -226,7 +270,13 @@ export function modelToViewAttributeConverter( attributeKey, element ) {
   }
 }
 
-
+/**
+ * Tells if the selected element is a widget.
+ *
+ * @param {Selection} selection - The editor's selection object.
+ *
+ * @return {Bool} - True if the currently selected element is a widget.
+ */
 function isWidgetSelected( selection ) {
   const viewElement = selection.getSelectedElement();
 
