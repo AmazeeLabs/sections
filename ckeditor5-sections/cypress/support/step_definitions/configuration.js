@@ -23,6 +23,12 @@ When(/^I type "(.*)" into a configuration textfield of the (.*) element$/, (valu
   cy.get('.ck-input-text').clear().type(value);
 });
 
+When(/^I select "(.*)" in a multiselect field of the (.*) element$/, (value, position) => {
+  openTheConfigurationPanelForNthElement(position);
+  cy.get('.sections-multiselect .ck-dropdown__button').click();
+  cy.get('.ck-button__label').contains(value).click();
+});
+
 When(/^I choose "(.*)" for the first setting$/, (option) => {
   cy.get('.ck-balloon-panel_visible .ck-dropdown:nth-child(1)').click();
   cy.get('.ck-balloon-panel_visible').contains(option).click();
@@ -42,8 +48,15 @@ Then(`there should be a configuration button`, () => {
 });
 
 Then(/^a textfield element should have a value of "(.*)"$/, (value) => {
-  cy.get('.ck-input-text').should('be.visible');
-  cy.get('.ck-input-text').should('be.visible');
+  cy.get('.ck-input-text')
+    .should('be.visible')
+    .should('have.value', value);
+});
+
+Then(/^a multiselect element should have a value of "(.*)"$/, (value) => {
+  cy.get('.sections-multiselect .ck-dropdown__button .ck-button__label')
+    .should('be.visible')
+    .should('contain', value);
 });
 
 Then(`there should be no configuration button`, () => {
