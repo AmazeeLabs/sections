@@ -67,6 +67,7 @@ class SectionsWidget extends WidgetBase implements ContainerFactoryPluginInterfa
    */
   public static function defaultSettings() {
     return [
+        'rootElement' => '',
         'defaultSection' => '',
         'enabledSections' => [],
       ] + parent::defaultSettings();
@@ -78,6 +79,15 @@ class SectionsWidget extends WidgetBase implements ContainerFactoryPluginInterfa
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $sections = $this->collectSections();
 
+    $element['rootElement'] = [
+      '#type' => 'select',
+      '#title' => t('Root Element'),
+      '#options' => ['default' => t('Default Root Element')] + array_map(function ($section) {
+        return $section['label'];
+      }, $sections),
+      '#default_value' => $this->getSetting('rootElement'),
+    ];
+
     $element['defaultSection'] = [
       '#type' => 'select',
       '#title' => t('Default section'),
@@ -85,7 +95,14 @@ class SectionsWidget extends WidgetBase implements ContainerFactoryPluginInterfa
         return $section['label'];
       }, $sections),
       '#default_value' => $this->getSetting('defaultSection') ?: array_keys($sections)[0],
-      '#required' => TRUE,
+      '#states' => [
+        'required' => [
+          'select[name*="rootElement"]' => ['value' => 'default'],
+        ],
+        'visible' => [
+          'select[name*="rootElement"]' => ['value' => 'default'],
+        ],
+      ],
     ];
 
     $element['enabledSections'] = [
@@ -95,8 +112,15 @@ class SectionsWidget extends WidgetBase implements ContainerFactoryPluginInterfa
         return $section['label'];
       }, $sections),
       '#default_value' => $this->getSetting('enabledSections'),
-      '#required' => TRUE,
       '#min' => 1,
+      '#states' => [
+        'required' => [
+          'select[name*="rootElement"]' => ['value' => 'default'],
+        ],
+        'visible' => [
+          'select[name*="rootElement"]' => ['value' => 'default'],
+        ],
+      ],
     ];
 
     return $element;
@@ -107,21 +131,28 @@ class SectionsWidget extends WidgetBase implements ContainerFactoryPluginInterfa
    */
   public function settingsSummary() {
     $summary = [];
+    $rootElement = $this->getSetting('rootElement');
     $defaultSection = $this->getSetting('defaultSection');
     $enabledSections = array_filter(array_values($this->getSetting('enabledSections')));
 
     $sections = $this->collectSections();
 
-    $summary[] = t('Default section: @default', [
-      '@default' => $sections[$defaultSection]['label']
-    ]);
+    if ($rootElement == 'default') {
+      $summary[] = t('Default section: @default', [
+        '@default' => $sections[$defaultSection]['label']
+      ]);
 
 
-    $enabledLabels = implode(', ', array_map(function ($key) use ($sections) { return $sections[$key]['label']; }, $enabledSections));
-    $summary[] = t('Enabled sections: @enabled', [
-      '@enabled' => $enabledLabels,
-    ]);
-
+      $enabledLabels = implode(', ', array_map(function ($key) use ($sections) { return $sections[$key]['label']; }, $enabledSections));
+      $summary[] = t('Enabled sections: @enabled', [
+        '@enabled' => $enabledLabels,
+      ]);
+    }
+    elseif (!empty($sections[$rootElement]['label'])) {
+      $summary[] = t('Root Element: @default', [
+        '@default' => $sections[$rootElement]['label']
+      ]);
+    }
     return $summary;
   }
 
@@ -141,11 +172,17 @@ class SectionsWidget extends WidgetBase implements ContainerFactoryPluginInterfa
 
     $defaultSection = $this->getSetting('defaultSection');
     $enabledSections = array_filter(array_values($this->getSetting('enabledSections')));
+    $rootElement = $this->getSetting('rootElement');
 
-    $sections['_root'] = [
-      'label' => $this->t('Document root'),
-      'template' => '<div class="root"><div class="root-container" ck-editable-type="container" ck-allowed-elements="' . implode(' ', $enabledSections) . '" ck-default-element="' . $defaultSection . '"></div></div>',
-    ];
+    if ($rootElement == 'default') {
+      $sections['_root'] = [
+        'label' => $this->t('Document root'),
+        'template' => '<div class="root"><div class="root-container" ck-editable-type="container" ck-allowed-elements="' . implode(' ', $enabledSections) . '" ck-default-element="' . $defaultSection . '"></div></div>',
+      ];
+    }
+    else {
+      $sections['_root'] = $sections[$rootElement];
+    }
 
     $templateAttributes = [
       'data-gallery-type' => [
@@ -183,9 +220,6 @@ class SectionsWidget extends WidgetBase implements ContainerFactoryPluginInterfa
   }
 
   protected function collectSections() {
-    /** @var \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler */
-    $moduleHandler = \Drupal::service('module_handler');
-
     $path = drupal_get_path('module', 'sections') . '/sections';
 
     $sections = [
@@ -203,7 +237,7 @@ class SectionsWidget extends WidgetBase implements ContainerFactoryPluginInterfa
       ],
     ];
 
-    $moduleHandler->alter('sections', $sections);
+    $this->moduleHandler->alter('sections', $sections);
 
     return $sections;
   }
