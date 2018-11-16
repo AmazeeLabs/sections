@@ -25,5 +25,4 @@ export default class ElementCommand extends Command {
         ? element
         : false;
   }
-
 }

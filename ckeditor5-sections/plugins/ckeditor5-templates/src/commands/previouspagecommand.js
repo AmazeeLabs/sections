@@ -5,6 +5,7 @@ export default class PreviousPageCommand extends ElementCommand {
   refresh() {
     const currentPage = this.getSelectedContainerItem();
     if (!currentPage) {
+      this.isEnabled = false;
       this.isVisible = false;
       return;
     }

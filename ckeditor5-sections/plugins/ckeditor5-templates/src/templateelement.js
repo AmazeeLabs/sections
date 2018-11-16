@@ -152,7 +152,10 @@ export default class TemplateElement {
    * @return *
    */
   get defaultAttributes() {
-    return {'ck-current-page': true};
+    return {
+      'ck-current-page': true,
+      'ck-paging-disabled': true,
+    };
   }
 
   /**
@@ -215,7 +218,6 @@ export default class TemplateElement {
   }
 
   toEditorElement(modelElement, viewWriter) {
-    console.log(this.getModelAttributes(modelElement));
     const element = viewWriter.createContainerElement(this.node.tagName, this.getModelAttributes(modelElement));
     if (!this.parent) {
       viewWriter.setCustomProperty('template', true, element);

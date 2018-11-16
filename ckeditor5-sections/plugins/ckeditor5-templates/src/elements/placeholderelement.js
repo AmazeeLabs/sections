@@ -30,17 +30,18 @@ class PlaceholderView extends View {
       });
       buttons.push(view);
     }
-    const removeButton = new ButtonView();
-    removeButton.set({
-      label: 'Close',
-      withText: true,
-      class: 'close-button'
-    });
-    removeButton.render();
-    removeButton.on('execute', () => {
-      editor.execute('removePlaceholder', {model: modelElement});
-    });
-    buttons.push(removeButton);
+
+    // const removeButton = new ButtonView();
+    // removeButton.set({
+    //   label: 'Close',
+    //   withText: true,
+    //   class: 'close-button'
+    // });
+    // removeButton.render();
+    // removeButton.on('execute', () => {
+    //   editor.execute('removePlaceholder', {model: modelElement});
+    // });
+    // buttons.push(removeButton);
 
     const template = {
       tag: 'div',

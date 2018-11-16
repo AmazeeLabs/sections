@@ -453,9 +453,6 @@ export default class ContainerControls extends Plugin {
     const modelTarget = this.getSelectedElement();
 
     if (!modelTarget || !editor.ui.focusTracker.isFocused || editor.isReadOnly ) {
-      for (const buttonView of this.buttonViews) {
-        buttonView.isVisible = false;
-      }
       return;
     }
 
@@ -478,9 +475,6 @@ export default class ContainerControls extends Plugin {
         const intersection = Array.from(modelTarget.getAttributeKeys())
             .filter(key => Object.keys(this.templateAttributes).includes(key));
         buttonView.isVisible = !!intersection.length;
-      }
-      else {
-        buttonView.isVisible = true;
       }
     }
 

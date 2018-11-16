@@ -4,7 +4,7 @@ export default class ElementRemoveCommand extends ElementCommand {
 
   refresh() {
     const currentElement = this.getSelectedTemplate();
-    this.isEnabled = currentElement && (currentElement.previousSibling || currentElement.nextSibling);
+    this.isVisible = currentElement && currentElement.getAttribute('ck-editable-type') !== 'placeholder';
   }
 
   execute(values) {

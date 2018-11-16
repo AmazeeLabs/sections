@@ -21,7 +21,7 @@ export default class InsertElementCommand extends ElementCommand {
         this.editor.model.change(writer => {
           writer.setSelection(element, 'on');
         })
-      });
+      }, 200);
     });
 
   }

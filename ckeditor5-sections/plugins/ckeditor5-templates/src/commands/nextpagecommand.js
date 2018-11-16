@@ -5,6 +5,7 @@ export default class NextPageCommand extends ElementCommand {
   refresh() {
     const currentPage = this.getSelectedContainerItem();
     if (!currentPage) {
+      this.isEnabled = false;
       this.isVisible = false;
       return;
     }
@@ -14,7 +15,6 @@ export default class NextPageCommand extends ElementCommand {
 
   execute() {
     const currentElement = this.getSelectedContainerItem();
-    console.log(currentElement.nextSibling);
     this.editor.model.change(writer => {
       writer.setAttribute('ck-current-page', false, currentElement);
       writer.setAttribute('ck-current-page', true, currentElement.nextSibling);
