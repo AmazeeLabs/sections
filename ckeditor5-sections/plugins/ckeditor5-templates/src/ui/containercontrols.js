@@ -429,7 +429,7 @@ export default class ContainerControls extends Plugin {
        * @returns {String[]}
        */
       const decodeKeys = encodedKeys => encodedKeys
-
+        .split(',')
         .filter(value => value)
         .sort((a, b) => keys.indexOf(a) - keys.indexOf(b));
 
