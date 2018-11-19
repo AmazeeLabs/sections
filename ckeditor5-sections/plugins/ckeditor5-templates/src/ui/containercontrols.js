@@ -297,6 +297,7 @@ export default class ContainerControls extends Plugin {
       const factories = {
         dropdown: this._createDropdownView,
         textfield: this._createTextfieldView,
+        multiselect: this._createMultiselectView,
       };
 
       if (!factories.hasOwnProperty(type)) {
@@ -366,6 +367,8 @@ export default class ContainerControls extends Plugin {
         editor.execute( evt.source.commandName, {value: evt.source.commandValue});
       });
 
+      dropdownView.template.attributes.class.push('sections-dropdown');
+
       return dropdownView;
     };
   }
@@ -392,7 +395,112 @@ export default class ContainerControls extends Plugin {
         editor.execute( commandName, { value: evt.source.element.value });
       });
 
+      inputView.template.attributes.class.push('sections-textfield');
+
       return inputView;
+    };
+  }
+
+  /**
+   * Creates a multi-select dropdown component based on given template attribute.
+   *
+   * @param {Object} templateAttribute - The configuration object.
+   * @param {String} commandName - The command associated with the attribute.
+   * @param {Editor} editor - The editor object.
+   *
+   * @return {Function} - A callback for editor.ui.componentFactory.add.
+   */
+  _createMultiselectView(templateAttribute, commandName, editor) {
+    return locale => {
+      const command = editor.commands.get(commandName);
+      const dropdownItems = new Collection();
+      const keys = Object.keys(templateAttribute.options);
+
+      /**
+       * Returns the label associated with given option key.
+       * @param {String} key
+       * @returns {String}
+       */
+      const getLabel = key => templateAttribute.options[key];
+
+      /**
+       * Turns given attribute value into an array of selections.
+       * @param {String} encodedKeys - Selected keys separated by commas.
+       * @returns {String[]}
+       */
+      const decodeKeys = encodedKeys => encodedKeys
+        .split(',')
+        .filter(value => value)
+        .sort((a, b) => keys.indexOf(a) - keys.indexOf(b));
+
+      /**
+       * Returns a function that tells if a given value is currently selected.
+       * @param {String} key - A key in the options array.
+       * @returns {function(*): boolean}
+       */
+      const valueIsSelected = key =>
+          encodedKeys => decodeKeys(encodedKeys).includes(key);
+
+      /**
+       * Returns a comma separated list of selected items' labels.
+       * @param {String} encodedKeys - Selected keys separated by commas
+       * @returns {string}
+       */
+      const getSelectionsSummary = encodedKeys => {
+        const selections = decodeKeys(encodedKeys);
+        if (selections.length > 0) {
+          return selections.map(getLabel).join(', ');
+        }
+        return templateAttribute.placeholder || '';
+      };
+
+      // Fill dropdownItems with switchbutton.
+      for (const optionKey of Object.keys(templateAttribute.options)) {
+        const itemModel = new Model({
+          label: getLabel(optionKey),
+          withText: true,
+          key: optionKey,
+        });
+
+        // Turn the switchbutton on when it's key is present in the values
+        // and off otherwise.
+        itemModel.bind('isOn').to(command, 'value', valueIsSelected(optionKey));
+        dropdownItems.add({ type: 'switchbutton', model: itemModel });
+      }
+
+      const dropdownView = createDropdown(locale);
+      addListToDropdown(dropdownView, dropdownItems);
+
+      dropdownView.buttonView.set({
+        withText: true,
+        label: templateAttribute.placeholder,
+        tooltip: `Configure the ${templateAttribute.label} option.`,
+      });
+
+      // Update the dropdown label whenever the selections set changes.
+      dropdownView.buttonView
+        .bind('label')
+        .to( command, 'value', getSelectionsSummary);
+
+      // Execute command when any item from the dropdown is toggled.
+      this.listenTo( dropdownView, 'execute', evt => {
+        const values = decodeKeys(command.value);
+        const { key } = evt.source;
+        const index = values.indexOf(key);
+
+        if (index === -1) {
+          // The item wasn't selected, add it to the values.
+          values.push(key);
+        } else {
+          // The item was selected before. It's deselected now.
+          values.splice(index, 1);
+        }
+        editor.execute( commandName, { value: values.join(',') });
+      });
+
+      dropdownView.template.attributes.class.push('sections-multiselect');
+
+      return dropdownView;
     };
   }
 

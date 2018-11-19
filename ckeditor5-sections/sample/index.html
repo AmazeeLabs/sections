@@ -73,7 +73,7 @@
         text: {
           label: 'Text',
           template: `
-            <div class="text" first="a" second="" third="initial value">
+            <div class="text" first="a" second="" third="initial value" fourth="one,three">
               <h2 ck-editable-type="text">Enter a headline ...</h2>
               <div ck-editable-type="formatted">Enter your text ...</div>
             </div>
@@ -119,6 +119,16 @@
         third: {
           type: 'textfield',
           placeholder: 'Enter some text...',
+        },
+        fourth: {
+          type: 'multiselect',
+          label: 'Multi options',
+          placeholder: '- Select -',
+          options: {
+            one: 'One',
+            two: 'Two',
+            three: 'Three',
+          },
         },
       },
       mediaSelector: function (type, operation, callback) {
