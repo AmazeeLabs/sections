@@ -15,7 +15,7 @@ import ContainerElement from "../plugins/ckeditor5-templates/src/elements/contai
 import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
 import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
-import Link from '@ckeditor/ckeditor5-link/src/link';
+import Linkit from '../plugins/ckeditor5-linkit/src/linkit';
 import List from '@ckeditor/ckeditor5-list/src/list';
 import Paragraph from "@ckeditor/ckeditor5-paragraph/src/paragraph";
 import FormattedElement from "../plugins/ckeditor5-templates/src/elements/formattedelement";
@@ -25,7 +25,7 @@ import PlaceholderElement from "../plugins/ckeditor5-templates/src/elements/plac
 export default class SectionsEditor extends BalloonEditorBase {}
 
 // Plugins to include in the build.
-SectionsEditor.builtinPlugins = [ Essentials, Templates, Bold, Italic, Heading, Link, List, Paragraph, Autoformat, BlockToolbar];
+SectionsEditor.builtinPlugins = [ Essentials, Templates, Bold, Italic, Heading, Linkit, List, Paragraph, Autoformat, BlockToolbar];
 
 // Editor configuration.
 SectionsEditor.defaultConfig = {

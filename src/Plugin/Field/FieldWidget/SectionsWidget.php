@@ -212,6 +212,7 @@ class SectionsWidget extends WidgetBase implements ContainerFactoryPluginInterfa
     $this->moduleHandler->alter('sections_libraries', $libraries);
 
     $main_widget['#attached']['library'][] = 'sections/editor';
+    $main_widget['#attached']['library'][] = 'core/drupal.dialog.ajax';
     foreach ($libraries as $library) {
       $main_widget['#attached']['library'][] = $library;
     }

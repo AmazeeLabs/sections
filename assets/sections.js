@@ -65,11 +65,39 @@
           },
           mediaRenderer: function (uuid, display, callback) {
             $.ajax('/sections/media-preview/' + uuid + '/' + display || 'default').done(callback);
-          }
+          },
+          linkSelector: function (existingValues) {
+            var dialogSettings = {
+              title: existingValues ? Drupal.t('Edit link') : Drupal.t('Add link'),
+              dialogClass: 'editor-link-dialog'
+            };
+
+            var classes = dialogSettings.dialogClass ? dialogSettings.dialogClass.split(' ') : [];
+            dialogSettings.dialogClass = classes.join(' ');
+            dialogSettings.autoResize = window.matchMedia('(min-width: 600px)').matches;
+            dialogSettings.width = 'auto';
+
+            var AjaxDialog = Drupal.ajax({
+              dialog: dialogSettings,
+              dialogType: 'modal',
+              selector: '.ckeditor-dialog-loading-link',
+              url:  Drupal.url('editor/dialog/link/sections'),
+              progress: { type: 'throbber' },
+              submit: {
+                editor_object: existingValues
+              }
+            });
+            AjaxDialog.execute();
+
+          },
         })
         .then( editor => {
           editor.model.document.on('change', () => {
             $(input).val(editor.getData());
+          });
+
+          $(window).on('editor:dialogsave', function (e, values) {
+            editor.execute( 'link', values.attributes);
           });
         })
         .catch( err => {
