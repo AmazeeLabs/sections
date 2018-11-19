@@ -99858,10 +99858,24 @@ class PlaceholderElement extends _templateelement__WEBPACK_IMPORTED_MODULE_5__["
     ]);
   }
 
-  get fittingElements() {
-    return super.fittingElements.concat(this.node.getAttribute('ck-allowed-elements').split(' ').map((el) => `ck-templates__${el}`));
+  get placeholderOptions() {
+  	return this.node.getAttribute('ck-allowed-elements').split(' ').map((el) => `ck-templates__${el}`);
   }
 
+  get fittingElements() {
+    return super.fittingElements.concat(this.placeholderOptions);
+  }
+
+  postfix(writer, item) {
+    super.postfix(writer, item);
+    debugger;
+    const options = this.placeholderOptions;
+    if (options.length === 1) {
+    	writer.insertElement(options[0], item, 'before');
+    	writer.remove(item);
+    	return true;
+	}
+  }
 
   get editingDowncast() {
     const editor = this.editor;
