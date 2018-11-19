@@ -12,7 +12,7 @@ export default class InsertPlaceholderCommand extends ElementCommand {
   }
 
   execute(values) {
-    const current = this.getSelectedElement();
+    const current = this.getSelectedTemplate();
     this.editor.model.change(writer => {
       let element;
       if (current.parent.getAttribute('ck-allowed-elements').split(' ').length == 1) {

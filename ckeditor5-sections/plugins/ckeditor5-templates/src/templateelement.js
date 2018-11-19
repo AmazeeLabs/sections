@@ -133,7 +133,7 @@ export default class TemplateElement {
   get schema() {
     return {
       isObject: !this.parent,
-      allowIn: !this.parent ? [] : this.parent.name
+      allowIn: !this.parent ? [] : this.parent.name,
     };
   }
 
@@ -152,7 +152,10 @@ export default class TemplateElement {
    * @return *
    */
   get defaultAttributes() {
-    return {};
+    return {
+      'ck-current-page': true,
+      'ck-paging-disabled': true,
+    };
   }
 
   /**
@@ -216,6 +219,9 @@ export default class TemplateElement {
 
   toEditorElement(modelElement, viewWriter) {
     const element = viewWriter.createContainerElement(this.node.tagName, this.getModelAttributes(modelElement));
+    if (!this.parent) {
+      viewWriter.setCustomProperty('template', true, element);
+    }
     return this.parent ? element : toWidget(element, viewWriter);
   }
 

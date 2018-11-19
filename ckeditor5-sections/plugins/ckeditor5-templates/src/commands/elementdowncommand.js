@@ -3,13 +3,14 @@ import ElementCommand from './elementcommand';
 export default class ElementDownCommand extends ElementCommand {
 
   refresh() {
-    const currentElement = this.getSelectedElement();
-    this.isEnabled = currentElement && currentElement.nextSibling;
+    const currentElement = this.getSelectedTemplate();
+    this.isEnabled = currentElement && currentElement.nextSibling && !(currentElement.nextSibling.getAttribute('ck-editable-type') === 'placeholder');
+    this.isVisible = currentElement && currentElement.getAttribute('ck-editable-type') !== 'placeholder';
   }
 
   execute() {
     const model = this.editor.model;
-    const currentElement = this.getSelectedElement();
+    const currentElement = this.getSelectedTemplate();
     const view = this.editor.editing.view;
     const editing = this.editor.editing;
     const nextElement = view.domConverter.mapViewToDom(editing.mapper.toViewElement(currentElement.nextSibling));

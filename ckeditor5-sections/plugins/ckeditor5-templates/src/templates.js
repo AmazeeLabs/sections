@@ -194,6 +194,24 @@ export default class Templates extends Plugin {
       }
     }
 
+    // "current page" container paging marker attribute
+    this.editor.conversion.for('editingDowncast').add(dispatcher => {
+      dispatcher.on( `attribute:ck-current-page:${ element.name }`,( evt, data, conversionApi ) => {
+        if ( !conversionApi.consumable.consume( data.item, evt.name )) {
+          return;
+        }
+
+        const viewWriter = conversionApi.writer;
+        const entity = conversionApi.mapper.toViewElement( data.item );
+
+        if ( data.attributeNewValue) {
+          viewWriter.addClass('ck-current-page', entity);
+        } else {
+          viewWriter.removeClass('ck-current-page', entity);
+        }
+      });
+    });
+
     // TODO: turn into one postfixer that iterates through templates
     this.editor.model.document.registerPostFixer((writer) => {
       for (const entry of this.editor.model.document.differ.getChanges()) {

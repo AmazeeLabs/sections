@@ -6,6 +6,7 @@ import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import View from "@ckeditor/ckeditor5-ui/src/view";
 import ViewPosition from '@ckeditor/ckeditor5-engine/src/view/position';
 import TemplateElement from "../templateelement";
+import {toWidget} from "@ckeditor/ckeditor5-widget/src/utils";
 
 /**
  * Entity view element.
@@ -29,17 +30,18 @@ class PlaceholderView extends View {
       });
       buttons.push(view);
     }
-    const removeButton = new ButtonView();
-    removeButton.set({
-      label: 'Close',
-      withText: true,
-      class: 'close-button'
-    });
-    removeButton.render();
-    removeButton.on('execute', () => {
-      editor.execute('removePlaceholder', {model: modelElement});
-    });
-    buttons.push(removeButton);
+
+    // const removeButton = new ButtonView();
+    // removeButton.set({
+    //   label: 'Close',
+    //   withText: true,
+    //   class: 'close-button'
+    // });
+    // removeButton.render();
+    // removeButton.on('execute', () => {
+    //   editor.execute('removePlaceholder', {model: modelElement});
+    // });
+    // buttons.push(removeButton);
 
     const template = {
       tag: 'div',
@@ -77,7 +79,9 @@ export default class PlaceholderElement extends TemplateElement {
   get schemaExtensions() {
     return this.node.getAttribute('ck-allowed-elements').split(' ').map((name) => {
       return { element: 'ck-templates__' + name, info: { allowWhere: this.name }};
-    });
+    }).concat([
+      {element: this.name, allowAttributes: ['ck-current-page']}
+    ]);
   }
 
   get fittingElements() {
@@ -100,8 +104,8 @@ export default class PlaceholderElement extends TemplateElement {
         });
         const cont = writer.createContainerElement('div', { class: 'placeholder-container-element'});
         writer.insert( ViewPosition.createAt( cont , 0), element );
-
-        return cont;
+        writer.setCustomProperty('placeholder', true, cont);
+        return toWidget(cont, writer);
       }
     });
   }
