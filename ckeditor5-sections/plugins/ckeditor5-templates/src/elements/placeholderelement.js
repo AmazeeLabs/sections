@@ -92,17 +92,6 @@ export default class PlaceholderElement extends TemplateElement {
     return super.fittingElements.concat(this.placeholderOptions);
   }
 
-  postfix(writer, item) {
-    super.postfix(writer, item);
-    debugger;
-    const options = this.placeholderOptions;
-    if (options.length === 1) {
-    	writer.insertElement(options[0], item, 'before');
-    	writer.remove(item);
-    	return true;
-	}
-  }
-
   get editingDowncast() {
     const editor = this.editor;
     const node = this.node;

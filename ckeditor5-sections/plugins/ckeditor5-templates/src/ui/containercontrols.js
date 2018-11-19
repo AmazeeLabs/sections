@@ -768,18 +768,14 @@ export default class ContainerControls extends Plugin {
   }
 
   getSelectedElement() {
-    const modelElement = this.editor.model.document.selection.getSelectedElement()
-      || this.editor.model.document.selection.anchor.parent;
-
-    let element = this.editor.editing.mapper.toViewElement(modelElement);
-
-    while (element) {
-      if (element.parent && element.parent.getCustomProperty('container')) {
-        return this.editor.editing.mapper.toModelElement(element);
-      }
-      element = element.parent;
-    }
-    return false;
+	  let element = this.editor.editing.mapper.toViewElement(this.editor.model.document.selection.getSelectedElement() || this.editor.model.document.selection.anchor.parent);
+	  while (element) {
+		  if (element.getCustomProperty('template') || element.getCustomProperty('placeholder')) {
+			  return this.editor.editing.mapper.toModelElement(element);
+		  }
+		  element = element.parent;
+	  }
+	  return false;
   }
 
 }

@@ -247,6 +247,9 @@ export default class TemplateElement {
       }
     }
 
+    const childMap = this.children.map((child) => ({[child.name]: child}))
+		.reduce((acc, val) => Object.assign(acc, val), {});
+
     const childSeats = this.children.map((child) => ({[child.name]: false}))
         .reduce((acc, val) => Object.assign(acc, val), {});
 
@@ -271,7 +274,12 @@ export default class TemplateElement {
         writer.insert(childSeats[name], item, 'end');
       }
       else {
-        writer.insertElement(name, item, 'end');
+      	if (childMap[name].placeholderOptions && childMap[name].placeholderOptions.length === 1) {
+			writer.insertElement(childMap[name].placeholderOptions[0], item, 'end');
+		}
+		else {
+			writer.insertElement(name, item, 'end');
+		}
         changed = true;
       }
     }

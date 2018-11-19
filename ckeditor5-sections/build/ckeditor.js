@@ -98926,7 +98926,7 @@ class ElementDownCommand extends _elementcommand__WEBPACK_IMPORTED_MODULE_0__["d
   refresh() {
     const currentElement = this.getSelectedTemplate();
     this.isEnabled = currentElement && currentElement.nextSibling && !(currentElement.nextSibling.getAttribute('ck-editable-type') === 'placeholder');
-    this.isVisible = currentElement && currentElement.getAttribute('ck-editable-type') !== 'placeholder';
+    this.isVisible = currentElement && currentElement.getAttribute('ck-editable-type') !== 'placeholder' && currentElement.parent.getAttribute('ck-editable-type') === 'container';
   }
 
   execute() {
@@ -98976,7 +98976,8 @@ class ElementRemoveCommand extends _elementcommand__WEBPACK_IMPORTED_MODULE_0__[
 
   refresh() {
     const currentElement = this.getSelectedTemplate();
-    this.isVisible = currentElement && currentElement.getAttribute('ck-editable-type') !== 'placeholder';
+    this.isEnabled = true;
+    this.isVisible = currentElement && currentElement.getAttribute('ck-editable-type') !== 'placeholder' && currentElement.parent.getAttribute('ck-editable-type') === 'container';
   }
 
   execute(values) {
@@ -99011,7 +99012,7 @@ class ElementUpCommand extends _elementcommand__WEBPACK_IMPORTED_MODULE_0__["def
   refresh() {
     const currentElement = this.getSelectedTemplate();
     this.isEnabled = currentElement && currentElement.previousSibling;
-    this.isVisible = currentElement && currentElement.getAttribute('ck-editable-type') !== 'placeholder';
+    this.isVisible = currentElement && currentElement.getAttribute('ck-editable-type') !== 'placeholder' && currentElement.parent.getAttribute('ck-editable-type') === 'container';
   }
 
   execute() {
@@ -99866,17 +99867,6 @@ class PlaceholderElement extends _templateelement__WEBPACK_IMPORTED_MODULE_5__["
     return super.fittingElements.concat(this.placeholderOptions);
   }
 
-  postfix(writer, item) {
-    super.postfix(writer, item);
-    debugger;
-    const options = this.placeholderOptions;
-    if (options.length === 1) {
-    	writer.insertElement(options[0], item, 'before');
-    	writer.remove(item);
-    	return true;
-	}
-  }
-
   get editingDowncast() {
     const editor = this.editor;
     const node = this.node;
@@ -100233,6 +100223,9 @@ class TemplateElement {
       }
     }
 
+    const childMap = this.children.map((child) => ({[child.name]: child}))
+		.reduce((acc, val) => Object.assign(acc, val), {});
+
     const childSeats = this.children.map((child) => ({[child.name]: false}))
         .reduce((acc, val) => Object.assign(acc, val), {});
 
@@ -100257,7 +100250,12 @@ class TemplateElement {
         writer.insert(childSeats[name], item, 'end');
       }
       else {
-        writer.insertElement(name, item, 'end');
+      	if (childMap[name].placeholderOptions && childMap[name].placeholderOptions.length === 1) {
+			writer.insertElement(childMap[name].placeholderOptions[0], item, 'end');
+		}
+		else {
+			writer.insertElement(name, item, 'end');
+		}
         changed = true;
       }
     }
@@ -101427,18 +101425,14 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
   }
 
   getSelectedElement() {
-    const modelElement = this.editor.model.document.selection.getSelectedElement()
-      || this.editor.model.document.selection.anchor.parent;
-
-    let element = this.editor.editing.mapper.toViewElement(modelElement);
-
-    while (element) {
-      if (element.parent && element.parent.getCustomProperty('container')) {
-        return this.editor.editing.mapper.toModelElement(element);
-      }
-      element = element.parent;
-    }
-    return false;
+	  let element = this.editor.editing.mapper.toViewElement(this.editor.model.document.selection.getSelectedElement() || this.editor.model.document.selection.anchor.parent);
+	  while (element) {
+		  if (element.getCustomProperty('template') || element.getCustomProperty('placeholder')) {
+			  return this.editor.editing.mapper.toModelElement(element);
+		  }
+		  element = element.parent;
+	  }
+	  return false;
   }
 
 }
