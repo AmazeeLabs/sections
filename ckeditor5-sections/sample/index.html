@@ -74,11 +74,12 @@
           label: 'Text',
           template: `
             <div class="text" first="a" second="" third="initial value" fourth="one,three">
-              <h2 ck-editable-type="text">Enter a headline ...</h2>
-              <div ck-editable-type="formatted">Enter your text ...</div>
+              <h2 ck-editable-type="text" limit="10">Enter a headline ...</h2>
+              <div ck-editable-type="formatted" limit="50">Enter your text ...</div>
             </div>
           `,
         },
+
         image: {
           label: 'Image',
           template: `
