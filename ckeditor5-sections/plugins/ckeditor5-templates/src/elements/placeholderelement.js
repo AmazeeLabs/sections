@@ -84,10 +84,13 @@ export default class PlaceholderElement extends TemplateElement {
     ]);
   }
 
-  get fittingElements() {
-    return super.fittingElements.concat(this.node.getAttribute('ck-allowed-elements').split(' ').map((el) => `ck-templates__${el}`));
+  get placeholderOptions() {
+  	return this.node.getAttribute('ck-allowed-elements').split(' ').map((el) => `ck-templates__${el}`);
   }
 
+  get fittingElements() {
+    return super.fittingElements.concat(this.placeholderOptions);
+  }
 
   get editingDowncast() {
     const editor = this.editor;

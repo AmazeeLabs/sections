@@ -835,7 +835,7 @@ export default class ContainerControls extends Plugin {
     let element = this.getSelectedElement();
 
     while (element) {
-      if (element.parent && element.parent.getCustomProperty('container')) {
+      if (element.getCustomProperty('template') || element.getCustomProperty('placeholder')) {
         return this.editor.editing.mapper.toModelElement(element);
       }
       element = element.parent;
