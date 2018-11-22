@@ -101304,8 +101304,21 @@ class ContainerControls extends _ckeditor_ckeditor5_core_src_plugin__WEBPACK_IMP
 		const editableRect = new _ckeditor_ckeditor5_utils_src_dom_rect__WEBPACK_IMPORTED_MODULE_4__["default"](editableDomTarget);
         this.remainingCharCountView.setRemainingChars(limit - editableDomTarget.innerText.trim().length);
         // Position the counter on the bottom left of the current element.
-        this.remainingCharCountView.top = editableRect.top + editableRect.height;
-        this.remainingCharCountView.left = editableRect.left;
+        const tooltipPosition = Object(_ckeditor_ckeditor5_utils_src_dom_position__WEBPACK_IMPORTED_MODULE_3__["getOptimalPosition"])( {
+			element: this.remainingCharCountView.element,
+            target: editableDomTarget,
+            positions: [
+                ( editableRect, tooltipRect ) => {
+                  return {
+                      top: editableRect.top + editableRect.height,
+                      left: editableRect.left,
+                  }
+                }
+            ]
+        });
+
+        this.remainingCharCountView.top = tooltipPosition.top;
+        this.remainingCharCountView.left = tooltipPosition.left;
         this.remainingCharCountView.isVisible = true;
 
         // Hide the counter when the input looses focus.

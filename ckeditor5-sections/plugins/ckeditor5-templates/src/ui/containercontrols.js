@@ -646,8 +646,21 @@ export default class ContainerControls extends Plugin {
 		const editableRect = new Rect(editableDomTarget);
         this.remainingCharCountView.setRemainingChars(limit - editableDomTarget.innerText.trim().length);
         // Position the counter on the bottom left of the current element.
-        this.remainingCharCountView.top = editableRect.top + editableRect.height;
-        this.remainingCharCountView.left = editableRect.left;
+        const tooltipPosition = getOptimalPosition( {
+			element: this.remainingCharCountView.element,
+            target: editableDomTarget,
+            positions: [
+                ( editableRect, tooltipRect ) => {
+                  return {
+                      top: editableRect.top + editableRect.height,
+                      left: editableRect.left,
+                  }
+                }
+            ]
+        });
+
+        this.remainingCharCountView.top = tooltipPosition.top;
+        this.remainingCharCountView.left = tooltipPosition.left;
         this.remainingCharCountView.isVisible = true;
 
         // Hide the counter when the input looses focus.
