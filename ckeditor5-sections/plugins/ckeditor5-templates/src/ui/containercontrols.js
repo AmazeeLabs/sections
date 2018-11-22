@@ -35,6 +35,9 @@ import Logger from '../util/logger';
 import PreviousPageCommand from "../commands/previouspagecommand";
 import NextPageCommand from "../commands/nextpagecommand";
 import PagingCommand from "../commands/pagingcommand";
+import EditableElement
+  from "@ckeditor/ckeditor5-engine/src/view/editableelement";
+import RemainingCharCountView from "./remainingcharcountview";
 
 const toPx = toUnit( 'px' );
 
@@ -260,6 +263,15 @@ export default class ContainerControls extends Plugin {
       //   command: editor.commands.get('insertAfter')
       // },
     };
+
+    // Create an element that will show the number of remaining chars for
+    // the currently selected input.
+    this.remainingCharCountView = new RemainingCharCountView(editor.locale);
+    this.remainingCharCountView.set({
+      position: 'bottom right',
+    });
+    this.remainingCharCountView.render();
+    editor.ui.view.body.add(this.remainingCharCountView);
 
     this.buttonViews = Object.keys(this.buttons).map((key) => {
       const ButtonConstructor = this.buttons[key].buttonClass ? this.buttons[key].buttonClass : ContainerButtonView;
@@ -618,7 +630,33 @@ export default class ContainerControls extends Plugin {
     const editor = this.editor;
     const view = editor.editing.view;
 
-    const modelTarget = this.getSelectedElement();
+    // Find the editable element which got selected.
+    const editableModel = this.getSelectedEditableModel();
+    if (editableModel) {
+      // Get the dom element for the editable input and check if it has the
+      // 'limit' attribute.
+      const editableDomTarget = view.domConverter.mapViewToDom(editor.editing.mapper.toViewElement(editableModel));
+      const limit = editableDomTarget.getAttribute('limit');
+      // Hide the count by default. Only show it if a limited editable is selected.
+      this.remainingCharCountView.isVisible = false;
+
+      if (!!limit) {
+        // Limit found. Update the remainingCharCountView with the length of
+        // the element's content.
+		const editableRect = new Rect(editableDomTarget);
+        this.remainingCharCountView.setRemainingChars(limit - editableDomTarget.innerText.trim().length);
+        // Position the counter on the bottom left of the current element.
+        this.remainingCharCountView.top = editableRect.top + editableRect.height;
+        this.remainingCharCountView.left = editableRect.left;
+        this.remainingCharCountView.isVisible = true;
+
+        // Hide the counter when the input looses focus.
+        editableDomTarget.removeEventListener('blur', this.remainingCharCountView.clear);
+        editableDomTarget.addEventListener('blur', this.remainingCharCountView.clear);
+      }
+    }
+
+    const modelTarget = this.getSelectedTemplateModel();
 
     if (!modelTarget || editor.isReadOnly ) {
       return;
@@ -767,15 +805,48 @@ export default class ContainerControls extends Plugin {
     this.configurationPanelView.isVisible = false;
   }
 
+  /**
+   * Return the view element associated with current selection.
+   *
+   * @returns {module:engine/view/element~Element}
+   */
   getSelectedElement() {
-	  let element = this.editor.editing.mapper.toViewElement(this.editor.model.document.selection.getSelectedElement() || this.editor.model.document.selection.anchor.parent);
-	  while (element) {
-		  if (element.getCustomProperty('template') || element.getCustomProperty('placeholder')) {
-			  return this.editor.editing.mapper.toModelElement(element);
-		  }
-		  element = element.parent;
-	  }
-	  return false;
+    const modelElement = this.editor.model.document.selection.getSelectedElement()
+      || this.editor.model.document.selection.anchor.parent;
+
+    return this.editor.editing.mapper.toViewElement(modelElement);
+  }
+
+  /**
+   * Returns a model of the currently selected editable element.
+   * @returns {*}
+   */
+  getSelectedEditableModel() {
+    let element = this.getSelectedElement();
+
+    while (element) {
+      if (element && element instanceof EditableElement) {
+        return this.editor.editing.mapper.toModelElement(element);
+      }
+      element = element.parent;
+    }
+    return false;
+  }
+
+  /**
+   * Returns a model of the currently selected template element.
+   * @returns {*}
+   */
+  getSelectedTemplateModel() {
+    let element = this.getSelectedElement();
+
+    while (element) {
+      if (element.getCustomProperty('template') || element.getCustomProperty('placeholder')) {
+        return this.editor.editing.mapper.toModelElement(element);
+      }
+      element = element.parent;
+    }
+    return false;
   }
 
 }

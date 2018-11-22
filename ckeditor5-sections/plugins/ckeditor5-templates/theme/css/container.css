@@ -147,3 +147,14 @@ button.current-page {
   font-size: 1.2em;
   transform: translate(10px, -1px);
 }
+
+.ck .char-limit-count.limit-exceeded {
+  color: red;
+}
+
+.ck .char-limit-count {
+	background: white;
+	padding: 0 5px;
+	border: 1px solid currentColor;
+	transform: translate(5px, 5px);
+}
