@@ -637,12 +637,18 @@ export default class ContainerControls extends Plugin {
       // 'limit' attribute.
       const editableDomTarget = view.domConverter.mapViewToDom(editor.editing.mapper.toViewElement(editableModel));
       const limit = editableDomTarget.getAttribute('limit');
+      // Hide the count by default. Only show it if a limited editable is selected.
+      this.remainingCharCountView.isVisible = false;
 
       if (!!limit) {
         // Limit found. Update the remainingCharCountView with the length of
         // the element's content.
+		const editableRect = new Rect(editableDomTarget);
         this.remainingCharCountView.setRemainingChars(limit - editableDomTarget.innerText.trim().length);
-        this._attachButtonToElement(editableDomTarget, this.remainingCharCountView);
+        // Position the counter on the bottom left of the current element.
+        this.remainingCharCountView.top = editableRect.top + editableRect.height;
+        this.remainingCharCountView.left = editableRect.left;
+        this.remainingCharCountView.isVisible = true;
 
         // Hide the counter when the input looses focus.
         editableDomTarget.removeEventListener('blur', this.remainingCharCountView.clear);

@@ -1,5 +1,8 @@
 import View from "@ckeditor/ckeditor5-ui/src/view";
 
+import toUnit from '@ckeditor/ckeditor5-utils/src/dom/tounit';
+const toPx = toUnit( 'px' );
+
 export default class RemainingCharCountView extends View {
 
   /**
@@ -11,6 +14,10 @@ export default class RemainingCharCountView extends View {
     const bind = this.bindTemplate;
 
     this.set('remainingChars', null);
+    // Required to control display of this view.
+    this.set('top', 0);
+    this.set('left', 0);
+    this.set('isVisible', false);
 
     this.setTemplate({
       tag: 'div',
@@ -23,7 +30,15 @@ export default class RemainingCharCountView extends View {
         class: [
           'char-limit-count',
           bind.to('remainingChars', this._getDynamicClass),
+          // Mark as hidden if 'isVisible' is false.
+          bind.if( 'isVisible', 'ck-hidden', value => !value ),
         ],
+        style: {
+        	  // Position absolutely using the current top and left properties.
+            position: 'absolute',
+            top: bind.to('top', val => toPx(val)),
+            left: bind.to('left', val => toPx(val)),
+        }
       },
     });
   }
@@ -42,6 +57,7 @@ export default class RemainingCharCountView extends View {
    * @public
    */
   clear() {
+  	this.isVisible = false;
     this.remainingChars = null;
   }
 
