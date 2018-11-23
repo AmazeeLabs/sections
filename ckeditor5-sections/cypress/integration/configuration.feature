@@ -14,13 +14,13 @@ Feature: Configurable elements
   Scenario: Preselect existing values in a dropdown
     Given I opened an empty document
     When I click the first element
-    And I click the "Configure element" container button
+    And I click the configure control
     Then "Option A" should be preselected
 
   Scenario: Change a setting in a dropdown
     Given I opened an empty document
     And I click the first element
-    When I click the "Configure element" container button
+    When I click the configure control
     And I choose "Option B" for the first setting
     Then "Option B" remains selected
     And the first preview element has "first" set to "b"
@@ -28,7 +28,7 @@ Feature: Configurable elements
   Scenario: Preselect values in a textfield
     Given I opened an empty document
     When I click the first element
-    And I click the "Configure element" container button
+    And I click the configure control
     Then a textfield element should have a value of "initial value"
 
   Scenario: Preserve user input in a textfield
@@ -42,7 +42,7 @@ Feature: Configurable elements
   Scenario: Preselect values in a multiselect
     Given I opened an empty document
     When I click the first element
-    And I click the "Configure element" container button
+    And I click the configure control
     Then a multiselect element should have a value of "One, Three"
 
   Scenario: Preserve user input in a textfield

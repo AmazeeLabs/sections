@@ -65,7 +65,7 @@
           label: 'Root',
           template: `
             <div class="root">
-              <div class="root-container" ck-editable-type="container" ck-allowed-elements="text image gallery" ck-default-element="text"></div>
+              <div class="root-container" ck-editable-type="container" ck-allowed-elements="text image gallery nested_container" ck-default-element="text"></div>
             </div>
           `,
         },
@@ -99,6 +99,26 @@
             </div>
           `,
         },
+
+        nested_container: {
+          label: 'Nested container',
+          template: `
+            <div class="nested-container">
+              <div class="main" ck-editable-type="container" ck-container-layout="paged" ck-allowed-elements="nested_sub_container" ck-default-element="nested_sub_container"></div>
+              <div class="more" ck-editable-type="container" ck-allowed-elements="text" ck-default-element="text"></div>
+            </div>
+          `,
+        },
+
+        nested_sub_container: {
+          label: 'Nested sub-container',
+          template: `
+            <div class="nested-sub-element">
+              <div class="nested-sub-element-container" ck-editable-type="container" ck-container-layout="paged" ck-allowed-elements="text" ck-default-element="text"></div>
+            </div>
+          `,
+        },
+
       },
       templateAttributes: {
         first: {

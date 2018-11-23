@@ -11,9 +11,14 @@ export const clickTheNthElement = position => {
   cy.get('@container').children().filter(selector).as('widget').click();
 }
 
-export const clickTheContainerButtonWithText = text => {
-  // target the visible toolbar first.
-  cy.contains(text).not(`.ck-disabled`).click();
+export const clickTheContainerControl = button => {
+  const selector = {
+    remove: 'button.element-remove',
+    configure: 'button.element-configure',
+    up: 'button.element-up',
+    down: 'button.element-down'
+  }[button];
+  cy.get(selector).not(`.ck-disabled`).click();
 }
 
 Given(`I opened an empty document`, () => {
@@ -79,12 +84,16 @@ Given(/^I enter "(.*)"$/, (text) => {
   cy.get('@editable').type(text);
 });
 
+Given(/^I go to the (next|previous) page$/, (page) => {
+  cy.get(`.ck-editor.${page}-page`).not('.ck-off').click();
+});
+
 Then (/^there should be (\d+)\s?(.*?) elements?$/, (number, type) => {
   if (type) {
-    cy.get('@container').children().filter(`.${type}`).should('have.length', number);
+    cy.get('@container').children().not('.placeholder-container-element').filter(`.${type}`).should('have.length', number);
   }
   else {
-    cy.get('@container').children().should('have.length', number);
+    cy.get('@container').children().not('.placeholder-container-element').should('have.length', number);
   }
 });
 
@@ -104,25 +113,43 @@ Then(/^the (first|second|third|last) preview element should show "([^"]*)"$/, (p
     });
 });
 
-Then(/^the "([^"]*)" button should be (disabled|enabled|hidden)$/, (text, state) => {
+Then(/^the (remove|configure|up|down) control should be (disabled|enabled|hidden)$/, (button, state) => {
+  const selector = {
+    remove: 'button.element-remove',
+    configure: 'button.element-configure',
+    up: 'button.element-up',
+    down: 'button.element-down'
+  }[button];
   if (state === 'disabled') {
-    cy.contains(text).filter(`.ck-disabled`);
+    cy.get(selector).filter(`.ck-off`);
   }
   else if (state === 'hidden') {
-    cy.contains(text).should('not.be.visible');
+    cy.get(selector).filter('not.be.visible');
   }
   else {
-    cy.contains(text).not(`.ck-enabled`);
+    cy.get(selector).not(`.ck-enabled`);
   }
 });
 
-When(/^I click the "([^"]*)" container button$/, (text) => {
-  clickTheContainerButtonWithText(text);
+Then(/^the "([^"]*)" toolbar button should be (disabled|enabled|hidden)$/, (text, state) => {
+  if (state === 'disabled') {
+    cy.get('.placeholder-container-element').contains(text).filter(`.ck-disabled`);
+  }
+  else if (state === 'hidden') {
+    cy.get('.placeholder-container-element').contains(text).should('not.be.visible');
+  }
+  else {
+    cy.get('.placeholder-container-element').contains(text).not(`.ck-enabled`);
+  }
 });
 
 When(/^I click the "([^"]*)" toolbar button$/, (text) => {
   // target the visible toolbar first.
-  cy.get('.ck-balloon-panel_visible').contains(text).not(`.ck-disabled`).click();
+  cy.get('.placeholder-container-element').contains(text).not(`.ck-disabled`).click();
+});
+
+When(/^I click the (remove|configure|up|down) control$/, (button) => {
+  clickTheContainerControl(button);
 });
 
 When(/^I click the first image$/, (text) => {
@@ -131,9 +158,8 @@ When(/^I click the first image$/, (text) => {
 });
 
 Then(/^the container control buttons appear$/, () => {
-  cy.contains('Remove element');
-  cy.contains('Move element up');
-  cy.contains('Move element down');
-  cy.contains('Insert element above');
-  cy.contains('Insert element below');
+  cy.get('button.element-remove');
+  cy.get('button.element-configure');
+  cy.get('button.element-up');
+  cy.get('button.element-down');
 });
