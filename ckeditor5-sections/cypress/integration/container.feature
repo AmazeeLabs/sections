@@ -73,11 +73,3 @@ Feature: Containers
     And I click the down control
     Then the first preview element should show "B"
     And the second preview element should show "A"
-
-  Scenario: Insert 3rd level nested elements
-    Given I opened an empty document
-    And I click the "Nested container" toolbar button
-    And I click the second element
-    And I edit the textarea "Enter a headline ..."
-    And I enter "Test"
-    Then the preview should show "Test"
