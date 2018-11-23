@@ -16,7 +16,9 @@ export const clickTheContainerControl = button => {
     remove: 'button.element-remove',
     configure: 'button.element-configure',
     up: 'button.element-up',
-    down: 'button.element-down'
+    down: 'button.element-down',
+    "next page": 'button.next-page',
+    "previous page": 'button.previous-page',
   }[button];
   cy.get(selector).not(`.ck-disabled`).click();
 }
@@ -84,10 +86,6 @@ Given(/^I enter "(.*)"$/, (text) => {
   cy.get('@editable').type(text);
 });
 
-Given(/^I go to the (next|previous) page$/, (page) => {
-  cy.get(`.ck-editor.${page}-page`).not('.ck-off').click();
-});
-
 Then (/^there should be (\d+)\s?(.*?) elements?$/, (number, type) => {
   if (type) {
     cy.get('@container').children().not('.placeholder-container-element').filter(`.${type}`).should('have.length', number);
@@ -113,12 +111,14 @@ Then(/^the (first|second|third|last) preview element should show "([^"]*)"$/, (p
     });
 });
 
-Then(/^the (remove|configure|up|down) control should be (disabled|enabled|hidden)$/, (button, state) => {
+Then(/^the (remove|configure|up|down|next page|previous page) control should be (disabled|enabled|hidden)$/, (button, state) => {
   const selector = {
     remove: 'button.element-remove',
     configure: 'button.element-configure',
     up: 'button.element-up',
-    down: 'button.element-down'
+    down: 'button.element-down',
+    "next page": 'button.next-page',
+    "previous page": 'button.previous-page',
   }[button];
   if (state === 'disabled') {
     cy.get(selector).filter(`.ck-off`);
@@ -148,7 +148,7 @@ When(/^I click the "([^"]*)" toolbar button$/, (text) => {
   cy.get('.placeholder-container-element').contains(text).not(`.ck-disabled`).click();
 });
 
-When(/^I click the (remove|configure|up|down) control$/, (button) => {
+When(/^I click the (remove|configure|up|down|next page|previous page) control$/, (button) => {
   clickTheContainerControl(button);
 });
 
@@ -162,4 +162,6 @@ Then(/^the container control buttons appear$/, () => {
   cy.get('button.element-configure');
   cy.get('button.element-up');
   cy.get('button.element-down');
+  cy.get('button.next-page');
+  cy.get('button.previous-page');
 });
