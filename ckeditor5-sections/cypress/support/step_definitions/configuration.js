@@ -1,15 +1,14 @@
 /* global Given, When, Then */
 
-import { clickTheNthElement, clickTheContainerButtonWithText } from './basics';
+import { clickTheNthElement, clickTheContainerControl } from './basics';
 
 export const openTheConfigurationPanelForNthElement = position => {
   clickTheNthElement(position);
-  clickTheContainerButtonWithText("Configure element");
+  clickTheContainerControl("configure");
 }
 
 Given(/^I added an? (Image|Gallery) element$/, (type) => {
   cy.get('@container').children().first().as('widget').click();
-  cy.contains('Insert element below').click();
   cy.get('.ck-placeholder-widget .ck-button').contains(type).click();
   cy.get('@container').children().last().as('widget').click();
 });

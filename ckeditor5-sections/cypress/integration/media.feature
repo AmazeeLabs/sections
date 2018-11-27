@@ -5,8 +5,6 @@ Feature: Embedded media
   Scenario: Add an empty image element
     Given I opened an empty document
     And I click the first element
-    And I click the "Insert element below" container button
-    And I click the "Insert ..." toolbar button
     And I click the "Image" toolbar button
     Then there should be 1 image element
 
