@@ -23,4 +23,5 @@ export default class TemplateAttributeCommand extends ElementCommand {
       });
     }
   }
+
 }

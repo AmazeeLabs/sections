@@ -6,7 +6,6 @@ import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import Element from '@ckeditor/ckeditor5-engine/src/model/element'
 import TemplateElement from './templateelement';
-import PlaceholderElement from "./elements/placeholderelement";
 import MediaSelectCommand from "./commands/mediaselectcommand";
 
 import "../theme/css/media.css";
