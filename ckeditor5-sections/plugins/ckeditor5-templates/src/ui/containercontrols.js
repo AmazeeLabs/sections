@@ -38,6 +38,10 @@ import PagingCommand from "../commands/pagingcommand";
 import EditableElement
   from "@ckeditor/ckeditor5-engine/src/view/editableelement";
 import RemainingCharCountView from "./remainingcharcountview";
+import {
+  getSelectedEditableModel,
+  getSelectedTemplateModel
+} from "../util/selectedelement";
 
 const toPx = toUnit( 'px' );
 
@@ -355,6 +359,12 @@ export default class ContainerControls extends Plugin {
       const callback = factoryMethod.apply(this, args);
       editor.ui.componentFactory.add(componentName, callback);
     }
+
+    editor.ui.focusTracker.on('change:isFocused', () => {
+      if (this.remainingCharCountView.isVisible) {
+        this.remainingCharCountView.isVisible = false;
+      }
+    });
   }
 
   /**
@@ -631,45 +641,55 @@ export default class ContainerControls extends Plugin {
     const view = editor.editing.view;
 
     // Find the editable element which got selected.
-    const editableModel = this.getSelectedEditableModel();
+    const editableModel = getSelectedEditableModel(editor);
     if (editableModel) {
       // Get the dom element for the editable input and check if it has the
       // 'limit' attribute.
-      const editableDomTarget = view.domConverter.mapViewToDom(editor.editing.mapper.toViewElement(editableModel));
-      const limit = editableDomTarget.getAttribute('limit');
+      const limit = editableModel.getAttribute('limit');
       // Hide the count by default. Only show it if a limited editable is selected.
       this.remainingCharCountView.isVisible = false;
 
       if (!!limit) {
         // Limit found. Update the remainingCharCountView with the length of
         // the element's content.
-		const editableRect = new Rect(editableDomTarget);
-        this.remainingCharCountView.setRemainingChars(limit - editableDomTarget.innerText.trim().length);
+        const editableDomTarget = view.domConverter.mapViewToDom(editor.editing.mapper.toViewElement(editableModel));
+        const remaining = limit - editableDomTarget.innerText.trim().length;
+        const limitExceededAttribute = 'ck-char-limit-exceeded';
+        const hasLimitExceededAttribute = editableModel.getAttribute(limitExceededAttribute);
+
+        if (remaining < 0) {
+          if (!hasLimitExceededAttribute) {
+            editor.model.change(writer => {
+              writer.setAttribute(limitExceededAttribute, true, editableModel);
+            });
+          }
+        } else if (hasLimitExceededAttribute) {
+          editor.model.change(writer => {
+            writer.setAttribute(limitExceededAttribute, null, editableModel);
+          });
+        }
+        this.remainingCharCountView.setRemainingChars(remaining);
         // Position the counter on the bottom left of the current element.
         const tooltipPosition = getOptimalPosition( {
-			element: this.remainingCharCountView.element,
-            target: editableDomTarget,
-            positions: [
-                ( editableRect, tooltipRect ) => {
-                  return {
-                      top: editableRect.top + editableRect.height,
-                      left: editableRect.left,
+        element: this.remainingCharCountView.element,
+              target: editableDomTarget,
+              positions: [
+                  ( editableRect, tooltipRect ) => {
+                    return {
+                        top: editableRect.top + editableRect.height,
+                        left: editableRect.left,
+                    }
                   }
-                }
-            ]
-        });
+              ]
+          });
 
-        this.remainingCharCountView.top = tooltipPosition.top;
-        this.remainingCharCountView.left = tooltipPosition.left;
-        this.remainingCharCountView.isVisible = true;
-
-        // Hide the counter when the input looses focus.
-        editableDomTarget.removeEventListener('blur', this.remainingCharCountView.clear);
-        editableDomTarget.addEventListener('blur', this.remainingCharCountView.clear);
+          this.remainingCharCountView.top = tooltipPosition.top;
+          this.remainingCharCountView.left = tooltipPosition.left;
+          this.remainingCharCountView.isVisible = true;
       }
     }
 
-    const modelTarget = this.getSelectedTemplateModel();
+    const modelTarget = getSelectedTemplateModel(editor);
 
     if (!modelTarget || editor.isReadOnly ) {
       return;
@@ -816,50 +836,6 @@ export default class ContainerControls extends Plugin {
     this.insertBeforePanelView.isVisible = false;
     this.insertAfterPanelView.isVisible = false;
     this.configurationPanelView.isVisible = false;
-  }
-
-  /**
-   * Return the view element associated with current selection.
-   *
-   * @returns {module:engine/view/element~Element}
-   */
-  getSelectedElement() {
-    const modelElement = this.editor.model.document.selection.getSelectedElement()
-      || this.editor.model.document.selection.anchor.parent;
-
-    return this.editor.editing.mapper.toViewElement(modelElement);
-  }
-
-  /**
-   * Returns a model of the currently selected editable element.
-   * @returns {*}
-   */
-  getSelectedEditableModel() {
-    let element = this.getSelectedElement();
-
-    while (element) {
-      if (element && element instanceof EditableElement) {
-        return this.editor.editing.mapper.toModelElement(element);
-      }
-      element = element.parent;
-    }
-    return false;
-  }
-
-  /**
-   * Returns a model of the currently selected template element.
-   * @returns {*}
-   */
-  getSelectedTemplateModel() {
-    let element = this.getSelectedElement();
-
-    while (element) {
-      if (element.getCustomProperty('template') || element.getCustomProperty('placeholder')) {
-        return this.editor.editing.mapper.toModelElement(element);
-      }
-      element = element.parent;
-    }
-    return false;
   }
 
 }

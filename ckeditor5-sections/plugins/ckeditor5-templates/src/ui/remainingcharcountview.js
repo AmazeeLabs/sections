@@ -68,8 +68,14 @@ export default class RemainingCharCountView extends View {
    * @private
    */
   _formatMessage(remainingChars) {
-    if (remainingChars !== null) {
+    if (remainingChars === null) {
+      return;
+    }
+
+    if (remainingChars >= 0) {
       return `${remainingChars} characters remaining.`;
+    } else {
+      return `Please delete ${-remainingChars} characters.`;
     }
   }
 

@@ -2,7 +2,9 @@
  * @module templates/elements/textelement
  */
 import TemplateElement from "../templateelement";
-import {downcastElementToElement} from "@ckeditor/ckeditor5-engine/src/conversion/downcast-converters";
+import {
+  changeAttribute
+} from "@ckeditor/ckeditor5-engine/src/conversion/downcast-converters";
 import {attachPlaceholder} from "@ckeditor/ckeditor5-engine/src/view/placeholder";
 import {toWidgetEditable} from "@ckeditor/ckeditor5-widget/src/utils";
 
@@ -27,6 +29,9 @@ export default class TextElement extends TemplateElement {
     });
   }
 
+  /**
+   * @inheritDoc
+   */
   get schemaExtensions() {
     return [
       { element: '$text', info: { allowIn: this.name }},
@@ -37,14 +42,31 @@ export default class TextElement extends TemplateElement {
    * @inheritDoc
    */
   get editingDowncast() {
-    return downcastElementToElement({
-      model: this.name,
-      view: (modelElement, writer) => {
-        // Create an editable textfield of the given type and attach the content as placeholder.
-        const editable = writer.createEditableElement(this.node.tagName, this.getModelAttributes(modelElement));
-        attachPlaceholder(this.editor.editing.view, editable, this.node.textContent);
-        return toWidgetEditable(editable, writer);
+    const createWidget = (modelElement, writer) => {
+      // Create an editable textfield of the given type and attach the content as placeholder.
+      const editable = writer.createEditableElement(this.node.tagName, this.getModelAttributes(modelElement));
+      attachPlaceholder(this.editor.editing.view, editable, this.node.textContent);
+      return toWidgetEditable(editable, writer);
+    };
+
+    const insertElement = (evt, data, conversionApi) => {
+      const modelElement = data.item;
+      const viewElement = createWidget(modelElement, conversionApi.writer);
+
+      if (!viewElement || !conversionApi.consumable.consume(modelElement, 'insert')) {
+        return;
       }
-    });
+
+      const viewPosition = conversionApi.mapper.toViewPosition(data.range.start);
+
+      conversionApi.mapper.bindElements(modelElement, viewElement);
+      conversionApi.writer.insert(viewPosition, viewElement);
+    };
+
+    return dispatcher => {
+      dispatcher.on('insert:' + this.name, insertElement),
+      dispatcher.on('attribute:ck-char-limit-exceeded', changeAttribute());
+    };
   }
+
 }

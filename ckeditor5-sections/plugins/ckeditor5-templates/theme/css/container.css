@@ -158,3 +158,6 @@ button.current-page {
 	border: 1px solid currentColor;
 	transform: translate(5px, 5px);
 }
+[ck-char-limit-exceeded] {
+  border: 1px solid red !important;
+}
