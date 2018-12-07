@@ -126,12 +126,18 @@ export default class LinkitUI extends LinkUI {
 
     this._linkSelector = editor.config.get('linkSelector');
     if (this._linkSelector) {
-      const attrs = {};
-      if (linkCommand.attributes) {
-        for (const [key, value] of linkCommand.attributes) {
-          attrs[key] = value;
-        }
-      }
+	    const attrs = {};
+	    if (linkCommand.attributes) {
+	        for (const [key, value] of linkCommand.attributes) {
+	          attrs[key] = value;
+	        }
+	    }
+	    const data = editor.getData();
+	    if (attrs.linkitAttrs) {
+			attrs.linkitAttrs['editorData'] = data;
+	    } else {
+			attrs['linkitAttrs'] = {editorData: data};
+	    }
       this._linkSelector(attrs.linkitAttrs);
     } else {
       this._balloon.add( {
