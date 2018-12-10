@@ -97,6 +97,9 @@
           });
 
           $(window).on('editor:dialogsave', function (e, values) {
+            if (values.attributes.fragment && values.attributes.fragment != '_none') {
+              values.attributes.href += '#' + values.attributes.fragment;
+            }
             editor.execute( 'link', values.attributes);
           });
         })
