@@ -68,9 +68,13 @@
           },
           linkSelector: function (existingValues) {
             var dialogSettings = {
-              title: existingValues ? Drupal.t('Edit link') : Drupal.t('Add link'),
+              title: existingValues.href ? Drupal.t('Edit link') : Drupal.t('Add link'),
               dialogClass: 'editor-link-dialog'
             };
+
+            if (existingValues.href) {
+              existingValues.href = existingValues.href.split('#')[0];
+            }
 
             var classes = dialogSettings.dialogClass ? dialogSettings.dialogClass.split(' ') : [];
             dialogSettings.dialogClass = classes.join(' ');

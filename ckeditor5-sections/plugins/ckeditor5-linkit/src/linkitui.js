@@ -123,6 +123,7 @@ export default class LinkitUI extends LinkUI {
 
     const editor = this.editor;
     const linkCommand = editor.commands.get( 'link' );
+    const viewDocument = editor.editing.view.document;
 
     this._linkSelector = editor.config.get('linkSelector');
     if (this._linkSelector) {
@@ -132,28 +133,54 @@ export default class LinkitUI extends LinkUI {
 	          attrs[key] = value;
 	        }
 	    }
-	    const data = editor.getData();
-	    if (attrs.linkitAttrs) {
-			attrs.linkitAttrs['editorData'] = data;
-	    } else {
-			attrs['linkitAttrs'] = {editorData: data};
+	    let data = editor.getData();
+
+	    if (!attrs.linkitAttrs) {
+			attrs.linkitAttrs = {};
 	    }
-      this._linkSelector(attrs.linkitAttrs);
+
+	    const selectionParent = getSelectionParent();
+	    if (selectionParent && selectionParent.getAttribute('links-filter')) {
+			const filterClass = selectionParent.getAttribute('links-filter');
+			const parentCard = selectionParent.getAncestors().find(node => node.hasClass('b-card'));
+			let selector = filterClass;
+			if (parentCard && parentCard.getAttribute('id')) {
+				selector = '#' + parentCard.getAttribute('id') + ' ' + filterClass;
+			}
+			const filteredData = editor.sourceElement.querySelectorAll(selector);
+
+			let newData = "";
+			for (var item of filteredData) {
+				newData += item.outerHTML;
+			}
+			data = newData;
+
+			attrs.linkitAttrs['links-filter'] = filterClass;
+	    }
+
+		attrs.linkitAttrs['editorData'] = data;
+
+		this._linkSelector(attrs.linkitAttrs);
     } else {
-      this._balloon.add( {
-        view: this.formView,
-        position: this._getBalloonPositionData()
-      } );
+		this._balloon.add( {
+			view: this.formView,
+			position: this._getBalloonPositionData()
+		} );
 
-      this.formView.urlInputView.select();
+		this.formView.urlInputView.select();
 
-      // Make sure that each time the panel shows up, the URL field remains in sync with the value of
-      // the command. If the user typed in the input, then canceled the balloon (`urlInputView#value` stays
-      // unaltered) and re-opened it without changing the value of the link command (e.g. because they
-      // clicked the same link), they would see the old value instead of the actual value of the command.
-      // https://github.com/ckeditor/ckeditor5-link/issues/78
-      // https://github.com/ckeditor/ckeditor5-link/issues/123
-      this.formView.urlInputView.inputView.element.value = linkCommand.value || '';
+		// Make sure that each time the panel shows up, the URL field remains in sync with the value of
+		// the command. If the user typed in the input, then canceled the balloon (`urlInputView#value` stays
+		// unaltered) and re-opened it without changing the value of the link command (e.g. because they
+		// clicked the same link), they would see the old value instead of the actual value of the command.
+		// https://github.com/ckeditor/ckeditor5-link/issues/78
+		// https://github.com/ckeditor/ckeditor5-link/issues/123
+		this.formView.urlInputView.inputView.element.value = linkCommand.value || '';
+    }
+    function getSelectionParent() {
+      return viewDocument.selection.focus.getAncestors()
+        .reverse()
+        .find( node => node.is( 'element' ) );
     }
   }
 
