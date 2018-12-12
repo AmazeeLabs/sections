@@ -142,11 +142,16 @@ export default class LinkitUI extends LinkUI {
 	    const selectionParent = getSelectionParent();
 	    if (selectionParent && selectionParent.getAttribute('links-filter')) {
 			const filterClass = selectionParent.getAttribute('links-filter');
-			const parentCard = selectionParent.getAncestors().find(node => node.hasClass('b-card'));
+			const parentFilter = selectionParent.getAttribute('links-filter-parent');
 			let selector = filterClass;
-			if (parentCard && parentCard.getAttribute('id')) {
-				selector = '#' + parentCard.getAttribute('id') + ' ' + filterClass;
+
+			if (parentFilter) {
+				const parentCard = selectionParent.getAncestors().find(node => node.hasClass(parentFilter));
+				if (parentCard && parentCard.getAttribute('id')) {
+					selector = '#' + parentCard.getAttribute('id') + ' ' + filterClass;
+				}
 			}
+
 			const filteredData = editor.sourceElement.querySelectorAll(selector);
 
 			let newData = "";
