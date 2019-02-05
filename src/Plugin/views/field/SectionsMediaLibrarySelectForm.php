@@ -58,6 +58,8 @@ class SectionsMediaLibrarySelectForm extends MediaLibrarySelectForm {
 
     $form['actions']['submit']['#value'] = $this->t('Select media');
     $form['actions']['submit']['#field_id'] = $this->options['id'];
+    $form['actions']['submit_modal'] = $form['actions']['submit'];
+    unset($form['actions']['submit']);
   }
 
 }
