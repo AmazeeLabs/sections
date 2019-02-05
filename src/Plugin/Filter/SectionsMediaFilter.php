@@ -15,7 +15,7 @@ use Drupal\Core\Render\RendererInterface;
  * Provides a filter to render media elements.
  *
  * @Filter(
- *   id = "sections_media_caption",
+ *   id = "sections_media_caption_old",
  *   title = @Translation("Sections media"),
  *   description = @Translation("Uses a media tags to render media entities."),
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_REVERSIBLE
